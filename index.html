@@ -981,6 +981,16 @@ function exportExcel() {
   showToast("✅ Excel exported!");
 }
 
+function exportJSON() {
+  const blob = new Blob([JSON.stringify(state.bins, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const date = new Date().toISOString().slice(0,10);
+  a.href = url; a.download = `movebin-backup-${date}.json`; a.click();
+  URL.revokeObjectURL(url);
+  showToast("✅ JSON backup saved!");
+}
+
 function exportPDF() {
   const w = window.open("", "_blank");
   const now = new Date().toLocaleString();
@@ -1217,14 +1227,6 @@ function addBin() {
   saveBins(state.bins);
   state.showAddBin = false;
   showToast("Added " + id);
-  render();
-}
-function resetData() {
-  if (!confirm("Reset all bins to defaults? This cannot be undone.")) return;
-  state.bins = JSON.parse(JSON.stringify(DEFAULT_BINS));
-  saveBins(state.bins);
-  state.selectedBin = null;
-  showToast("Reset to defaults");
   render();
 }
 
@@ -1621,17 +1623,12 @@ function render() {
     <div class="settings-section">
       <div class="settings-section-title">Local Backup</div>
       <div class="settings-btn-row">
-        <button class="btn-sync-pull" onclick="exportExcel()">📊 Export Excel</button><button class="btn-sync-pull" onclick="exportPDF()" style="border-color:var(--pink);color:var(--pink)">📄 Export PDF</button>
+        <button class="btn-sync-pull" onclick="exportExcel()">📊 Export Excel</button><button class="btn-sync-pull" onclick="exportPDF()" style="border-color:var(--pink);color:var(--pink)">📄 Export PDF</button><button class="btn-sync-pull" onclick="exportJSON()" style="border-color:var(--orange);color:var(--orange)">💾 Export JSON</button>
         <label class="btn-sync-push" style="cursor:pointer;text-align:center">
           ⬆ Import JSON
           <input type="file" accept=".json" style="display:none" onchange="importFromFile(event)">
         </label>
       </div>
-    </div>
-
-    <div class="settings-section">
-      <div class="settings-section-title">Danger Zone</div>
-      <button class="btn-delete" style="padding:10px 16px;width:100%" onclick="resetData()">Reset all data to defaults</button>
     </div>`;
   }
 
