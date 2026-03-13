@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0D1117">
+<title>MOVE.BIN — NFC Inventory Tracker</title>
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiTU9WRS5CSU4iLCJzaG9ydF9uYW1lIjoiTU9WRS5CSU4iLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzBEMTExNyIsInRoZW1lX2NvbG9yIjoiI0ZFRTQ0MCJ9">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0D1117;
+    --surface: #161B22;
+    --surface2: #21262D;
+    --border: #30363D;
+    --text1: #E6EDF3;
+    --text2: #8B949E;
+    --accent: #FEE440;
+    --accent-dark: #E5CD00;
+    --red: #E63946;
+    --green: #2EC4B6;
+    --orange: #FF6B35;
+    --blue: #00BBF9;
+    --pink: #F15BB5;
+    --purple: #9B5DE5;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text1);
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, var(--surface) 0%, #1a1a2e 100%);
+    border-bottom: 2px solid var(--accent);
+    padding: 16px 20px 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+  .logo-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text2);
+    margin-top: 1px;
+  }
+  .header-actions { display: flex; gap: 6px; }
+  .btn-small {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    transition: all 0.15s;
+  }
+  .btn-small:hover { border-color: var(--text2); color: var(--text1); }
+  .btn-small.export { border-color: var(--green); color: var(--green); }
+  .btn-small.import { border-color: var(--blue); color: var(--blue); }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 4px; }
+  .tab {
+    flex: 1;
+    padding: 8px 4px;
+    background: transparent;
+    color: var(--text2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .tab.active {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+    font-weight: 700;
+  }
+
+  /* Content */
+  .content { padding: 16px 20px 120px; }
+
+  /* Stats */
+  .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 12px;
+    text-align: center;
+  }
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .stat-label {
+    font-size: 10px;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 2px;
+  }
+
+  /* Progress bar */
+  .progress-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  .progress-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
+  .progress-pct { color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+  .progress-track { background: var(--surface2); border-radius: 20px; height: 8px; overflow: hidden; }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+    border-radius: 20px;
+    transition: width 0.5s ease;
+  }
+
+  /* Zone summary cards */
+  .section-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+  .zone-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .zone-card:hover { border-color: var(--text2); }
+  .zone-name { font-size: 14px; font-weight: 600; }
+  .zone-count { font-size: 11px; color: var(--text2); }
+  .zone-items {
+    background: var(--surface2);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Zone filter pills */
+  .filter-scroll { overflow-x: auto; white-space: nowrap; margin-bottom: 14px; padding-bottom: 4px; }
+  .filter-pill {
+    display: inline-block;
+    padding: 6px 12px;
+    margin-right: 6px;
+    background: var(--surface2);
+    color: var(--text2);
+    border: none;
+    border-radius: 16px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .filter-pill.active { background: var(--accent); color: var(--bg); font-weight: 700; }
+
+  /* Bin cards */
+  .bin-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    border-left: 4px solid var(--accent);
+  }
+  .bin-card:active { transform: scale(0.98); }
+  .bin-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .bin-info { display: flex; align-items: center; gap: 10px; }
+  .bin-icon { font-size: 24px; }
+  .bin-id {
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+  }
+  .bin-label { font-size: 14px; font-weight: 600; }
+  .bin-zone-tag { font-size: 11px; color: var(--text2); }
+  .bin-count {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .bin-preview { margin-top: 8px; font-size: 11px; color: var(--text2); line-height: 1.5; }
+
+  /* Add bin */
+  .add-bin-btn {
+    width: 100%;
+    padding: 14px;
+    background: transparent;
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    color: var(--text2);
+    font-size: 13px;
+    cursor: pointer;
+    margin-top: 6px;
+    transition: border-color 0.15s;
+  }
+  .add-bin-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Bin detail */
+  .back-btn {
+    background: transparent;
+    border: none;
+    color: var(--accent);
+    font-size: 13px;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 16px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .detail-header {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .detail-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .detail-icon { font-size: 36px; margin-bottom: 8px; }
+  .detail-id { font-size: 12px; font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+  .detail-label { font-size: 20px; font-weight: 700; margin-top: 2px; }
+  .detail-zone { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .btn-delete {
+    background: rgba(230, 57, 70, 0.13);
+    border: 1px solid rgba(230, 57, 70, 0.27);
+    color: var(--red);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    cursor: pointer;
+  }
+  .nfc-badge {
+    margin-top: 14px;
+    background: rgba(254, 228, 64, 0.07);
+    border: 1px solid rgba(254, 228, 64, 0.2);
+    border-radius: 8px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Add item row */
+  .add-row { display: flex; gap: 8px; margin-bottom: 16px; }
+  .add-input {
+    flex: 1;
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text1);
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .add-input:focus { border-color: var(--accent); }
+  .add-input::placeholder { color: var(--text2); }
+  .btn-add {
+    padding: 12px 20px;
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-add:hover { background: var(--accent-dark); }
+
+  .items-count {
+    font-size: 12px;
+    color: var(--text2);
+    margin-bottom: 8px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .empty-state {
+    background: var(--surface);
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    color: var(--text2);
+    font-size: 13px;
+  }
+  .item-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    animation: slideIn 0.2s ease;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  .item-name { font-size: 14px; }
+  .btn-remove {
+    background: rgba(230, 57, 70, 0.13);
+    border: none;
+    color: var(--red);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    cursor: pointer;
+  }
+
+  /* Search */
+  .search-input {
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    color: var(--text1);
+    font-size: 15px;
+    margin-bottom: 16px;
+    outline: none;
+    font-family: 'DM Sans', sans-serif;
+    transition: border-color 0.2s;
+  }
+  .search-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: var(--text2); }
+  .search-result {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    border-left: 4px solid var(--accent);
+  }
+  .search-match {
+    background: rgba(254, 228, 64, 0.07);
+    border: 1px solid rgba(254, 228, 64, 0.13);
+    border-radius: 6px;
+    padding: 6px 10px;
+    margin-top: 4px;
+    font-size: 13px;
+    color: var(--accent);
+  }
+
+  /* Form elements */
+  .form-card {
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: 16px;
+    margin-top: 6px;
+  }
+  .form-input {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text1);
+    font-size: 13px;
+    margin-bottom: 8px;
+    outline: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .form-select {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text1);
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
+  .form-actions { display: flex; gap: 8px; }
+  .btn-primary {
+    flex: 1;
+    padding: 10px;
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .btn-cancel {
+    padding: 10px 16px;
+    background: var(--surface2);
+    color: var(--text2);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  /* NFC Guide */
+  .guide-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .guide-desc { font-size: 12px; color: var(--text2); margin-bottom: 20px; line-height: 1.6; }
+  .guide-section {
+    font-size: 13px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .guide-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 10px;
+  }
+  .guide-card-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .guide-card-desc { font-size: 12px; color: var(--text2); line-height: 1.5; }
+  .step-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 6px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .step-num {
+    background: var(--accent);
+    color: var(--bg);
+    border-radius: 50%;
+    width: 22px;
+    min-width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .step-text { font-size: 12px; line-height: 1.5; }
+  .diagram-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .diagram-label {
+    font-size: 11px;
+    color: var(--text2);
+    margin-bottom: 12px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .diagram {
+    background: #1a1a1a;
+    border-radius: 8px;
+    padding: 16px 20px;
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    line-height: 1.8;
+    color: var(--text2);
+    text-align: left;
+  }
+  .diagram .lid { color: var(--accent); }
+  .diagram .nfc1 { color: var(--orange); }
+  .diagram .nfc2 { color: var(--green); }
+
+  .app-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+  }
+  .app-header { display: flex; justify-content: space-between; }
+  .app-name { font-size: 14px; font-weight: 600; }
+  .app-platform {
+    font-size: 10px;
+    color: var(--accent);
+    background: rgba(254, 228, 64, 0.08);
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+  .app-use { font-size: 12px; color: var(--text2); margin-top: 4px; }
+
+  .tip-box {
+    border-radius: 10px;
+    padding: 16px;
+    margin-top: 16px;
+  }
+  .tip-box.green { background: rgba(46, 196, 182, 0.07); border: 1px solid rgba(46, 196, 182, 0.2); }
+  .tip-box-title { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+  .tip-box-text { font-size: 12px; color: var(--text2); line-height: 1.6; }
+  .tip-box-text strong { color: var(--text1); }
+
+  /* Deep link banner */
+  .deep-link-banner {
+    background: linear-gradient(135deg, rgba(254, 228, 64, 0.15), rgba(255, 107, 53, 0.1));
+    border: 1px solid rgba(254, 228, 64, 0.3);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: bannerPulse 2s ease infinite;
+  }
+  @keyframes bannerPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.85; }
+  }
+  .deep-link-icon { font-size: 24px; }
+  .deep-link-text { font-size: 12px; color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--accent);
+    color: var(--bg);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 999;
+    transition: transform 0.3s ease;
+    pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* Hidden file input */
+  #importInput { display: none; }
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+<div class="toast" id="toast"></div>
+<input type="file" id="importInput" accept=".json">
+
+<script>
+// ─── DATA LAYER ───
+const ZONES = ["All","Office / Desk","Kitchen","Bathroom","Bedroom","Living Room","Pets","Utility","Special"];
+const ZONE_COLORS = {
+  "Office / Desk":"#FF6B35","Kitchen":"#2EC4B6","Bathroom":"#9B5DE5",
+  "Bedroom":"#00BBF9","Living Room":"#F15BB5","Pets":"#FEE440",
+  "Utility":"#8AC926","Special":"#E63946"
+};
+
+const DEFAULT_BINS = [
+  {id:"BIN-01",label:"Electronics & Cables",icon:"⚡",zone:"Office / Desk",items:[]},
+  {id:"BIN-02",label:"Monitors & Peripherals",icon:"🖥️",zone:"Office / Desk",items:[]},
+  {id:"BIN-03",label:"Networking Gear",icon:"📡",zone:"Office / Desk",items:[]},
+  {id:"BIN-04",label:"Kitchen - Cookware",icon:"🍳",zone:"Kitchen",items:[]},
+  {id:"BIN-05",label:"Kitchen - Utensils & Small",icon:"🥄",zone:"Kitchen",items:[]},
+  {id:"BIN-06",label:"Kitchen - Pantry & Dry Goods",icon:"🥫",zone:"Kitchen",items:[]},
+  {id:"BIN-07",label:"Bathroom & Toiletries",icon:"🧴",zone:"Bathroom",items:[]},
+  {id:"BIN-08",label:"Bedroom - Linens & Pillows",icon:"🛏️",zone:"Bedroom",items:[]},
+  {id:"BIN-09",label:"Bedroom - Clothes (Seasonal)",icon:"👕",zone:"Bedroom",items:[]},
+  {id:"BIN-10",label:"Living Room - Decor & Misc",icon:"🏠",zone:"Living Room",items:[]},
+  {id:"BIN-11",label:"Cat Supplies (Jax & Ekko)",icon:"🐱",zone:"Pets",items:["Cat food","Litter bags","Toys","Brushes"]},
+  {id:"BIN-12",label:"Tools & Hardware",icon:"🔧",zone:"Utility",items:[]},
+  {id:"BIN-13",label:"Documents & Important Papers",icon:"📄",zone:"Utility",items:[]},
+  {id:"BIN-14",label:"Fragile / Special Items",icon:"⚠️",zone:"Special",items:[]},
+];
+
+function loadBins() {
+  try {
+    const raw = localStorage.getItem("movebin_data");
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return JSON.parse(JSON.stringify(DEFAULT_BINS));
+}
+function saveBins(bins) {
+  localStorage.setItem("movebin_data", JSON.stringify(bins));
+}
+
+// ─── STATE ───
+let state = {
+  bins: loadBins(),
+  view: "dashboard",   // dashboard | bins | nfc | search
+  selectedBin: null,
+  zoneFilter: "All",
+  searchQuery: "",
+  showAddBin: false,
+  newBinLabel: "",
+  newBinZone: "Utility",
+  newItem: "",
+  deepLinkedBin: null,
+};
+
+// ─── CHECK URL FOR ?bin= DEEP LINK ───
+function checkDeepLink() {
+  const params = new URLSearchParams(window.location.search);
+  const binParam = params.get("bin");
+  if (binParam) {
+    const found = state.bins.find(b => b.id.toUpperCase() === binParam.toUpperCase());
+    if (found) {
+      state.view = "bins";
+      state.selectedBin = found.id;
+      state.deepLinkedBin = found.id;
+    }
+  }
+}
+
+// ─── TOAST ───
+function showToast(msg) {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  setTimeout(() => el.classList.remove("show"), 2000);
+}
+
+// ─── HELPERS ───
+function binColor(bin) { return ZONE_COLORS[bin.zone] || "#FEE440"; }
+function totalItems() { return state.bins.reduce((s,b) => s + b.items.length, 0); }
+function binsWithItems() { return state.bins.filter(b => b.items.length > 0).length; }
+
+// ─── EXPORT / IMPORT ───
+function exportData() {
+  const blob = new Blob([JSON.stringify(state.bins, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "movebin-inventory.json"; a.click();
+  URL.revokeObjectURL(url);
+  showToast("Exported inventory JSON");
+}
+function importData() { document.getElementById("importInput").click(); }
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("importInput").addEventListener("change", e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (Array.isArray(data) && data[0]?.id) {
+          state.bins = data;
+          saveBins(state.bins);
+          showToast("Imported " + data.length + " bins");
+          render();
+        }
+      } catch(err) { showToast("Invalid JSON file"); }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  });
+});
+
+// ─── ACTIONS ───
+function setView(v) { state.view = v; state.selectedBin = null; state.deepLinkedBin = null; render(); }
+function selectBin(id) { state.selectedBin = id; state.deepLinkedBin = null; render(); }
+function goBackBins() { state.selectedBin = null; render(); }
+function setZoneFilter(z) { state.zoneFilter = z; render(); }
+
+function addItem(binId) {
+  const input = document.getElementById("itemInput");
+  const val = input?.value?.trim();
+  if (!val) return;
+  const bin = state.bins.find(b => b.id === binId);
+  if (bin) { bin.items.push(val); saveBins(state.bins); input.value = ""; state.newItem = ""; render(); }
+}
+function removeItem(binId, idx) {
+  const bin = state.bins.find(b => b.id === binId);
+  if (bin) { bin.items.splice(idx, 1); saveBins(state.bins); render(); }
+}
+function deleteBin(binId) {
+  if (!confirm("Delete this bin and all its items?")) return;
+  state.bins = state.bins.filter(b => b.id !== binId);
+  saveBins(state.bins);
+  state.selectedBin = null;
+  render();
+}
+function toggleAddBin() { state.showAddBin = !state.showAddBin; render(); }
+function addBin() {
+  const label = document.getElementById("newBinLabel")?.value?.trim();
+  const zone = document.getElementById("newBinZone")?.value;
+  if (!label) return;
+  const nextNum = state.bins.length + 1;
+  const id = "BIN-" + String(nextNum).padStart(2, "0");
+  state.bins.push({ id, label, icon:"📦", zone: zone || "Utility", items:[] });
+  saveBins(state.bins);
+  state.showAddBin = false;
+  showToast("Added " + id);
+  render();
+}
+function resetData() {
+  if (!confirm("Reset all bins to defaults? This cannot be undone.")) return;
+  state.bins = JSON.parse(JSON.stringify(DEFAULT_BINS));
+  saveBins(state.bins);
+  state.selectedBin = null;
+  showToast("Reset to defaults");
+  render();
+}
+
+// ─── RENDER ───
+function render() {
+  const app = document.getElementById("app");
+  let html = "";
+
+  // Header
+  html += `<div class="header">
+    <div class="header-top">
+      <div>
+        <div class="logo">📦 MOVE.BIN</div>
+        <div class="logo-sub">NFC Inventory Tracker</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn-small export" onclick="exportData()">Export</button>
+        <button class="btn-small import" onclick="importData()">Import</button>
+        <button class="btn-small" onclick="resetData()">Reset</button>
+      </div>
+    </div>
+    <div class="tabs">
+      ${["dashboard","bins","nfc","search"].map(t =>
+        `<button class="tab ${state.view===t?"active":""}" onclick="setView('${t}')">${
+          t==="dashboard"?"Dashboard":t==="bins"?"Bins":t==="nfc"?"NFC Guide":"Find Item"
+        }</button>`
+      ).join("")}
+    </div>
+  </div>`;
+
+  html += `<div class="content">`;
+
+  // ─── DASHBOARD ───
+  if (state.view === "dashboard") {
+    const ti = totalItems(), bwi = binsWithItems(), pct = state.bins.length > 0 ? Math.round((bwi/state.bins.length)*100) : 0;
+    html += `<div class="stats">
+      <div class="stat"><div class="stat-value" style="color:var(--accent)">${state.bins.length}</div><div class="stat-label">Total Bins</div></div>
+      <div class="stat"><div class="stat-value" style="color:var(--green)">${ti}</div><div class="stat-label">Items Logged</div></div>
+      <div class="stat"><div class="stat-value" style="color:var(--orange)">${bwi}</div><div class="stat-label">Packed</div></div>
+    </div>`;
+    html += `<div class="progress-wrap">
+      <div class="progress-header"><span style="font-weight:600">Packing Progress</span><span class="progress-pct">${pct}%</span></div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+    </div>`;
+    html += `<div class="section-title">By Zone</div>`;
+    ZONES.filter(z=>z!=="All").forEach(zone => {
+      const zb = state.bins.filter(b=>b.zone===zone);
+      if (zb.length === 0) return;
+      const zi = zb.reduce((s,b)=>s+b.items.length,0);
+      html += `<div class="zone-card" onclick="state.zoneFilter='${zone}';setView('bins')">
+        <div><div class="zone-name">${zone}</div><div class="zone-count">${zb.length} bin${zb.length>1?"s":""}</div></div>
+        <div class="zone-items">${zi} items</div>
+      </div>`;
+    });
+  }
+
+  // ─── BINS LIST ───
+  if (state.view === "bins" && !state.selectedBin) {
+    html += `<div class="filter-scroll">${ZONES.map(z =>
+      `<button class="filter-pill ${state.zoneFilter===z?"active":""}" onclick="setZoneFilter('${z}')">${z}</button>`
+    ).join("")}</div>`;
+
+    const filtered = state.bins.filter(b => {
+      return (state.zoneFilter==="All" || b.zone===state.zoneFilter);
+    });
+    filtered.forEach(bin => {
+      const c = binColor(bin);
+      const preview = bin.items.length > 0
+        ? `<div class="bin-preview">${bin.items.slice(0,4).join(" · ")}${bin.items.length>4?" · +"+( bin.items.length-4)+" more":""}</div>` : "";
+      html += `<div class="bin-card" style="border-left-color:${c}" onclick="selectBin('${bin.id}')">
+        <div class="bin-top">
+          <div class="bin-info">
+            <span class="bin-icon">${bin.icon}</span>
+            <div>
+              <div class="bin-id" style="color:${c}">${bin.id}</div>
+              <div class="bin-label">${bin.label}</div>
+              <div class="bin-zone-tag">${bin.zone}</div>
+            </div>
+          </div>
+          <div class="bin-count" style="background:${bin.items.length>0?c+"22":"var(--surface2)"};color:${bin.items.length>0?c:"var(--text2)"}">${bin.items.length}</div>
+        </div>${preview}
+      </div>`;
+    });
+
+    if (!state.showAddBin) {
+      html += `<button class="add-bin-btn" onclick="toggleAddBin()">+ Add New Bin</button>`;
+    } else {
+      html += `<div class="form-card">
+        <input class="form-input" id="newBinLabel" placeholder="Bin label (e.g. Shoes & Accessories)">
+        <select class="form-select" id="newBinZone">${ZONES.filter(z=>z!=="All").map(z=>`<option value="${z}">${z}</option>`).join("")}</select>
+        <div class="form-actions">
+          <button class="btn-primary" onclick="addBin()">Add Bin</button>
+          <button class="btn-cancel" onclick="toggleAddBin()">Cancel</button>
+        </div>
+      </div>`;
+    }
+  }
+
+  // ─── BIN DETAIL ───
+  if (state.view === "bins" && state.selectedBin) {
+    const bin = state.bins.find(b => b.id === state.selectedBin);
+    if (bin) {
+      const c = binColor(bin);
+      if (state.deepLinkedBin) {
+        html += `<div class="deep-link-banner">
+          <span class="deep-link-icon">📱</span>
+          <div class="deep-link-text">NFC Scan → Opened ${bin.id}</div>
+        </div>`;
+      }
+      html += `<button class="back-btn" onclick="goBackBins()">← Back to bins</button>`;
+      html += `<div class="detail-header" style="border:1px solid ${c}">
+        <div class="detail-top">
+          <div>
+            <div class="detail-icon">${bin.icon}</div>
+            <div class="detail-id" style="color:${c}">${bin.id}</div>
+            <div class="detail-label">${bin.label}</div>
+            <div class="detail-zone">Zone: ${bin.zone}</div>
+          </div>
+          <button class="btn-delete" onclick="deleteBin('${bin.id}')">Delete</button>
+        </div>
+        <div class="nfc-badge">📱 NFC Tag → Write "${bin.id}" to sticker</div>
+      </div>`;
+
+      html += `<div class="add-row">
+        <input class="add-input" id="itemInput" placeholder="Add item (e.g. HDMI cables)" onkeydown="if(event.key==='Enter')addItem('${bin.id}')">
+        <button class="btn-add" onclick="addItem('${bin.id}')">+</button>
+      </div>`;
+
+      html += `<div class="items-count">${bin.items.length} item${bin.items.length!==1?"s":""} in this bin</div>`;
+      if (bin.items.length === 0) {
+        html += `<div class="empty-state">No items yet — start packing!</div>`;
+      }
+      bin.items.forEach((item, idx) => {
+        html += `<div class="item-row">
+          <span class="item-name">${item}</span>
+          <button class="btn-remove" onclick="removeItem('${bin.id}',${idx})">✕</button>
+        </div>`;
+      });
+    }
+  }
+
+  // ─── NFC GUIDE ───
+  if (state.view === "nfc") {
+    html += `<div class="guide-title">NFC Sticker Setup</div>
+    <div class="guide-desc">Each bin gets 1–2 NFC stickers. Here's exactly how to set it up with your phone.</div>`;
+
+    html += `<div class="guide-section">Sticker Placement</div>`;
+    html += `<div class="guide-card" style="border-left:3px solid var(--accent)">
+      <div class="guide-card-title">⭐ Front-center of bin</div>
+      <div class="guide-card-desc">Primary NFC sticker — place at the top-front center, 2 inches below the rim. This is your quick-scan tag.</div>
+    </div>`;
+    html += `<div class="guide-card" style="border-left:3px solid var(--text2)">
+      <div class="guide-card-title">📎 On the lid (optional)</div>
+      <div class="guide-card-desc">Secondary sticker on the inside center of the yellow lid. Useful when bins are stacked and you can only access the top.</div>
+    </div>`;
+
+    html += `<div class="diagram-wrap">
+      <div class="diagram-label">STICKER PLACEMENT DIAGRAM</div>
+      <div class="diagram">
+<span class="lid">    ┌─────────────────────┐ ← Lid</span>
+    │   <span class="nfc2">[ NFC #2 ]</span>        │ ← Inside lid center
+<span class="lid">    └─────────────────────┘</span>
+    ┌─────────────────────┐
+    │  <span class="nfc1">[ NFC #1 ]</span>         │ ← Front, 2in below rim
+    │                     │
+    │     BIN BODY        │
+    │                     │
+    └─────────────────────┘</div>
+    </div>`;
+
+    html += `<div class="guide-section">Setup Steps</div>`;
+    const steps = [
+      "Install <strong>NFC Tools</strong> (free) on your Samsung phone",
+      "Open NFC Tools → tap <strong>Write</strong> → Add a record → <strong>URL</strong>",
+      "Enter the URL of your hosted dashboard + <strong>?bin=BIN-01</strong> (change per bin)",
+      "Hold your phone to the NFC sticker until it confirms write",
+      "Stick the NFC tag on the bin (smooth flat area, not ribbed sections)",
+      "Cover with clear packing tape for durability",
+      "Repeat for each bin, changing the bin ID in the URL each time",
+      "Test by scanning — your phone should open the dashboard to that bin",
+    ];
+    steps.forEach((s,i) => {
+      html += `<div class="step-row"><span class="step-num">${i+1}</span><span class="step-text">${s}</span></div>`;
+    });
+
+    html += `<div class="guide-section" style="margin-top:20px">Recommended Apps</div>`;
+    [{name:"NFC Tools",platform:"iOS & Android",use:"Write bin IDs/URLs to NFC stickers"},
+     {name:"Tasker",platform:"Android",use:"Automate: scan NFC → open dashboard to specific bin"},
+     {name:"Apple Shortcuts",platform:"iOS",use:"Same automation for iPhone"}
+    ].forEach(app => {
+      html += `<div class="app-card">
+        <div class="app-header"><span class="app-name">${app.name}</span><span class="app-platform">${app.platform}</span></div>
+        <div class="app-use">${app.use}</div>
+      </div>`;
+    });
+
+    html += `<div class="tip-box green">
+      <div class="tip-box-title" style="color:var(--green)">🤖 Tasker Automation (Android)</div>
+      <div class="tip-box-text">
+        <strong>Profile →</strong> Event → Net → NFC Tag<br>
+        <strong>Task →</strong> Browse URL → your-dashboard-url/?bin=%nfc_id<br><br>
+        Write each bin's ID as the tag content using NFC Tools.<br>
+        Tasker reads the tag ID and opens the dashboard filtered to that bin automatically.
+      </div>
+    </div>`;
+  }
+
+  // ─── SEARCH ───
+  if (state.view === "search") {
+    html += `<div class="guide-title">Find an Item</div>
+    <div class="guide-desc">Search across all bins to find where you packed something.</div>`;
+    html += `<input class="search-input" id="searchInput" placeholder="Search items (e.g. HDMI, charger, towels)" oninput="state.searchQuery=this.value;renderSearch()" value="${state.searchQuery}">`;
+    html += `<div id="searchResults"></div>`;
+  }
+
+  html += `</div>`; // close content
+  app.innerHTML = html;
+
+  // Re-render search results if on search view
+  if (state.view === "search" && state.searchQuery) renderSearch();
+
+  // Focus item input on bin detail
+  if (state.view === "bins" && state.selectedBin) {
+    setTimeout(() => document.getElementById("itemInput")?.focus(), 50);
+  }
+}
+
+function renderSearch() {
+  const q = state.searchQuery?.toLowerCase();
+  const container = document.getElementById("searchResults");
+  if (!container || !q) { if(container) container.innerHTML = ""; return; }
+  const results = state.bins.filter(b => b.items.some(i => i.toLowerCase().includes(q)));
+  if (results.length === 0) {
+    container.innerHTML = `<div class="empty-state">No items matching "${state.searchQuery}" found in any bin.</div>`;
+    return;
+  }
+  let html = "";
+  results.forEach(bin => {
+    const c = binColor(bin);
+    const matches = bin.items.filter(i => i.toLowerCase().includes(q));
+    html += `<div class="search-result" style="border-left-color:${c}" onclick="selectBin('${bin.id}');state.view='bins';render()">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span style="font-size:20px">${bin.icon}</span>
+        <div>
+          <div class="bin-id" style="color:${c}">${bin.id}</div>
+          <div style="font-size:14px;font-weight:600">${bin.label}</div>
+        </div>
+      </div>
+      ${matches.map(m => `<div class="search-match">→ ${m}</div>`).join("")}
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+// ─── INIT ───
+checkDeepLink();
+render();
+</script>
+</body>
+</html>
