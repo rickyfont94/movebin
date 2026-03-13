@@ -587,6 +587,93 @@
 
   /* Hidden file input */
   #importInput { display: none; }
+
+  /* Sync badge */
+  .sync-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; padding: 4px 9px; border-radius: 12px;
+    border: 1px solid; transition: all 0.3s;
+  }
+  .sync-badge.local   { color: var(--text2); border-color: var(--border); }
+  .sync-badge.syncing { color: var(--accent); border-color: var(--accent); background: rgba(254,228,64,.07); }
+  .sync-badge.synced  { color: var(--green);  border-color: var(--green);  background: rgba(46,196,182,.07); }
+  .sync-badge.error   { color: var(--red);    border-color: var(--red);    background: rgba(230,57,70,.07); }
+  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .sync-spin { animation: spin .8s linear infinite; display: inline-block; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  /* Settings panel */
+  .settings-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  .settings-section-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+  .settings-label { font-size: 12px; color: var(--text2); margin-bottom: 5px; margin-top: 10px; }
+  .settings-input {
+    width: 100%; padding: 9px 12px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text1);
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    outline: none; transition: border-color .15s;
+  }
+  .settings-input:focus { border-color: var(--accent); }
+  .settings-hint {
+    font-size: 12px; color: var(--text2); line-height: 1.6;
+    margin-top: 10px; padding: 10px 12px;
+    background: var(--surface2); border-radius: 6px;
+    border-left: 3px solid var(--accent);
+  }
+  .settings-hint a { color: var(--accent); text-decoration: none; }
+  .settings-btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .btn-sync-push {
+    flex: 1; padding: 10px; background: var(--accent);
+    color: var(--bg); border: none; border-radius: 6px;
+    font-weight: 700; font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    cursor: pointer; transition: background .15s;
+  }
+  .btn-sync-push:hover { background: var(--accent-dark); }
+  .btn-sync-pull {
+    flex: 1; padding: 10px; background: transparent;
+    color: var(--green); border: 1px solid var(--green);
+    border-radius: 6px; font-weight: 700; font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    cursor: pointer; transition: all .15s;
+  }
+  .btn-sync-pull:hover { background: rgba(46,196,182,.1); }
+
+  /* Rename bin input inline */
+  .rename-input {
+    font-size: 20px; font-weight: 700;
+    background: var(--surface2); border: 1px solid var(--accent);
+    border-radius: 6px; color: var(--text1);
+    padding: 4px 10px; width: 100%; outline: none;
+    font-family: 'DM Sans', sans-serif;
+    margin-top: 2px;
+  }
+  .rename-hint { font-size: 11px; color: var(--text2); margin-top: 4px; }
+  .btn-rename {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--text2); padding: 5px 10px; border-radius: 5px;
+    font-size: 11px; cursor: pointer; margin-top: 8px;
+    transition: all .15s;
+  }
+  .btn-rename:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-rename-save {
+    background: var(--accent); border: none;
+    color: var(--bg); padding: 5px 12px; border-radius: 5px;
+    font-size: 11px; font-weight: 700; cursor: pointer;
+    margin-top: 8px; margin-left: 6px;
+  }
 </style>
 </head>
 <body>
@@ -632,10 +719,19 @@ function saveBins(bins) {
   localStorage.setItem("movebin_data", JSON.stringify(bins));
 }
 
+// ─── SYNC CONFIG ───
+function loadSyncConfig() {
+  try { return JSON.parse(localStorage.getItem("movebin_sync") || "{}"); } catch(e) { return {}; }
+}
+function saveSyncConfig(cfg) {
+  localStorage.setItem("movebin_sync", JSON.stringify(cfg));
+}
+let syncConfig = loadSyncConfig(); // { apiKey, binId }
+
 // ─── STATE ───
 let state = {
   bins: loadBins(),
-  view: "dashboard",   // dashboard | bins | nfc | search
+  view: "dashboard",   // dashboard | bins | nfc | search | settings
   selectedBin: null,
   zoneFilter: "All",
   searchQuery: "",
@@ -644,6 +740,8 @@ let state = {
   newBinZone: "Utility",
   newItem: "",
   deepLinkedBin: null,
+  syncStatus: "local",   // local | syncing | synced | error
+  renamingBin: false,
 };
 
 // ─── CHECK URL FOR ?bin= DEEP LINK ───
@@ -704,11 +802,97 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// ─── ACTIONS ───
-function setView(v) { state.view = v; state.selectedBin = null; state.deepLinkedBin = null; render(); }
-function selectBin(id) { state.selectedBin = id; state.deepLinkedBin = null; render(); }
-function goBackBins() { state.selectedBin = null; render(); }
+// ─── CLOUD SYNC (JSONBin.io) ───
+const JSONBIN_URL = "https://api.jsonbin.io/v3/b";
+
+function setSyncStatus(s) { state.syncStatus = s; renderSyncBadge(); }
+
+function renderSyncBadge() {
+  const el = document.getElementById("syncBadge");
+  if (!el) return;
+  const map = {
+    local:   {cls:"local",   html:`<span class="sync-dot"></span> LOCAL`},
+    syncing: {cls:"syncing", html:`<span class="sync-spin">⟳</span> SYNCING`},
+    synced:  {cls:"synced",  html:`<span class="sync-dot"></span> SYNCED`},
+    error:   {cls:"error",   html:`<span class="sync-dot"></span> SYNC ERR`},
+  };
+  const m = map[state.syncStatus] || map.local;
+  el.className = `sync-badge ${m.cls}`;
+  el.innerHTML = m.html;
+}
+
+async function pushToCloud() {
+  const cfg = loadSyncConfig();
+  if (!cfg.apiKey) { showToast("❌ Enter API key in Settings first"); setView("settings"); return; }
+  setSyncStatus("syncing");
+  try {
+    const payload = { bins: state.bins, updatedAt: new Date().toISOString() };
+    if (cfg.binId) {
+      // Update existing bin
+      const res = await fetch(`${JSONBIN_URL}/${cfg.binId}`, {
+        method:"PUT",
+        headers:{"Content-Type":"application/json","X-Master-Key":cfg.apiKey},
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error(await res.text());
+    } else {
+      // Create new bin
+      const res = await fetch(JSONBIN_URL, {
+        method:"POST",
+        headers:{"Content-Type":"application/json","X-Master-Key":cfg.apiKey,"X-Bin-Name":"movebin","X-Bin-Private":"true"},
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const data = await res.json();
+      cfg.binId = data.metadata.id;
+      saveSyncConfig(cfg);
+      syncConfig = cfg;
+    }
+    setSyncStatus("synced");
+    showToast("✅ Pushed to cloud! Bin ID: " + cfg.binId);
+    if (state.view === "settings") render();
+  } catch(e) {
+    setSyncStatus("error");
+    showToast("❌ Push failed: " + e.message);
+  }
+}
+
+async function pullFromCloud() {
+  const cfg = loadSyncConfig();
+  if (!cfg.apiKey || !cfg.binId) { showToast("❌ Need API key + Bin ID in Settings"); setView("settings"); return; }
+  setSyncStatus("syncing");
+  try {
+    const res = await fetch(`${JSONBIN_URL}/${cfg.binId}/latest`, {
+      headers:{"X-Master-Key":cfg.apiKey}
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    const payload = data.record;
+    if (payload.bins && Array.isArray(payload.bins)) {
+      state.bins = payload.bins;
+      saveBins(state.bins);
+      setSyncStatus("synced");
+      showToast("✅ Pulled from cloud (" + payload.bins.length + " bins)");
+      render();
+    } else { throw new Error("Unexpected data format"); }
+  } catch(e) {
+    setSyncStatus("error");
+    showToast("❌ Pull failed: " + e.message);
+  }
+}
+function setView(v) { state.view = v; state.selectedBin = null; state.deepLinkedBin = null; state.renamingBin = false; render(); }
+function selectBin(id) { state.selectedBin = id; state.deepLinkedBin = null; state.renamingBin = false; render(); }
+function goBackBins() { state.selectedBin = null; state.renamingBin = false; render(); }
 function setZoneFilter(z) { state.zoneFilter = z; render(); }
+
+function startRename() { state.renamingBin = true; render(); setTimeout(() => document.getElementById("renameInput")?.focus(), 50); }
+function saveRename() {
+  const val = document.getElementById("renameInput")?.value?.trim();
+  const bin = state.bins.find(b => b.id === state.selectedBin);
+  if (bin && val) { bin.label = val; saveBins(state.bins); showToast("✏️ Renamed!"); }
+  state.renamingBin = false; render();
+}
+function cancelRename() { state.renamingBin = false; render(); }
 
 function addItem(binId) {
   const input = document.getElementById("itemInput");
@@ -763,15 +947,22 @@ function render() {
         <div class="logo-sub">NFC Inventory Tracker</div>
       </div>
       <div class="header-actions">
+        <span class="sync-badge ${state.syncStatus}" id="syncBadge">${
+          state.syncStatus==='syncing'?'<span class="sync-spin">⟳</span> SYNCING':
+          state.syncStatus==='synced'?'<span class="sync-dot"></span> SYNCED':
+          state.syncStatus==='error'?'<span class="sync-dot"></span> SYNC ERR':
+          '<span class="sync-dot"></span> LOCAL'
+        }</span>
         <button class="btn-small export" onclick="exportData()">Export</button>
         <button class="btn-small import" onclick="importData()">Import</button>
-        <button class="btn-small" onclick="resetData()">Reset</button>
       </div>
     </div>
     <div class="tabs">
-      ${["dashboard","bins","nfc","search"].map(t =>
+      ${["dashboard","bins","nfc","search","settings"].map(t =>
         `<button class="tab ${state.view===t?"active":""}" onclick="setView('${t}')">${
-          t==="dashboard"?"Dashboard":t==="bins"?"Bins":t==="nfc"?"NFC Guide":"Find Item"
+          t==="dashboard"?"📊":t==="bins"?"📦":t==="nfc"?"📡":t==="search"?"🔍":"⚙️"
+        } ${
+          t==="dashboard"?"Dash":t==="bins"?"Bins":t==="nfc"?"NFC":t==="search"?"Find":"Sync"
         }</button>`
       ).join("")}
     </div>
@@ -859,10 +1050,17 @@ function render() {
       html += `<button class="back-btn" onclick="goBackBins()">← Back to bins</button>`;
       html += `<div class="detail-header" style="border:1px solid ${c}">
         <div class="detail-top">
-          <div>
+          <div style="flex:1">
             <div class="detail-icon">${bin.icon}</div>
             <div class="detail-id" style="color:${c}">${bin.id}</div>
-            <div class="detail-label">${bin.label}</div>
+            ${state.renamingBin
+              ? `<input class="rename-input" id="renameInput" value="${bin.label.replace(/"/g,'&quot;')}" onkeydown="if(event.key==='Enter')saveRename();if(event.key==='Escape')cancelRename()">
+                 <div class="rename-hint">Press Enter to save, Esc to cancel</div>
+                 <button class="btn-rename-save" onclick="saveRename()">Save</button>
+                 <button class="btn-rename" onclick="cancelRename()">Cancel</button>`
+              : `<div class="detail-label">${bin.label}</div>
+                 <button class="btn-rename" onclick="startRename()">✏️ Rename</button>`
+            }
             <div class="detail-zone">Zone: ${bin.zone}</div>
           </div>
           <button class="btn-delete" onclick="deleteBin('${bin.id}')">Delete</button>
@@ -962,6 +1160,49 @@ function render() {
     html += `<div id="searchResults"></div>`;
   }
 
+  // ─── SETTINGS / SYNC ───
+  if (state.view === "settings") {
+    const cfg = loadSyncConfig();
+    html += `<div class="guide-title">☁️ Cloud Sync</div>
+    <div class="guide-desc">Sync your inventory between your phone and desktop using a free JSONBin.io account.</div>`;
+
+    html += `<div class="settings-section">
+      <div class="settings-section-title">JSONBin.io Configuration</div>
+      <div class="settings-label">Master API Key</div>
+      <input class="settings-input" id="cfgApiKey" placeholder="$2a$10$..." value="${cfg.apiKey||''}">
+      <div class="settings-label">Bin ID <span style="color:var(--text2);font-weight:normal">(leave empty on first push — it auto-creates)</span></div>
+      <input class="settings-input" id="cfgBinId" placeholder="Leave empty for first-time setup" value="${cfg.binId||''}">
+      <div class="settings-btn-row">
+        <button class="btn-sync-push" onclick="saveConfigAndPush()">↑ PUSH TO CLOUD</button>
+        <button class="btn-sync-pull" onclick="saveConfigAndPull()">↓ PULL FROM CLOUD</button>
+      </div>
+      <div class="settings-hint">
+        <strong>First-time setup (2 min):</strong><br>
+        1. Go to <a href="https://jsonbin.io" target="_blank">jsonbin.io</a> → Sign Up free<br>
+        2. API Keys → Create Master Key → copy it above<br>
+        3. Hit <strong>Push to Cloud</strong> — a Bin ID will appear<br>
+        4. On your desktop: open this page, go to Sync tab, paste same API Key + Bin ID → <strong>Pull from Cloud</strong><br>
+        5. From now on: push after packing, pull to load on other device
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">Local Backup</div>
+      <div class="settings-btn-row">
+        <button class="btn-sync-pull" onclick="exportData()">⬇ Export JSON</button>
+        <label class="btn-sync-push" style="cursor:pointer;text-align:center">
+          ⬆ Import JSON
+          <input type="file" accept=".json" style="display:none" onchange="importFromFile(event)">
+        </label>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">Danger Zone</div>
+      <button class="btn-delete" style="padding:10px 16px;width:100%" onclick="resetData()">Reset all data to defaults</button>
+    </div>`;
+  }
+
   html += `</div>`; // close content
   app.innerHTML = html;
 
@@ -999,6 +1240,39 @@ function renderSearch() {
     </div>`;
   });
   container.innerHTML = html;
+}
+
+function saveConfigAndPush() {
+  const apiKey = document.getElementById("cfgApiKey")?.value?.trim();
+  const binId  = document.getElementById("cfgBinId")?.value?.trim();
+  if (!apiKey) { showToast("❌ Enter your API key first"); return; }
+  syncConfig = { apiKey, binId: binId || "" };
+  saveSyncConfig(syncConfig);
+  pushToCloud();
+}
+function saveConfigAndPull() {
+  const apiKey = document.getElementById("cfgApiKey")?.value?.trim();
+  const binId  = document.getElementById("cfgBinId")?.value?.trim();
+  if (!apiKey || !binId) { showToast("❌ Need both API key and Bin ID to pull"); return; }
+  syncConfig = { apiKey, binId };
+  saveSyncConfig(syncConfig);
+  pullFromCloud();
+}
+function importFromFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (Array.isArray(data) && data[0]?.id) {
+        state.bins = data; saveBins(state.bins);
+        showToast("Imported " + data.length + " bins"); render();
+      }
+    } catch(err) { showToast("Invalid JSON file"); }
+  };
+  reader.readAsText(file);
+  e.target.value = "";
 }
 
 // ─── INIT ───
