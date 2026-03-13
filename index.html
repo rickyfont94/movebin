@@ -720,9 +720,27 @@ function saveBins(bins) {
   scheduleAutoPush();
 }
 
-// ─── HARDCODED SYNC CONFIG (baked in — every NFC tag auto-syncs) ───
-const SYNC_API_KEY = "$2a$10$GlR93nsdPDZrPswYao9bluAzREKvr37P6wJyzaOjCB0b2m0LT2U.y";
-const SYNC_BIN_ID  = "69b38921aa77b81da9de3abb";
+// ─── CREDENTIAL SYSTEM ───
+// Credentials are NEVER in this file — it's public on GitHub Pages.
+// They arrive via NFC tag URL: ?bin=BIN-01&k=API_KEY&b=JSONBIN_ID
+// Cached in sessionStorage (memory only — cleared when tab closes).
+// Without a physical NFC scan, sync shows as disabled — data is still
+// saved locally via localStorage so nothing is lost.
+
+function loadCreds() {
+  return {
+    key: sessionStorage.getItem("mb_k") || "",
+    bid: sessionStorage.getItem("mb_b") || ""
+  };
+}
+function saveCreds(k, b) {
+  if (k) sessionStorage.setItem("mb_k", k);
+  if (b) sessionStorage.setItem("mb_b", b);
+}
+function hasCreds() {
+  const c = loadCreds();
+  return !!(c.key && c.bid);
+}
 
 // ─── STATE ───
 let state = {
@@ -741,9 +759,21 @@ let state = {
   renamingBinId: false,  // renaming the BIN-XX id
 };
 
-// ─── CHECK URL FOR ?bin= DEEP LINK ───
+// ─── CHECK URL FOR ?bin= DEEP LINK + CREDENTIALS ───
 function checkDeepLink() {
   const params = new URLSearchParams(window.location.search);
+
+  // Read credentials from URL params (written on NFC sticker)
+  const k = params.get("k");
+  const b = params.get("b");
+  if (k && b) {
+    saveCreds(k, b);
+    // Strip credentials from the visible URL bar immediately for privacy
+    const binOnly = params.get("bin") ? "?bin=" + params.get("bin") : "";
+    window.history.replaceState({}, "", window.location.pathname + binOnly);
+  }
+
+  // Deep-link to specific bin
   const binParam = params.get("bin");
   if (binParam) {
     const found = state.bins.find(b => b.id.toUpperCase() === binParam.toUpperCase());
@@ -826,12 +856,14 @@ function renderSyncBadge() {
 }
 
 async function pushToCloud() {
+  const creds = loadCreds();
+  if (!creds.key || !creds.bid) { setSyncStatus("local"); return; }
   setSyncStatus("syncing");
   try {
     const payload = { bins: state.bins, updatedAt: new Date().toISOString() };
-    const res = await fetch(`${JSONBIN_URL}/${SYNC_BIN_ID}`, {
+    const res = await fetch(`${JSONBIN_URL}/${creds.bid}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json", "X-Master-Key": SYNC_API_KEY },
+      headers: { "Content-Type": "application/json", "X-Master-Key": creds.key },
       body: JSON.stringify(payload)
     });
     if (!res.ok) throw new Error(await res.text());
@@ -843,10 +875,12 @@ async function pushToCloud() {
 }
 
 async function pullFromCloud() {
+  const creds = loadCreds();
+  if (!creds.key || !creds.bid) { setSyncStatus("local"); return; }
   setSyncStatus("syncing");
   try {
-    const res = await fetch(`${JSONBIN_URL}/${SYNC_BIN_ID}/latest`, {
-      headers: { "X-Master-Key": SYNC_API_KEY }
+    const res = await fetch(`${JSONBIN_URL}/${creds.bid}/latest`, {
+      headers: { "X-Master-Key": creds.key }
     });
     if (!res.ok) throw new Error(await res.text());
     const data = await res.json();
@@ -961,11 +995,11 @@ function render() {
       </div>
     </div>
     <div class="tabs">
-      ${["dashboard","bins","nfc","search","settings"].map(t =>
+      ${["dashboard","bins","search","settings"].map(t =>
         `<button class="tab ${state.view===t?"active":""}" onclick="setView('${t}')">${
-          t==="dashboard"?"📊":t==="bins"?"📦":t==="nfc"?"📡":t==="search"?"🔍":"⚙️"
+          t==="dashboard"?"📊":t==="bins"?"📦":t==="search"?"🔍":"⚙️"
         } ${
-          t==="dashboard"?"Dash":t==="bins"?"Bins":t==="nfc"?"NFC":t==="search"?"Find":"Sync"
+          t==="dashboard"?"Dash":t==="bins"?"Bins":t==="search"?"Find":"Sync"
         }</button>`
       ).join("")}
     </div>
@@ -1100,72 +1134,6 @@ function render() {
     }
   }
 
-  // ─── NFC GUIDE ───
-  if (state.view === "nfc") {
-    html += `<div class="guide-title">NFC Sticker Setup</div>
-    <div class="guide-desc">Each bin gets 1–2 NFC stickers. Here's exactly how to set it up with your phone.</div>`;
-
-    html += `<div class="guide-section">Sticker Placement</div>`;
-    html += `<div class="guide-card" style="border-left:3px solid var(--accent)">
-      <div class="guide-card-title">⭐ Front-center of bin</div>
-      <div class="guide-card-desc">Primary NFC sticker — place at the top-front center, 2 inches below the rim. This is your quick-scan tag.</div>
-    </div>`;
-    html += `<div class="guide-card" style="border-left:3px solid var(--text2)">
-      <div class="guide-card-title">📎 On the lid (optional)</div>
-      <div class="guide-card-desc">Secondary sticker on the inside center of the yellow lid. Useful when bins are stacked and you can only access the top.</div>
-    </div>`;
-
-    html += `<div class="diagram-wrap">
-      <div class="diagram-label">STICKER PLACEMENT DIAGRAM</div>
-      <div class="diagram">
-<span class="lid">    ┌─────────────────────┐ ← Lid</span>
-    │   <span class="nfc2">[ NFC #2 ]</span>        │ ← Inside lid center
-<span class="lid">    └─────────────────────┘</span>
-    ┌─────────────────────┐
-    │  <span class="nfc1">[ NFC #1 ]</span>         │ ← Front, 2in below rim
-    │                     │
-    │     BIN BODY        │
-    │                     │
-    └─────────────────────┘</div>
-    </div>`;
-
-    html += `<div class="guide-section">Setup Steps</div>`;
-    const steps = [
-      "Install <strong>NFC Tools</strong> (free) on your Samsung phone",
-      "Open NFC Tools → tap <strong>Write</strong> → Add a record → <strong>URL</strong>",
-      "Enter the URL of your hosted dashboard + <strong>?bin=BIN-01</strong> (change per bin)",
-      "Hold your phone to the NFC sticker until it confirms write",
-      "Stick the NFC tag on the bin (smooth flat area, not ribbed sections)",
-      "Cover with clear packing tape for durability",
-      "Repeat for each bin, changing the bin ID in the URL each time",
-      "Test by scanning — your phone should open the dashboard to that bin",
-    ];
-    steps.forEach((s,i) => {
-      html += `<div class="step-row"><span class="step-num">${i+1}</span><span class="step-text">${s}</span></div>`;
-    });
-
-    html += `<div class="guide-section" style="margin-top:20px">Recommended Apps</div>`;
-    [{name:"NFC Tools",platform:"iOS & Android",use:"Write bin IDs/URLs to NFC stickers"},
-     {name:"Tasker",platform:"Android",use:"Automate: scan NFC → open dashboard to specific bin"},
-     {name:"Apple Shortcuts",platform:"iOS",use:"Same automation for iPhone"}
-    ].forEach(app => {
-      html += `<div class="app-card">
-        <div class="app-header"><span class="app-name">${app.name}</span><span class="app-platform">${app.platform}</span></div>
-        <div class="app-use">${app.use}</div>
-      </div>`;
-    });
-
-    html += `<div class="tip-box green">
-      <div class="tip-box-title" style="color:var(--green)">🤖 Tasker Automation (Android)</div>
-      <div class="tip-box-text">
-        <strong>Profile →</strong> Event → Net → NFC Tag<br>
-        <strong>Task →</strong> Browse URL → your-dashboard-url/?bin=%nfc_id<br><br>
-        Write each bin's ID as the tag content using NFC Tools.<br>
-        Tasker reads the tag ID and opens the dashboard filtered to that bin automatically.
-      </div>
-    </div>`;
-  }
-
   // ─── SEARCH ───
   if (state.view === "search") {
     html += `<div class="guide-title">Find an Item</div>
@@ -1189,9 +1157,10 @@ function render() {
         }</span>
       </div>
       <div class="settings-hint" style="border-left-color:var(--green)">
-        <strong>Auto-sync is ON.</strong> Every time you add/remove items or rename a bin, the data pushes to JSONBin.io automatically after 1.5s.<br><br>
-        When you open this page on any device (phone or desktop), it pulls the latest data on load.<br><br>
-        JSONBin ID: <code style="color:var(--accent)">${SYNC_BIN_ID}</code>
+        ${hasCreds()
+          ? "<strong>✅ Credentials loaded from NFC.</strong> Auto-sync is active — changes push automatically and data pulls on every page open."
+          : "<strong>⚠️ No credentials in this session.</strong> Data saves locally only. Scan any bin NFC tag to unlock cloud sync for this session."
+        }
       </div>
       <div class="settings-btn-row">
         <button class="btn-sync-push" onclick="pushToCloud().then(()=>showToast('✅ Pushed!'))">↑ PUSH NOW</button>
@@ -1277,7 +1246,7 @@ function importFromFile(e) {
 // Pull latest data from cloud on every page load (phone or desktop)
 checkDeepLink();
 render();
-pullFromCloud(); // auto-pull silently on startup
+pullFromCloud(); // pulls only if NFC creds are in session, otherwise no-op
 </script>
 </body>
 </html>
