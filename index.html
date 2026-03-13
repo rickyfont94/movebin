@@ -717,16 +717,12 @@ function loadBins() {
 }
 function saveBins(bins) {
   localStorage.setItem("movebin_data", JSON.stringify(bins));
+  scheduleAutoPush();
 }
 
-// ─── SYNC CONFIG ───
-function loadSyncConfig() {
-  try { return JSON.parse(localStorage.getItem("movebin_sync") || "{}"); } catch(e) { return {}; }
-}
-function saveSyncConfig(cfg) {
-  localStorage.setItem("movebin_sync", JSON.stringify(cfg));
-}
-let syncConfig = loadSyncConfig(); // { apiKey, binId }
+// ─── HARDCODED SYNC CONFIG (baked in — every NFC tag auto-syncs) ───
+const SYNC_API_KEY = "$2a$10$GlR93nsdPDZrPswYao9bluAzREKvr37P6wJyzaOjCB0b2m0LT2U.y";
+const SYNC_BIN_ID  = "69b38921aa77b81da9de3abb";
 
 // ─── STATE ───
 let state = {
@@ -741,7 +737,8 @@ let state = {
   newItem: "",
   deepLinkedBin: null,
   syncStatus: "local",   // local | syncing | synced | error
-  renamingBin: false,
+  renamingBin: false,    // renaming label
+  renamingBinId: false,  // renaming the BIN-XX id
 };
 
 // ─── CHECK URL FOR ?bin= DEEP LINK ───
@@ -802,8 +799,15 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// ─── CLOUD SYNC (JSONBin.io) ───
+// ─── CLOUD SYNC (JSONBin.io — credentials hardcoded) ───
 const JSONBIN_URL = "https://api.jsonbin.io/v3/b";
+
+// Debounced auto-push: waits 1.5s after last change before pushing
+let _pushTimer = null;
+function scheduleAutoPush() {
+  clearTimeout(_pushTimer);
+  _pushTimer = setTimeout(() => pushToCloud(), 1500);
+}
 
 function setSyncStatus(s) { state.syncStatus = s; renderSyncBadge(); }
 
@@ -814,7 +818,7 @@ function renderSyncBadge() {
     local:   {cls:"local",   html:`<span class="sync-dot"></span> LOCAL`},
     syncing: {cls:"syncing", html:`<span class="sync-spin">⟳</span> SYNCING`},
     synced:  {cls:"synced",  html:`<span class="sync-dot"></span> SYNCED`},
-    error:   {cls:"error",   html:`<span class="sync-dot"></span> SYNC ERR`},
+    error:   {cls:"error",   html:`<span class="sync-dot"></span> ERR`},
   };
   const m = map[state.syncStatus] || map.local;
   el.className = `sync-badge ${m.cls}`;
@@ -822,48 +826,27 @@ function renderSyncBadge() {
 }
 
 async function pushToCloud() {
-  const cfg = loadSyncConfig();
-  if (!cfg.apiKey) { showToast("❌ Enter API key in Settings first"); setView("settings"); return; }
   setSyncStatus("syncing");
   try {
     const payload = { bins: state.bins, updatedAt: new Date().toISOString() };
-    if (cfg.binId) {
-      // Update existing bin
-      const res = await fetch(`${JSONBIN_URL}/${cfg.binId}`, {
-        method:"PUT",
-        headers:{"Content-Type":"application/json","X-Master-Key":cfg.apiKey},
-        body: JSON.stringify(payload)
-      });
-      if (!res.ok) throw new Error(await res.text());
-    } else {
-      // Create new bin
-      const res = await fetch(JSONBIN_URL, {
-        method:"POST",
-        headers:{"Content-Type":"application/json","X-Master-Key":cfg.apiKey,"X-Bin-Name":"movebin","X-Bin-Private":"true"},
-        body: JSON.stringify(payload)
-      });
-      if (!res.ok) throw new Error(await res.text());
-      const data = await res.json();
-      cfg.binId = data.metadata.id;
-      saveSyncConfig(cfg);
-      syncConfig = cfg;
-    }
+    const res = await fetch(`${JSONBIN_URL}/${SYNC_BIN_ID}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", "X-Master-Key": SYNC_API_KEY },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error(await res.text());
     setSyncStatus("synced");
-    showToast("✅ Pushed to cloud! Bin ID: " + cfg.binId);
-    if (state.view === "settings") render();
   } catch(e) {
     setSyncStatus("error");
-    showToast("❌ Push failed: " + e.message);
+    console.error("Push failed:", e.message);
   }
 }
 
 async function pullFromCloud() {
-  const cfg = loadSyncConfig();
-  if (!cfg.apiKey || !cfg.binId) { showToast("❌ Need API key + Bin ID in Settings"); setView("settings"); return; }
   setSyncStatus("syncing");
   try {
-    const res = await fetch(`${JSONBIN_URL}/${cfg.binId}/latest`, {
-      headers:{"X-Master-Key":cfg.apiKey}
+    const res = await fetch(`${JSONBIN_URL}/${SYNC_BIN_ID}/latest`, {
+      headers: { "X-Master-Key": SYNC_API_KEY }
     });
     if (!res.ok) throw new Error(await res.text());
     const data = await res.json();
@@ -872,27 +855,47 @@ async function pullFromCloud() {
       state.bins = payload.bins;
       saveBins(state.bins);
       setSyncStatus("synced");
-      showToast("✅ Pulled from cloud (" + payload.bins.length + " bins)");
+      showToast("✅ Synced — " + payload.bins.length + " bins loaded");
       render();
     } else { throw new Error("Unexpected data format"); }
   } catch(e) {
     setSyncStatus("error");
-    showToast("❌ Pull failed: " + e.message);
+    showToast("❌ Sync failed: " + e.message);
   }
 }
-function setView(v) { state.view = v; state.selectedBin = null; state.deepLinkedBin = null; state.renamingBin = false; render(); }
-function selectBin(id) { state.selectedBin = id; state.deepLinkedBin = null; state.renamingBin = false; render(); }
-function goBackBins() { state.selectedBin = null; state.renamingBin = false; render(); }
+function setView(v) { state.view = v; state.selectedBin = null; state.deepLinkedBin = null; state.renamingBin = false; state.renamingBinId = false; render(); }
+function selectBin(id) { state.selectedBin = id; state.deepLinkedBin = null; state.renamingBin = false; state.renamingBinId = false; render(); }
+function goBackBins() { state.selectedBin = null; state.renamingBin = false; state.renamingBinId = false; render(); }
 function setZoneFilter(z) { state.zoneFilter = z; render(); }
 
-function startRename() { state.renamingBin = true; render(); setTimeout(() => document.getElementById("renameInput")?.focus(), 50); }
+function startRename() { state.renamingBin = true; state.renamingBinId = false; render(); setTimeout(() => document.getElementById("renameInput")?.focus(), 50); }
 function saveRename() {
   const val = document.getElementById("renameInput")?.value?.trim();
   const bin = state.bins.find(b => b.id === state.selectedBin);
-  if (bin && val) { bin.label = val; saveBins(state.bins); showToast("✏️ Renamed!"); }
+  if (bin && val) { bin.label = val; saveBins(state.bins); showToast("✏️ Label updated!"); }
   state.renamingBin = false; render();
 }
 function cancelRename() { state.renamingBin = false; render(); }
+
+function startRenameBinId() { state.renamingBinId = true; state.renamingBin = false; render(); setTimeout(() => document.getElementById("renameBinIdInput")?.focus(), 50); }
+function saveRenameBinId() {
+  const raw = document.getElementById("renameBinIdInput")?.value?.trim().toUpperCase();
+  if (!raw) { state.renamingBinId = false; render(); return; }
+  // Format: allow "BIN-XX" or just digits like "05" -> "BIN-05"
+  const newId = /^BIN-/.test(raw) ? raw : "BIN-" + raw;
+  // Check for duplicates
+  const conflict = state.bins.find(b => b.id === newId && b.id !== state.selectedBin);
+  if (conflict) { showToast("❌ " + newId + " already exists"); return; }
+  const bin = state.bins.find(b => b.id === state.selectedBin);
+  if (bin) {
+    bin.id = newId;
+    state.selectedBin = newId;
+    saveBins(state.bins);
+    showToast("📦 ID changed to " + newId);
+  }
+  state.renamingBinId = false; render();
+}
+function cancelRenameBinId() { state.renamingBinId = false; render(); }
 
 function addItem(binId) {
   const input = document.getElementById("itemInput");
@@ -1052,14 +1055,25 @@ function render() {
         <div class="detail-top">
           <div style="flex:1">
             <div class="detail-icon">${bin.icon}</div>
-            <div class="detail-id" style="color:${c}">${bin.id}</div>
+            ${state.renamingBinId
+              ? `<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+                   <input class="rename-input" id="renameBinIdInput" value="${bin.id}" style="font-size:13px;font-family:'JetBrains Mono',monospace;font-weight:700;max-width:140px" onkeydown="if(event.key==='Enter')saveRenameBinId();if(event.key==='Escape')cancelRenameBinId()">
+                   <button class="btn-rename-save" onclick="saveRenameBinId()">Save</button>
+                   <button class="btn-rename" onclick="cancelRenameBinId()">✕</button>
+                 </div>
+                 <div class="rename-hint">Format: BIN-01 to BIN-100. Enter to save.</div>`
+              : `<div style="display:flex;align-items:center;gap:8px">
+                   <div class="detail-id" style="color:${c}">${bin.id}</div>
+                   <button class="btn-rename" onclick="startRenameBinId()">✏️ ID</button>
+                 </div>`
+            }
             ${state.renamingBin
               ? `<input class="rename-input" id="renameInput" value="${bin.label.replace(/"/g,'&quot;')}" onkeydown="if(event.key==='Enter')saveRename();if(event.key==='Escape')cancelRename()">
                  <div class="rename-hint">Press Enter to save, Esc to cancel</div>
                  <button class="btn-rename-save" onclick="saveRename()">Save</button>
                  <button class="btn-rename" onclick="cancelRename()">Cancel</button>`
               : `<div class="detail-label">${bin.label}</div>
-                 <button class="btn-rename" onclick="startRename()">✏️ Rename</button>`
+                 <button class="btn-rename" onclick="startRename()">✏️ Label</button>`
             }
             <div class="detail-zone">Zone: ${bin.zone}</div>
           </div>
@@ -1162,27 +1176,26 @@ function render() {
 
   // ─── SETTINGS / SYNC ───
   if (state.view === "settings") {
-    const cfg = loadSyncConfig();
-    html += `<div class="guide-title">☁️ Cloud Sync</div>
-    <div class="guide-desc">Sync your inventory between your phone and desktop using a free JSONBin.io account.</div>`;
+    html += `<div class="guide-title">☁️ Sync & Settings</div>
+    <div class="guide-desc">Credentials are baked into this file — every device auto-syncs on load and after every change.</div>`;
 
     html += `<div class="settings-section">
-      <div class="settings-section-title">JSONBin.io Configuration</div>
-      <div class="settings-label">Master API Key</div>
-      <input class="settings-input" id="cfgApiKey" placeholder="$2a$10$..." value="${cfg.apiKey||''}">
-      <div class="settings-label">Bin ID <span style="color:var(--text2);font-weight:normal">(leave empty on first push — it auto-creates)</span></div>
-      <input class="settings-input" id="cfgBinId" placeholder="Leave empty for first-time setup" value="${cfg.binId||''}">
-      <div class="settings-btn-row">
-        <button class="btn-sync-push" onclick="saveConfigAndPush()">↑ PUSH TO CLOUD</button>
-        <button class="btn-sync-pull" onclick="saveConfigAndPull()">↓ PULL FROM CLOUD</button>
+      <div class="settings-section-title">Cloud Sync Status</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <span class="sync-badge ${state.syncStatus}" style="font-size:13px;padding:6px 14px">${
+          state.syncStatus==='synced'  ? '✅ SYNCED' :
+          state.syncStatus==='syncing' ? '⟳ SYNCING...' :
+          state.syncStatus==='error'   ? '❌ SYNC ERROR' : '⬤ LOCAL ONLY'
+        }</span>
       </div>
-      <div class="settings-hint">
-        <strong>First-time setup (2 min):</strong><br>
-        1. Go to <a href="https://jsonbin.io" target="_blank">jsonbin.io</a> → Sign Up free<br>
-        2. API Keys → Create Master Key → copy it above<br>
-        3. Hit <strong>Push to Cloud</strong> — a Bin ID will appear<br>
-        4. On your desktop: open this page, go to Sync tab, paste same API Key + Bin ID → <strong>Pull from Cloud</strong><br>
-        5. From now on: push after packing, pull to load on other device
+      <div class="settings-hint" style="border-left-color:var(--green)">
+        <strong>Auto-sync is ON.</strong> Every time you add/remove items or rename a bin, the data pushes to JSONBin.io automatically after 1.5s.<br><br>
+        When you open this page on any device (phone or desktop), it pulls the latest data on load.<br><br>
+        JSONBin ID: <code style="color:var(--accent)">${SYNC_BIN_ID}</code>
+      </div>
+      <div class="settings-btn-row">
+        <button class="btn-sync-push" onclick="pushToCloud().then(()=>showToast('✅ Pushed!'))">↑ PUSH NOW</button>
+        <button class="btn-sync-pull" onclick="pullFromCloud()">↓ PULL NOW</button>
       </div>
     </div>
 
@@ -1242,22 +1255,7 @@ function renderSearch() {
   container.innerHTML = html;
 }
 
-function saveConfigAndPush() {
-  const apiKey = document.getElementById("cfgApiKey")?.value?.trim();
-  const binId  = document.getElementById("cfgBinId")?.value?.trim();
-  if (!apiKey) { showToast("❌ Enter your API key first"); return; }
-  syncConfig = { apiKey, binId: binId || "" };
-  saveSyncConfig(syncConfig);
-  pushToCloud();
-}
-function saveConfigAndPull() {
-  const apiKey = document.getElementById("cfgApiKey")?.value?.trim();
-  const binId  = document.getElementById("cfgBinId")?.value?.trim();
-  if (!apiKey || !binId) { showToast("❌ Need both API key and Bin ID to pull"); return; }
-  syncConfig = { apiKey, binId };
-  saveSyncConfig(syncConfig);
-  pullFromCloud();
-}
+// Credentials are now hardcoded — no manual config needed.
 function importFromFile(e) {
   const file = e.target.files[0];
   if (!file) return;
@@ -1276,8 +1274,10 @@ function importFromFile(e) {
 }
 
 // ─── INIT ───
+// Pull latest data from cloud on every page load (phone or desktop)
 checkDeepLink();
 render();
+pullFromCloud(); // auto-pull silently on startup
 </script>
 </body>
 </html>
