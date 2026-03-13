@@ -977,8 +977,24 @@ function exportExcel() {
     XLSX.utils.book_append_sheet(wb, ws, zone.substring(0,31));
   });
 
-  XLSX.writeFile(wb, "movebin-inventory.xlsx");
-  showToast("✅ Excel exported!");
+  try {
+    // Use manual blob download — works on mobile + all desktop browsers
+    const wbout = XLSX.write(wb, { bookType:"xlsx", type:"array" });
+    const blob = new Blob([wbout], { type:"application/octet-stream" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const date = new Date().toISOString().slice(0,10);
+    a.href = url;
+    a.download = "movebin-inventory-" + date + ".xlsx";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast("✅ Excel exported!");
+  } catch(e) {
+    showToast("❌ Export failed: " + e.message);
+    console.error(e);
+  }
 }
 
 function exportJSON() {
