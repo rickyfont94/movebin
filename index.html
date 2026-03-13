@@ -8,6 +8,7 @@
 <meta name="theme-color" content="#0D1117">
 <title>MOVE.BIN — NFC Inventory Tracker</title>
 <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiTU9WRS5CSU4iLCJzaG9ydF9uYW1lIjoiTU9WRS5CSU4iLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzBEMTExNyIsInRoZW1lX2NvbG9yIjoiI0ZFRTQ0MCJ9">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -113,7 +114,68 @@
   .content { padding: 16px 20px 120px; }
 
   /* Stats */
-  .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+
+  /* ── 4-col stats grid ── */
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  @media(min-width:460px){ .stats { grid-template-columns: repeat(4,1fr); } }
+  .stat-clickable { cursor: pointer; transition: border-color .15s, transform .1s; }
+  .stat-clickable:hover { border-color: var(--accent) !important; transform: translateY(-2px); }
+  .stat-clickable:active { transform: scale(0.97); }
+  .stat-tap-hint { font-size: 9px; color: var(--text2); margin-top: 4px; letter-spacing: 0.5px; text-transform: uppercase; }
+
+  /* ── Packed checkbox in detail ── */
+  .packed-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px; margin-top: 12px;
+    background: var(--surface2); border-radius: 10px;
+    border: 1px solid var(--border); cursor: pointer; user-select: none;
+    transition: border-color .15s;
+  }
+  .packed-row:hover { border-color: var(--green); }
+  .packed-row.is-packed { border-color: var(--green); background: rgba(46,196,182,.08); }
+  .packed-checkbox { width: 22px; height: 22px; accent-color: var(--green); cursor: pointer; flex-shrink: 0; }
+  .packed-label { font-size: 14px; font-weight: 600; flex: 1; }
+  .packed-label.done { color: var(--green); }
+
+  /* ── Bin card packed indicator ── */
+  .packed-badge {
+    font-size: 10px; font-family: 'JetBrains Mono', monospace;
+    color: var(--green); background: rgba(46,196,182,.12);
+    border: 1px solid rgba(46,196,182,.3);
+    padding: 2px 8px; border-radius: 10px; margin-left: 6px;
+  }
+
+  /* ── Drilldown screen ── */
+  .drilldown-back {
+    background: none; border: none; color: var(--accent);
+    font-family: 'JetBrains Mono', monospace; font-size: 13px;
+    cursor: pointer; padding: 0; margin-bottom: 14px; display: block;
+  }
+  .drilldown-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .drilldown-sub { font-size: 12px; color: var(--text2); margin-bottom: 18px; }
+  .drilldown-bin-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px; margin-bottom: 10px;
+    border-left: 4px solid var(--accent);
+    cursor: pointer; transition: border-color .15s;
+  }
+  .drilldown-bin-card:hover { border-color: var(--accent); }
+  .drilldown-bin-id { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; margin-bottom: 3px; }
+  .drilldown-bin-label { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+  .drilldown-meta { font-size: 11px; color: var(--text2); margin-bottom: 8px; }
+  .drilldown-items-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .drilldown-item-chip { border-radius: 6px; padding: 3px 10px; font-size: 12px; font-weight: 500; }
+  .drilldown-location-value {
+    font-size: 15px; font-weight: 600; color: var(--blue); margin-top: 2px;
+  }
+  .no-data { text-align: center; padding: 40px 20px; color: var(--text2); font-size: 13px; }
+
+  /* ── Item chip in bin detail (accented) ── */
+  .item-row { border-left: 3px solid transparent; transition: border-color .15s; }
+  .item-row:hover { border-left-color: var(--accent); background: rgba(254,228,64,.04); }
+  .item-name { font-size: 14px; font-weight: 500; color: var(--text1); letter-spacing: 0.1px; }
+  .item-index { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text2); margin-right: 8px; min-width: 24px; }
+
   .stat {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -231,6 +293,9 @@
     font-family: 'JetBrains Mono', monospace;
   }
   .bin-preview { margin-top: 8px; font-size: 11px; color: var(--text2); line-height: 1.5; }
+  .bin-preview .item-token { font-weight: 500; }
+  .bin-preview .item-sep { color: var(--border); margin: 0 3px; }
+  .bin-preview .item-more { color: var(--text2); font-style: italic; }
 
   /* Add bin */
   .add-bin-btn {
@@ -588,6 +653,52 @@
   /* Hidden file input */
   #importInput { display: none; }
 
+  /* Packed checkbox */
+  .packed-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px;
+    background: var(--surface2);
+    border-radius: 8px;
+    margin-bottom: 14px;
+    border: 1px solid var(--border);
+  }
+  .packed-checkbox {
+    width: 22px; height: 22px; border-radius: 5px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0; transition: all 0.15s;
+  }
+  .packed-checkbox.checked { background: var(--green); border-color: var(--green); }
+  .packed-label { font-size: 14px; font-weight: 600; flex: 1; }
+  .packed-badge {
+    font-size: 10px; font-family: 'JetBrains Mono', monospace;
+    padding: 2px 7px; border-radius: 10px;
+    background: rgba(46,196,182,0.15); color: var(--green);
+    border: 1px solid rgba(46,196,182,0.3);
+  }
+
+  /* Drilldown list views */
+  .drilldown-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .drilldown-title { font-size: 18px; font-weight: 700; }
+  .drilldown-count { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text2); }
+  .drilldown-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .drilldown-card:hover { border-color: var(--text2); }
+  .drilldown-card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .drilldown-bin-id { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; }
+  .drilldown-bin-label { font-size: 14px; font-weight: 600; }
+  .drilldown-meta { font-size: 11px; color: var(--text2); }
+  .item-chip-list { margin-top: 8px; line-height: 2; }
+  .item-chip { display: inline-block; background: var(--surface2); border-radius: 4px; padding: 2px 9px; margin: 2px 4px 2px 0; font-size: 12px; }
+
   /* Sync badge */
   .sync-badge {
     display: inline-flex; align-items: center; gap: 5px;
@@ -692,20 +803,20 @@ const ZONE_COLORS = {
 };
 
 const DEFAULT_BINS = [
-  {id:"BIN-01",label:"Electronics & Cables",icon:"⚡",zone:"Office / Desk",items:[]},
-  {id:"BIN-02",label:"Monitors & Peripherals",icon:"🖥️",zone:"Office / Desk",items:[]},
-  {id:"BIN-03",label:"Networking Gear",icon:"📡",zone:"Office / Desk",items:[]},
-  {id:"BIN-04",label:"Kitchen - Cookware",icon:"🍳",zone:"Kitchen",items:[]},
-  {id:"BIN-05",label:"Kitchen - Utensils & Small",icon:"🥄",zone:"Kitchen",items:[]},
-  {id:"BIN-06",label:"Kitchen - Pantry & Dry Goods",icon:"🥫",zone:"Kitchen",items:[]},
-  {id:"BIN-07",label:"Bathroom & Toiletries",icon:"🧴",zone:"Bathroom",items:[]},
-  {id:"BIN-08",label:"Bedroom - Linens & Pillows",icon:"🛏️",zone:"Bedroom",items:[]},
-  {id:"BIN-09",label:"Bedroom - Clothes (Seasonal)",icon:"👕",zone:"Bedroom",items:[]},
-  {id:"BIN-10",label:"Living Room - Decor & Misc",icon:"🏠",zone:"Living Room",items:[]},
-  {id:"BIN-11",label:"Cat Supplies (Jax & Ekko)",icon:"🐱",zone:"Pets",items:["Cat food","Litter bags","Toys","Brushes"]},
-  {id:"BIN-12",label:"Tools & Hardware",icon:"🔧",zone:"Utility",items:[]},
-  {id:"BIN-13",label:"Documents & Important Papers",icon:"📄",zone:"Utility",items:[]},
-  {id:"BIN-14",label:"Fragile / Special Items",icon:"⚠️",zone:"Special",items:[]},
+  {id:"BIN-01",label:"Electronics & Cables",icon:"⚡",zone:"Office / Desk",items:[],location:"",packed:false},
+  {id:"BIN-02",label:"Monitors & Peripherals",icon:"🖥️",zone:"Office / Desk",items:[],location:"",packed:false},
+  {id:"BIN-03",label:"Networking Gear",icon:"📡",zone:"Office / Desk",items:[],location:"",packed:false},
+  {id:"BIN-04",label:"Kitchen - Cookware",icon:"🍳",zone:"Kitchen",items:[],location:"",packed:false},
+  {id:"BIN-05",label:"Kitchen - Utensils & Small",icon:"🥄",zone:"Kitchen",items:[],location:"",packed:false},
+  {id:"BIN-06",label:"Kitchen - Pantry & Dry Goods",icon:"🥫",zone:"Kitchen",items:[],location:"",packed:false},
+  {id:"BIN-07",label:"Bathroom & Toiletries",icon:"🧴",zone:"Bathroom",items:[],location:"",packed:false},
+  {id:"BIN-08",label:"Bedroom - Linens & Pillows",icon:"🛏️",zone:"Bedroom",items:[],location:"",packed:false},
+  {id:"BIN-09",label:"Bedroom - Clothes (Seasonal)",icon:"👕",zone:"Bedroom",items:[],location:"",packed:false},
+  {id:"BIN-10",label:"Living Room - Decor & Misc",icon:"🏠",zone:"Living Room",items:[],location:"",packed:false},
+  {id:"BIN-11",label:"Cat Supplies (Jax & Ekko)",icon:"🐱",zone:"Pets",items:["Cat food","Litter bags","Toys","Brushes"],location:"",packed:false},
+  {id:"BIN-12",label:"Tools & Hardware",icon:"🔧",zone:"Utility",items:[],location:"",packed:false},
+  {id:"BIN-13",label:"Documents & Important Papers",icon:"📄",zone:"Utility",items:[],location:"",packed:false},
+  {id:"BIN-14",label:"Fragile / Special Items",icon:"⚠️",zone:"Special",items:[],location:"",packed:false},
 ];
 
 function loadBins() {
@@ -745,7 +856,7 @@ function hasCreds() {
 // ─── STATE ───
 let state = {
   bins: loadBins(),
-  view: "dashboard",   // dashboard | bins | nfc | search | settings
+  view: "dashboard",   // dashboard | bins | search | settings | all-items | all-locations
   selectedBin: null,
   zoneFilter: "All",
   searchQuery: "",
@@ -757,6 +868,7 @@ let state = {
   syncStatus: "local",   // local | syncing | synced | error
   renamingBin: false,    // renaming label
   renamingBinId: false,  // renaming the BIN-XX id
+  drilldown: null,       // null | "items" | "locations"
 };
 
 // ─── CHECK URL FOR ?bin= DEEP LINK + CREDENTIALS ───
@@ -796,16 +908,143 @@ function showToast(msg) {
 // ─── HELPERS ───
 function binColor(bin) { return ZONE_COLORS[bin.zone] || "#FEE440"; }
 function totalItems() { return state.bins.reduce((s,b) => s + b.items.length, 0); }
-function binsWithItems() { return state.bins.filter(b => b.items.length > 0).length; }
+function packedBins() { return state.bins.filter(b => b.packed).length; }
+function locatedBins() { return state.bins.filter(b => b.location && b.location.trim()).length; }
+function packedCount() { return state.bins.filter(b => b.packed).length; }
+function locatedCount() { return state.bins.filter(b => b.location && b.location.trim()).length; }
 
-// ─── EXPORT / IMPORT ───
-function exportData() {
-  const blob = new Blob([JSON.stringify(state.bins, null, 2)], {type:"application/json"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url; a.download = "movebin-inventory.json"; a.click();
-  URL.revokeObjectURL(url);
-  showToast("Exported inventory JSON");
+// ─── EXPORT ───
+function exportExcel() {
+  const wb = XLSX.utils.book_new();
+
+  // ── Sheet 1: Summary ──
+  const summaryRows = [
+    ["MOVE.BIN — Inventory Summary", "", "", "", ""],
+    ["Generated:", new Date().toLocaleString(), "", "", ""],
+    ["", "", "", "", ""],
+    ["BIN ID", "Label", "Zone", "Location", "Item Count"],
+  ];
+  state.bins.forEach(bin => {
+    summaryRows.push([bin.id, bin.label, bin.zone, bin.location || "—", bin.items.length]);
+  });
+  summaryRows.push(["", "", "", "TOTAL ITEMS", state.bins.reduce((s,b)=>s+b.items.length,0)]);
+  const wsSummary = XLSX.utils.aoa_to_sheet(summaryRows);
+  wsSummary["!cols"] = [{wch:10},{wch:32},{wch:18},{wch:24},{wch:12}];
+  XLSX.utils.book_append_sheet(wb, wsSummary, "Summary");
+
+  // ── Sheet 2: All Items ──
+  const itemRows = [["BIN ID", "Label", "Zone", "Location", "Item"]];
+  state.bins.forEach(bin => {
+    if (bin.items.length === 0) {
+      itemRows.push([bin.id, bin.label, bin.zone, bin.location || "—", "(empty)"]);
+    } else {
+      bin.items.forEach((item, i) => {
+        itemRows.push([
+          i === 0 ? bin.id : "",
+          i === 0 ? bin.label : "",
+          i === 0 ? bin.zone : "",
+          i === 0 ? (bin.location || "—") : "",
+          item
+        ]);
+      });
+    }
+  });
+  const wsItems = XLSX.utils.aoa_to_sheet(itemRows);
+  wsItems["!cols"] = [{wch:10},{wch:32},{wch:18},{wch:24},{wch:36}];
+  XLSX.utils.book_append_sheet(wb, wsItems, "All Items");
+
+  // ── One sheet per zone ──
+  const zones = [...new Set(state.bins.map(b => b.zone))];
+  zones.forEach(zone => {
+    const zoneBins = state.bins.filter(b => b.zone === zone);
+    const rows = [["BIN ID","Label","Location","Item"]];
+    zoneBins.forEach(bin => {
+      if (bin.items.length === 0) {
+        rows.push([bin.id, bin.label, bin.location || "—", "(empty)"]);
+      } else {
+        bin.items.forEach((item, i) => {
+          rows.push([
+            i===0?bin.id:"",
+            i===0?bin.label:"",
+            i===0?(bin.location||"—"):"",
+            item
+          ]);
+        });
+      }
+    });
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    ws["!cols"] = [{wch:10},{wch:28},{wch:22},{wch:36}];
+    XLSX.utils.book_append_sheet(wb, ws, zone.substring(0,31));
+  });
+
+  XLSX.writeFile(wb, "movebin-inventory.xlsx");
+  showToast("✅ Excel exported!");
+}
+
+function exportPDF() {
+  const w = window.open("", "_blank");
+  const now = new Date().toLocaleString();
+  const totalItems = state.bins.reduce((s,b)=>s+b.items.length,0);
+  const packedBins = state.bins.filter(b=>b.items.length>0).length;
+
+  let rows = "";
+  state.bins.forEach(bin => {
+    const itemList = bin.items.length > 0
+      ? bin.items.map(i => `<span class="item-chip">${i}</span>`).join("")
+      : '<span style="color:#888;font-style:italic">Empty</span>';
+    rows += `<tr>
+      <td class="bin-id-cell">${bin.id}</td>
+      <td><strong>${bin.label}</strong></td>
+      <td>${bin.zone}</td>
+      <td>${bin.location || '<span style="color:#aaa">—</span>'}</td>
+      <td class="count-cell">${bin.items.length}</td>
+      <td class="items-cell">${itemList}</td>
+    </tr>`;
+  });
+
+  w.document.write(`<!DOCTYPE html><html><head><title>MoveBin Inventory</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a2e; padding: 32px; font-size: 12px; }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; border-bottom: 3px solid #FEE440; padding-bottom: 16px; }
+    .logo { font-size: 24px; font-weight: 900; letter-spacing: -1px; }
+    .logo span { color: #FEE440; background: #1a1a2e; padding: 2px 8px; border-radius: 4px; }
+    .meta { text-align: right; font-size: 11px; color: #666; line-height: 1.8; }
+    .stats { display: flex; gap: 16px; margin-bottom: 24px; }
+    .stat { background: #f5f5f5; border-radius: 8px; padding: 12px 20px; text-align: center; flex: 1; }
+    .stat-val { font-size: 28px; font-weight: 900; color: #1a1a2e; }
+    .stat-lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-top: 2px; }
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { background: #1a1a2e; color: #FEE440; }
+    thead th { padding: 10px 12px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
+    tbody tr { border-bottom: 1px solid #eee; }
+    tbody tr:nth-child(even) { background: #fafafa; }
+    td { padding: 8px 12px; vertical-align: top; }
+    .bin-id-cell { font-family: monospace; font-weight: 700; font-size: 11px; color: #FF6B35; white-space: nowrap; }
+    .count-cell { text-align: center; font-weight: 700; }
+    .items-cell { line-height: 1.8; }
+    .item-chip { display: inline-block; background: #f0f0f0; border-radius: 4px; padding: 1px 7px; margin: 2px 3px 2px 0; font-size: 11px; }
+    .footer { margin-top: 24px; text-align: center; font-size: 10px; color: #aaa; border-top: 1px solid #eee; padding-top: 12px; }
+    @media print { body { padding: 16px; } }
+  </style></head><body>
+  <div class="header">
+    <div><div class="logo">📦 MOVE<span>BIN</span></div><div style="font-size:11px;color:#888;margin-top:4px">Inventory Report</div></div>
+    <div class="meta">Generated: ${now}<br>Total Bins: ${state.bins.length}<br>Total Items: ${totalItems}</div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-val">${state.bins.length}</div><div class="stat-lbl">Total Bins</div></div>
+    <div class="stat"><div class="stat-val">${totalItems}</div><div class="stat-lbl">Items Logged</div></div>
+    <div class="stat"><div class="stat-val">${packedBins}</div><div class="stat-lbl">Bins Packed</div></div>
+    <div class="stat"><div class="stat-val">${state.bins.length>0?Math.round(packedBins/state.bins.length*100):0}%</div><div class="stat-lbl">Progress</div></div>
+  </div>
+  <table>
+    <thead><tr><th>Bin ID</th><th>Label</th><th>Zone</th><th>Location</th><th>#</th><th>Items</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <div class="footer">MOVE.BIN — rickyfont94.github.io/movebin</div>
+  </body></html>`);
+  w.document.close();
+  setTimeout(() => w.print(), 400);
 }
 function importData() { document.getElementById("importInput").click(); }
 document.addEventListener("DOMContentLoaded", () => {
@@ -897,7 +1136,13 @@ async function pullFromCloud() {
     showToast("❌ Sync failed: " + e.message);
   }
 }
-function setView(v) { state.view = v; state.selectedBin = null; state.deepLinkedBin = null; state.renamingBin = false; state.renamingBinId = false; render(); }
+function setView(v) { state.view = v; state.selectedBin = null; state.deepLinkedBin = null; state.renamingBin = false; state.renamingBinId = false; state.drilldown = null; render(); }
+function togglePacked(binId) {
+  const bin = state.bins.find(b => b.id === binId);
+  if (bin) { bin.packed = !bin.packed; saveBins(state.bins); render(); }
+}
+function openDrilldown(type) { state.drilldown = type; render(); }
+function closeDrilldown() { state.drilldown = null; render(); }
 function selectBin(id) { state.selectedBin = id; state.deepLinkedBin = null; state.renamingBin = false; state.renamingBinId = false; render(); }
 function goBackBins() { state.selectedBin = null; state.renamingBin = false; state.renamingBinId = false; render(); }
 function setZoneFilter(z) { state.zoneFilter = z; render(); }
@@ -931,6 +1176,17 @@ function saveRenameBinId() {
 }
 function cancelRenameBinId() { state.renamingBinId = false; render(); }
 
+function togglePacked(binId) {
+  const bin = state.bins.find(b => b.id === binId);
+  if (bin) { bin.packed = !bin.packed; saveBins(state.bins); render(); }
+}
+
+function saveLocation(binId) {
+  const val = document.getElementById("locationInput")?.value?.trim() ?? "";
+  const bin = state.bins.find(b => b.id === binId);
+  if (bin !== undefined) { bin.location = val; saveBins(state.bins); showToast("📍 Location saved!"); }
+}
+
 function addItem(binId) {
   const input = document.getElementById("itemInput");
   const val = input?.value?.trim();
@@ -953,10 +1209,11 @@ function toggleAddBin() { state.showAddBin = !state.showAddBin; render(); }
 function addBin() {
   const label = document.getElementById("newBinLabel")?.value?.trim();
   const zone = document.getElementById("newBinZone")?.value;
+  const location = document.getElementById("newBinLocation")?.value?.trim() || "";
   if (!label) return;
   const nextNum = state.bins.length + 1;
   const id = "BIN-" + String(nextNum).padStart(2, "0");
-  state.bins.push({ id, label, icon:"📦", zone: zone || "Utility", items:[] });
+  state.bins.push({ id, label, icon:"📦", zone: zone || "Utility", location, items:[], packed:false });
   saveBins(state.bins);
   state.showAddBin = false;
   showToast("Added " + id);
@@ -990,7 +1247,7 @@ function render() {
           state.syncStatus==='error'?'<span class="sync-dot"></span> SYNC ERR':
           '<span class="sync-dot"></span> LOCAL'
         }</span>
-        <button class="btn-small export" onclick="exportData()">Export</button>
+        <button class="btn-small export" onclick="exportExcel()">📊 Excel</button><button class="btn-small export" onclick="exportPDF()" style="border-color:var(--pink);color:var(--pink)">📄 PDF</button>
         <button class="btn-small import" onclick="importData()">Import</button>
       </div>
     </div>
@@ -1008,12 +1265,28 @@ function render() {
   html += `<div class="content">`;
 
   // ─── DASHBOARD ───
-  if (state.view === "dashboard") {
-    const ti = totalItems(), bwi = binsWithItems(), pct = state.bins.length > 0 ? Math.round((bwi/state.bins.length)*100) : 0;
+  if (state.view === "dashboard" && !state.drilldown) {
+    const ti = totalItems(), pc = packedCount(), lc = locatedCount();
+    const pct = state.bins.length > 0 ? Math.round((pc/state.bins.length)*100) : 0;
     html += `<div class="stats">
-      <div class="stat"><div class="stat-value" style="color:var(--accent)">${state.bins.length}</div><div class="stat-label">Total Bins</div></div>
-      <div class="stat"><div class="stat-value" style="color:var(--green)">${ti}</div><div class="stat-label">Items Logged</div></div>
-      <div class="stat"><div class="stat-value" style="color:var(--orange)">${bwi}</div><div class="stat-label">Packed</div></div>
+      <div class="stat">
+        <div class="stat-value" style="color:var(--accent)">${state.bins.length}</div>
+        <div class="stat-label">Total Bins</div>
+      </div>
+      <div class="stat stat-clickable" onclick="openDrilldown('items')" style="border:1px solid var(--border);border-radius:10px">
+        <div class="stat-value" style="color:var(--green)">${ti}</div>
+        <div class="stat-label">Items Logged</div>
+        <div class="stat-tap-hint">tap to view ↗</div>
+      </div>
+      <div class="stat stat-clickable" onclick="openDrilldown('locations')" style="border:1px solid var(--border);border-radius:10px">
+        <div class="stat-value" style="color:var(--blue)">${lc}</div>
+        <div class="stat-label">Locations Set</div>
+        <div class="stat-tap-hint">tap to view ↗</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" style="color:var(--orange)">${pc}</div>
+        <div class="stat-label">Packed</div>
+      </div>
     </div>`;
     html += `<div class="progress-wrap">
       <div class="progress-header"><span style="font-weight:600">Packing Progress</span><span class="progress-pct">${pct}%</span></div>
@@ -1024,11 +1297,81 @@ function render() {
       const zb = state.bins.filter(b=>b.zone===zone);
       if (zb.length === 0) return;
       const zi = zb.reduce((s,b)=>s+b.items.length,0);
+      const zp = zb.filter(b=>b.packed).length;
       html += `<div class="zone-card" onclick="state.zoneFilter='${zone}';setView('bins')">
-        <div><div class="zone-name">${zone}</div><div class="zone-count">${zb.length} bin${zb.length>1?"s":""}</div></div>
+        <div>
+          <div class="zone-name">${zone}</div>
+          <div class="zone-count">${zb.length} bin${zb.length>1?"s":""} · ${zp} packed</div>
+        </div>
         <div class="zone-items">${zi} items</div>
       </div>`;
     });
+  }
+
+  // ─── DRILLDOWN: ITEMS LOGGED ───
+  if (state.view === "dashboard" && state.drilldown === "items") {
+    const binsWithAny = state.bins.filter(b => b.items.length > 0);
+    html += `<button class="drilldown-back" onclick="closeDrilldown()">← Back to Dashboard</button>`;
+    html += `<div class="drilldown-title">All Items Logged</div>`;
+    html += `<div class="drilldown-sub">${totalItems()} items across ${binsWithAny.length} bin${binsWithAny.length!==1?"s":""}</div>`;
+    if (binsWithAny.length === 0) {
+      html += `<div class="no-data">No items logged yet — start packing!</div>`;
+    } else {
+      binsWithAny.forEach(bin => {
+        const c = binColor(bin);
+        html += `<div class="drilldown-bin-card" style="border-left-color:${c}" onclick="selectBin('${bin.id}');state.view='bins'">
+          <div class="drilldown-bin-id" style="color:${c}">${bin.id} ${bin.packed?'<span class="packed-badge">✓ PACKED</span>':''}</div>
+          <div class="drilldown-bin-label">${bin.icon} ${bin.label}</div>
+          <div class="drilldown-meta">Zone: ${bin.zone}${bin.location?' · 📍 '+bin.location:''}</div>
+          <div class="drilldown-items-wrap">
+            ${bin.items.map(i=>`<span class="drilldown-item-chip" style="background:${c}1a;border:1px solid ${c}44;color:${c}">${i}</span>`).join("")}
+          </div>
+        </div>`;
+      });
+    }
+  }
+
+  // ─── DRILLDOWN: LOCATIONS ───
+  if (state.view === "dashboard" && state.drilldown === "locations") {
+    const withLoc = state.bins.filter(b => b.location && b.location.trim());
+    const noLoc   = state.bins.filter(b => !b.location || !b.location.trim());
+    html += `<button class="drilldown-back" onclick="closeDrilldown()">← Back to Dashboard</button>`;
+    html += `<div class="drilldown-title">Bin Locations</div>`;
+    html += `<div class="drilldown-sub">${withLoc.length} of ${state.bins.length} bins have a location set</div>`;
+    if (withLoc.length === 0) {
+      html += `<div class="no-data">No locations set yet — open a bin and add a location.</div>`;
+    } else {
+      // Group by location string
+      const groups = {};
+      withLoc.forEach(b => {
+        const loc = b.location.trim();
+        if (!groups[loc]) groups[loc] = [];
+        groups[loc].push(b);
+      });
+      Object.entries(groups).forEach(([loc, bins]) => {
+        html += `<div style="margin-bottom:18px">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--blue);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📍 ${loc}</div>`;
+        bins.forEach(bin => {
+          const c = binColor(bin);
+          html += `<div class="drilldown-bin-card" style="border-left-color:${c};margin-bottom:6px" onclick="selectBin('${bin.id}');state.view='bins'">
+            <div class="drilldown-bin-id" style="color:${c}">${bin.id} ${bin.packed?'<span class="packed-badge">✓ PACKED</span>':''}</div>
+            <div class="drilldown-bin-label">${bin.icon} ${bin.label}</div>
+            <div class="drilldown-meta">Zone: ${bin.zone} · ${bin.items.length} item${bin.items.length!==1?"s":""}</div>
+          </div>`;
+        });
+        html += `</div>`;
+      });
+    }
+    if (noLoc.length > 0) {
+      html += `<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px">⚠ No Location Set (${noLoc.length})</div>`;
+      noLoc.forEach(bin => {
+        const c = binColor(bin);
+        html += `<div class="drilldown-bin-card" style="border-left-color:${c};opacity:0.5;margin-bottom:6px" onclick="selectBin('${bin.id}');state.view='bins'">
+          <div class="drilldown-bin-id" style="color:${c}">${bin.id}</div>
+          <div class="drilldown-bin-label">${bin.icon} ${bin.label}</div>
+        </div>`;
+      });
+    }
   }
 
   // ─── BINS LIST ───
@@ -1042,19 +1385,26 @@ function render() {
     });
     filtered.forEach(bin => {
       const c = binColor(bin);
-      const preview = bin.items.length > 0
-        ? `<div class="bin-preview">${bin.items.slice(0,4).join(" · ")}${bin.items.length>4?" · +"+( bin.items.length-4)+" more":""}</div>` : "";
-      html += `<div class="bin-card" style="border-left-color:${c}" onclick="selectBin('${bin.id}')">
+      const packedTag = bin.packed ? `<span class="packed-badge">✓ Packed</span>` : "";
+      const locationTag = bin.location ? `<span style="font-size:10px;color:var(--text2);margin-right:6px">📍 ${bin.location}</span>` : "";
+      const previewItems = bin.items.slice(0,4).map(i => `<span class="item-token" style="color:${c}">${i}</span>`).join(`<span class="item-sep">·</span>`);
+      const previewMore = bin.items.length > 4 ? `<span class="item-more"> +${bin.items.length-4} more</span>` : "";
+      const preview = (bin.location || bin.items.length > 0)
+        ? `<div class="bin-preview">${locationTag}${previewItems}${previewMore}</div>` : "";
+      html += `<div class="bin-card" style="border-left-color:${c};${bin.packed?"opacity:0.75;":""}" onclick="selectBin('${bin.id}')">
         <div class="bin-top">
           <div class="bin-info">
             <span class="bin-icon">${bin.icon}</span>
             <div>
-              <div class="bin-id" style="color:${c}">${bin.id}</div>
+              <div class="bin-id" style="color:${c}">${bin.id}${packedTag}</div>
               <div class="bin-label">${bin.label}</div>
               <div class="bin-zone-tag">${bin.zone}</div>
             </div>
           </div>
-          <div class="bin-count" style="background:${bin.items.length>0?c+"22":"var(--surface2)"};color:${bin.items.length>0?c:"var(--text2)"}">${bin.items.length}</div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
+            <div class="bin-count" style="background:${bin.items.length>0?c+"22":"var(--surface2)"};color:${bin.items.length>0?c:"var(--text2)"}">${bin.items.length}</div>
+            ${bin.packed ? '<span style="font-size:9px;font-family:JetBrains Mono,monospace;background:rgba(46,196,182,0.15);color:var(--green);border:1px solid rgba(46,196,182,0.3);padding:2px 6px;border-radius:8px">✓ PACKED</span>' : ''}
+          </div>
         </div>${preview}
       </div>`;
     });
@@ -1110,13 +1460,29 @@ function render() {
                  <button class="btn-rename" onclick="startRename()">✏️ Label</button>`
             }
             <div class="detail-zone">Zone: ${bin.zone}</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+              <span style="font-size:11px;color:var(--text2)">📍</span>
+              <input
+                id="locationInput"
+                class="add-input"
+                style="flex:1;padding:6px 10px;font-size:12px;max-width:220px"
+                placeholder="Location (e.g. Storage Unit A)"
+                value="${(bin.location||'').replace(/"/g,'&quot;')}"
+                onchange="saveLocation('${bin.id}')"
+                onblur="saveLocation('${bin.id}')">
+            </div>
           </div>
           <button class="btn-delete" onclick="deleteBin('${bin.id}')">Delete</button>
         </div>
         <div class="nfc-badge">📱 NFC Tag → Write "${bin.id}" to sticker</div>
       </div>`;
 
-      html += `<div class="add-row">
+      html += `<div class="packed-row ${bin.packed?'is-packed':''}" onclick="togglePacked('${bin.id}')">
+        <input type="checkbox" class="packed-checkbox" ${bin.packed?'checked':''} onclick="event.stopPropagation();togglePacked('${bin.id}')">
+        <span class="packed-label ${bin.packed?'done':''}">${bin.packed?'✓ This bin is packed':'Mark as Packed'}</span>
+      </div>`;
+
+      html += `<div class="add-row" style="margin-top:14px">
         <input class="add-input" id="itemInput" placeholder="Add item (e.g. HDMI cables)" onkeydown="if(event.key==='Enter')addItem('${bin.id}')">
         <button class="btn-add" onclick="addItem('${bin.id}')">+</button>
       </div>`;
@@ -1127,8 +1493,92 @@ function render() {
       }
       bin.items.forEach((item, idx) => {
         html += `<div class="item-row">
+          <span class="item-index">${String(idx+1).padStart(2,'0')}</span>
           <span class="item-name">${item}</span>
           <button class="btn-remove" onclick="removeItem('${bin.id}',${idx})">✕</button>
+        </div>`;
+      });
+    }
+  }
+
+  // ─── ALL ITEMS DRILLDOWN ───
+  if (state.view === "all-items") {
+    const allBinsWithItems = state.bins.filter(b => b.items.length > 0);
+    const ti = totalItems();
+    html += `<button class="back-btn" onclick="setView('dashboard')">← Back to dashboard</button>`;
+    html += `<div class="drilldown-header">
+      <div class="drilldown-title">📦 All Items</div>
+      <div class="drilldown-count">${ti} item${ti!==1?"s":""} across ${allBinsWithItems.length} bin${allBinsWithItems.length!==1?"s":""}</div>
+    </div>`;
+    if (allBinsWithItems.length === 0) {
+      html += `<div class="empty-state">No items logged yet — open a bin and start adding!</div>`;
+    }
+    allBinsWithItems.forEach(bin => {
+      const c = binColor(bin);
+      html += `<div class="drilldown-card" onclick="selectBin('${bin.id}');state.view='bins';render()">
+        <div class="drilldown-card-top">
+          <span style="font-size:20px">${bin.icon}</span>
+          <div style="flex:1">
+            <div class="drilldown-bin-id" style="color:${c}">${bin.id} · ${bin.zone}</div>
+            <div class="drilldown-bin-label">${bin.label}</div>
+            ${bin.location ? `<div class="drilldown-meta">📍 ${bin.location}</div>` : ""}
+          </div>
+          <div class="bin-count" style="background:${c}22;color:${c}">${bin.items.length}</div>
+        </div>
+        <div class="item-chip-list">
+          ${bin.items.map(i => `<span class="item-chip">${i}</span>`).join("")}
+        </div>
+      </div>`;
+    });
+  }
+
+  // ─── ALL LOCATIONS DRILLDOWN ───
+  if (state.view === "all-locations") {
+    const binsWithLoc = state.bins.filter(b => b.location && b.location.trim());
+    const binsNoLoc = state.bins.filter(b => !b.location || !b.location.trim());
+    html += `<button class="back-btn" onclick="setView('dashboard')">← Back to dashboard</button>`;
+    html += `<div class="drilldown-header">
+      <div class="drilldown-title">📍 Locations</div>
+      <div class="drilldown-count">${binsWithLoc.length} bin${binsWithLoc.length!==1?"s":""} with a location set</div>
+    </div>`;
+    // Group by location
+    const locMap = {};
+    binsWithLoc.forEach(bin => {
+      const loc = bin.location.trim();
+      if (!locMap[loc]) locMap[loc] = [];
+      locMap[loc].push(bin);
+    });
+    Object.entries(locMap).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([loc, bins]) => {
+      html += `<div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin:16px 0 8px;font-family:'JetBrains Mono',monospace">📍 ${loc}</div>`;
+      bins.forEach(bin => {
+        const c = binColor(bin);
+        html += `<div class="drilldown-card" onclick="selectBin('${bin.id}');state.view='bins';render()">
+          <div class="drilldown-card-top">
+            <span style="font-size:20px">${bin.icon}</span>
+            <div style="flex:1">
+              <div class="drilldown-bin-id" style="color:${c}">${bin.id} · ${bin.zone}</div>
+              <div class="drilldown-bin-label">${bin.label}</div>
+              ${bin.packed ? '<span class="packed-badge" style="font-size:10px">✓ PACKED</span>' : ''}
+            </div>
+            <div class="bin-count" style="background:${c}22;color:${c}">${bin.items.length} items</div>
+          </div>
+          ${bin.items.length > 0 ? `<div class="item-chip-list">${bin.items.slice(0,6).map(i=>`<span class="item-chip">${i}</span>`).join("")}${bin.items.length>6?`<span class="item-chip" style="color:var(--text2)">+${bin.items.length-6} more</span>`:""}</div>` : ""}
+        </div>`;
+      });
+    });
+    if (binsNoLoc.length > 0) {
+      html += `<div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text2);margin:16px 0 8px;font-family:'JetBrains Mono',monospace">⬜ No location set (${binsNoLoc.length})</div>`;
+      binsNoLoc.forEach(bin => {
+        const c = binColor(bin);
+        html += `<div class="drilldown-card" onclick="selectBin('${bin.id}');state.view='bins';render()">
+          <div class="drilldown-card-top">
+            <span style="font-size:20px">${bin.icon}</span>
+            <div style="flex:1">
+              <div class="drilldown-bin-id" style="color:${c}">${bin.id} · ${bin.zone}</div>
+              <div class="drilldown-bin-label">${bin.label}</div>
+            </div>
+            <div style="font-size:11px;color:var(--text2)">tap to set →</div>
+          </div>
         </div>`;
       });
     }
@@ -1171,7 +1621,7 @@ function render() {
     <div class="settings-section">
       <div class="settings-section-title">Local Backup</div>
       <div class="settings-btn-row">
-        <button class="btn-sync-pull" onclick="exportData()">⬇ Export JSON</button>
+        <button class="btn-sync-pull" onclick="exportExcel()">📊 Export Excel</button><button class="btn-sync-pull" onclick="exportPDF()" style="border-color:var(--pink);color:var(--pink)">📄 Export PDF</button>
         <label class="btn-sync-push" style="cursor:pointer;text-align:center">
           ⬆ Import JSON
           <input type="file" accept=".json" style="display:none" onchange="importFromFile(event)">
