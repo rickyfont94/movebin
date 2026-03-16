@@ -1,17 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0D1117">
+<meta name="theme-color" content="#0D1117" id="metaThemeColor">
 <title>MOVE.BIN — NFC Inventory Tracker</title>
 <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiTU9WRS5CSU4iLCJzaG9ydF9uYW1lIjoiTU9WRS5CSU4iLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzBEMTExNyIsInRoZW1lX2NvbG9yIjoiI0ZFRTQ0MCJ9">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
+  /* ═══════════════════════════════════════════
+     THEME SYSTEM
+     ═══════════════════════════════════════════ */
+  [data-theme="dark"] {
     --bg: #0D1117;
     --surface: #161B22;
     --surface2: #21262D;
@@ -20,14 +23,64 @@
     --text2: #8B949E;
     --accent: #FEE440;
     --accent-dark: #E5CD00;
+    --accent-text: #0D1117;
     --red: #E63946;
+    --red-bg: rgba(230, 57, 70, 0.13);
+    --red-border: rgba(230, 57, 70, 0.27);
     --green: #2EC4B6;
+    --green-bg: rgba(46, 196, 182, 0.08);
+    --green-border: rgba(46, 196, 182, 0.2);
     --orange: #FF6B35;
     --blue: #00BBF9;
     --pink: #F15BB5;
     --purple: #9B5DE5;
+    --accent-ghost: rgba(254, 228, 64, 0.07);
+    --accent-ghost-border: rgba(254, 228, 64, 0.2);
+    --accent-subtle: rgba(254, 228, 64, 0.11);
+    --accent-subtle-border: rgba(254, 228, 64, 0.22);
+    --header-bg: linear-gradient(135deg, #161B22 0%, #1a1a2e 100%);
+    --diagram-bg: #1a1a1a;
+    --shadow: none;
+    --item-hover-bg: rgba(254, 228, 64, 0.04);
+    --deep-link-bg: linear-gradient(135deg, rgba(254, 228, 64, 0.15), rgba(255, 107, 53, 0.1));
+    --deep-link-border: rgba(254, 228, 64, 0.3);
   }
 
+  [data-theme="light"] {
+    --bg: #F5F6F8;
+    --surface: #FFFFFF;
+    --surface2: #EEF0F4;
+    --border: #D0D5DD;
+    --text1: #1A1D23;
+    --text2: #5F6B7A;
+    --accent: #D4A800;
+    --accent-dark: #B89200;
+    --accent-text: #FFFFFF;
+    --red: #CC2936;
+    --red-bg: rgba(204, 41, 54, 0.08);
+    --red-border: rgba(204, 41, 54, 0.2);
+    --green: #1A9E8F;
+    --green-bg: rgba(26, 158, 143, 0.07);
+    --green-border: rgba(26, 158, 143, 0.18);
+    --orange: #E55A20;
+    --blue: #0096D6;
+    --pink: #D43F9C;
+    --purple: #7C3CC7;
+    --accent-ghost: rgba(212, 168, 0, 0.06);
+    --accent-ghost-border: rgba(212, 168, 0, 0.18);
+    --accent-subtle: rgba(212, 168, 0, 0.1);
+    --accent-subtle-border: rgba(212, 168, 0, 0.2);
+    --header-bg: linear-gradient(135deg, #FFFFFF 0%, #F0F1F5 100%);
+    --diagram-bg: #F0F1F5;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06);
+    --item-hover-bg: rgba(212, 168, 0, 0.05);
+    --deep-link-bg: linear-gradient(135deg, rgba(212, 168, 0, 0.1), rgba(229, 90, 32, 0.06));
+    --deep-link-border: rgba(212, 168, 0, 0.25);
+  }
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
   body {
@@ -37,21 +90,42 @@
     min-height: 100vh;
     min-height: 100dvh;
     overflow-x: hidden;
+    transition: background 0.3s ease, color 0.3s ease;
   }
 
-  /* Scrollbar */
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: var(--bg); }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-  /* Header */
+  /* ═══════════════════════════════════════════
+     THEME TOGGLE
+     ═══════════════════════════════════════════ */
+  .theme-toggle {
+    width: 38px; height: 38px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.25s ease;
+    flex-shrink: 0;
+  }
+  .theme-toggle:hover { border-color: var(--accent); transform: scale(1.08); }
+  .theme-toggle:active { transform: scale(0.95); }
+
+  /* ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ */
   .header {
-    background: linear-gradient(135deg, var(--surface) 0%, #1a1a2e 100%);
+    background: var(--header-bg);
     border-bottom: 2px solid var(--accent);
     padding: 16px 20px 12px;
     position: sticky;
     top: 0;
     z-index: 100;
+    transition: background 0.3s ease;
+    box-shadow: var(--shadow);
   }
   .header-top {
     display: flex;
@@ -72,7 +146,7 @@
     color: var(--text2);
     margin-top: 1px;
   }
-  .header-actions { display: flex; gap: 6px; }
+  .header-actions { display: flex; gap: 6px; align-items: center; }
   .btn-small {
     background: transparent;
     border: 1px solid var(--border);
@@ -105,7 +179,7 @@
   }
   .tab.active {
     background: var(--accent);
-    color: var(--bg);
+    color: var(--accent-text);
     border-color: var(--accent);
     font-weight: 700;
   }
@@ -113,9 +187,9 @@
   /* Content */
   .content { padding: 16px 20px 120px; }
 
-  /* Stats */
-
-  /* ── 4-col stats grid ── */
+  /* ═══════════════════════════════════════════
+     STATS
+     ═══════════════════════════════════════════ */
   .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
   @media(min-width:460px){ .stats { grid-template-columns: repeat(4,1fr); } }
   .stat-clickable { cursor: pointer; transition: border-color .15s, transform .1s; }
@@ -123,65 +197,14 @@
   .stat-clickable:active { transform: scale(0.97); }
   .stat-tap-hint { font-size: 9px; color: var(--text2); margin-top: 4px; letter-spacing: 0.5px; text-transform: uppercase; }
 
-  /* ── Packed checkbox in detail ── */
-  .packed-row {
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px 14px; margin-top: 12px;
-    background: var(--surface2); border-radius: 10px;
-    border: 1px solid var(--border); cursor: pointer; user-select: none;
-    transition: border-color .15s;
-  }
-  .packed-row:hover { border-color: var(--green); }
-  .packed-row.is-packed { border-color: var(--green); background: rgba(46,196,182,.08); }
-  .packed-checkbox { width: 22px; height: 22px; accent-color: var(--green); cursor: pointer; flex-shrink: 0; }
-  .packed-label { font-size: 14px; font-weight: 600; flex: 1; }
-  .packed-label.done { color: var(--green); }
-
-  /* ── Bin card packed indicator ── */
-  .packed-badge {
-    font-size: 10px; font-family: 'JetBrains Mono', monospace;
-    color: var(--green); background: rgba(46,196,182,.12);
-    border: 1px solid rgba(46,196,182,.3);
-    padding: 2px 8px; border-radius: 10px; margin-left: 6px;
-  }
-
-  /* ── Drilldown screen ── */
-  .drilldown-back {
-    background: none; border: none; color: var(--accent);
-    font-family: 'JetBrains Mono', monospace; font-size: 13px;
-    cursor: pointer; padding: 0; margin-bottom: 14px; display: block;
-  }
-  .drilldown-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
-  .drilldown-sub { font-size: 12px; color: var(--text2); margin-bottom: 18px; }
-  .drilldown-bin-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 10px; padding: 14px 16px; margin-bottom: 10px;
-    border-left: 4px solid var(--accent);
-    cursor: pointer; transition: border-color .15s;
-  }
-  .drilldown-bin-card:hover { border-color: var(--accent); }
-  .drilldown-bin-id { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; margin-bottom: 3px; }
-  .drilldown-bin-label { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
-  .drilldown-meta { font-size: 11px; color: var(--text2); margin-bottom: 8px; }
-  .drilldown-items-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-  .drilldown-item-chip { border-radius: 6px; padding: 3px 10px; font-size: 12px; font-weight: 500; }
-  .drilldown-location-value {
-    font-size: 15px; font-weight: 600; color: var(--blue); margin-top: 2px;
-  }
-  .no-data { text-align: center; padding: 40px 20px; color: var(--text2); font-size: 13px; }
-
-  /* ── Item chip in bin detail (accented) ── */
-  .item-row { border-left: 3px solid transparent; transition: border-color .15s; }
-  .item-row:hover { border-left-color: var(--accent); background: rgba(254,228,64,.04); }
-  .item-name { font-size: 14px; font-weight: 500; color: var(--text1); letter-spacing: 0.1px; }
-  .item-index { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text2); margin-right: 8px; min-width: 24px; }
-
   .stat {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 10px;
     padding: 14px 12px;
     text-align: center;
+    box-shadow: var(--shadow);
+    transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
   }
   .stat-value {
     font-size: 28px;
@@ -203,6 +226,8 @@
     border-radius: 10px;
     padding: 16px;
     margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    transition: background 0.3s, border-color 0.3s;
   }
   .progress-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
   .progress-pct { color: var(--accent); font-family: 'JetBrains Mono', monospace; }
@@ -233,7 +258,8 @@
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
-    transition: border-color 0.15s;
+    transition: border-color 0.15s, background 0.3s;
+    box-shadow: var(--shadow);
   }
   .zone-card:hover { border-color: var(--text2); }
   .zone-name { font-size: 14px; font-weight: 600; }
@@ -261,9 +287,11 @@
     cursor: pointer;
     transition: all 0.15s;
   }
-  .filter-pill.active { background: var(--accent); color: var(--bg); font-weight: 700; }
+  .filter-pill.active { background: var(--accent); color: var(--accent-text); font-weight: 700; }
 
-  /* Bin cards */
+  /* ═══════════════════════════════════════════
+     BIN CARDS
+     ═══════════════════════════════════════════ */
   .bin-card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -273,6 +301,7 @@
     cursor: pointer;
     transition: all 0.15s;
     border-left: 4px solid var(--accent);
+    box-shadow: var(--shadow);
   }
   .bin-card:active { transform: scale(0.98); }
   .bin-top { display: flex; justify-content: space-between; align-items: flex-start; }
@@ -297,7 +326,6 @@
   .bin-preview .item-sep { color: var(--border); margin: 0 3px; }
   .bin-preview .item-more { color: var(--text2); font-style: italic; }
 
-  /* Add bin */
   .add-bin-btn {
     width: 100%;
     padding: 14px;
@@ -312,7 +340,9 @@
   }
   .add-bin-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-  /* Bin detail */
+  /* ═══════════════════════════════════════════
+     BIN DETAIL
+     ═══════════════════════════════════════════ */
   .back-btn {
     background: transparent;
     border: none;
@@ -328,6 +358,8 @@
     border-radius: 12px;
     padding: 20px;
     margin-bottom: 16px;
+    box-shadow: var(--shadow);
+    transition: background 0.3s;
   }
   .detail-top { display: flex; justify-content: space-between; align-items: flex-start; }
   .detail-icon { font-size: 36px; margin-bottom: 8px; }
@@ -335,8 +367,8 @@
   .detail-label { font-size: 20px; font-weight: 700; margin-top: 2px; }
   .detail-zone { font-size: 12px; color: var(--text2); margin-top: 2px; }
   .btn-delete {
-    background: rgba(230, 57, 70, 0.13);
-    border: 1px solid rgba(230, 57, 70, 0.27);
+    background: var(--red-bg);
+    border: 1px solid var(--red-border);
     color: var(--red);
     padding: 6px 12px;
     border-radius: 6px;
@@ -345,8 +377,8 @@
   }
   .nfc-badge {
     margin-top: 14px;
-    background: rgba(254, 228, 64, 0.07);
-    border: 1px solid rgba(254, 228, 64, 0.2);
+    background: var(--accent-ghost);
+    border: 1px solid var(--accent-ghost-border);
     border-radius: 8px;
     padding: 8px 12px;
     display: flex;
@@ -369,14 +401,14 @@
     font-size: 14px;
     font-family: 'DM Sans', sans-serif;
     outline: none;
-    transition: border-color 0.15s;
+    transition: border-color 0.15s, background 0.3s;
   }
   .add-input:focus { border-color: var(--accent); }
   .add-input::placeholder { color: var(--text2); }
   .btn-add {
     padding: 12px 20px;
     background: var(--accent);
-    color: var(--bg);
+    color: var(--accent-text);
     border: none;
     border-radius: 8px;
     font-weight: 700;
@@ -404,6 +436,7 @@
   .item-row {
     background: var(--surface);
     border: 1px solid var(--border);
+    border-left: 3px solid transparent;
     border-radius: 8px;
     padding: 10px 14px;
     margin-bottom: 6px;
@@ -411,14 +444,17 @@
     justify-content: space-between;
     align-items: center;
     animation: slideIn 0.2s ease;
+    transition: border-color 0.15s, background 0.15s;
   }
+  .item-row:hover { border-left-color: var(--accent); background: var(--item-hover-bg); }
   @keyframes slideIn {
     from { opacity: 0; transform: translateX(-10px); }
     to { opacity: 1; transform: translateX(0); }
   }
-  .item-name { font-size: 14px; }
+  .item-name { font-size: 14px; font-weight: 500; color: var(--text1); letter-spacing: 0.1px; }
+  .item-index { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text2); margin-right: 8px; min-width: 24px; }
   .btn-remove {
-    background: rgba(230, 57, 70, 0.13);
+    background: var(--red-bg);
     border: none;
     color: var(--red);
     padding: 4px 10px;
@@ -427,7 +463,29 @@
     cursor: pointer;
   }
 
-  /* Search */
+  /* Packed checkbox */
+  .packed-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px; margin-top: 12px;
+    background: var(--surface2); border-radius: 10px;
+    border: 1px solid var(--border); cursor: pointer; user-select: none;
+    transition: border-color .15s, background .3s;
+  }
+  .packed-row:hover { border-color: var(--green); }
+  .packed-row.is-packed { border-color: var(--green); background: var(--green-bg); }
+  .packed-checkbox { width: 22px; height: 22px; accent-color: var(--green); cursor: pointer; flex-shrink: 0; }
+  .packed-label { font-size: 14px; font-weight: 600; flex: 1; }
+  .packed-label.done { color: var(--green); }
+  .packed-badge {
+    font-size: 10px; font-family: 'JetBrains Mono', monospace;
+    padding: 2px 7px; border-radius: 10px;
+    background: var(--green-bg); color: var(--green);
+    border: 1px solid var(--green-border);
+  }
+
+  /* ═══════════════════════════════════════════
+     SEARCH
+     ═══════════════════════════════════════════ */
   .search-input {
     width: 100%;
     padding: 14px 16px;
@@ -439,7 +497,7 @@
     margin-bottom: 16px;
     outline: none;
     font-family: 'DM Sans', sans-serif;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, background 0.3s;
   }
   .search-input:focus { border-color: var(--accent); }
   .search-input::placeholder { color: var(--text2); }
@@ -451,10 +509,11 @@
     margin-bottom: 10px;
     cursor: pointer;
     border-left: 4px solid var(--accent);
+    box-shadow: var(--shadow);
   }
   .search-match {
-    background: rgba(254, 228, 64, 0.07);
-    border: 1px solid rgba(254, 228, 64, 0.13);
+    background: var(--accent-ghost);
+    border: 1px solid var(--accent-ghost-border);
     border-radius: 6px;
     padding: 6px 10px;
     margin-top: 4px;
@@ -497,7 +556,7 @@
     flex: 1;
     padding: 10px;
     background: var(--accent);
-    color: var(--bg);
+    color: var(--accent-text);
     border: none;
     border-radius: 6px;
     font-weight: 700;
@@ -529,6 +588,7 @@
     border-radius: 8px;
     padding: 14px;
     margin-bottom: 10px;
+    box-shadow: var(--shadow);
   }
   .guide-card-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
   .guide-card-desc { font-size: 12px; color: var(--text2); line-height: 1.5; }
@@ -541,10 +601,11 @@
     display: flex;
     gap: 10px;
     align-items: flex-start;
+    box-shadow: var(--shadow);
   }
   .step-num {
     background: var(--accent);
-    color: var(--bg);
+    color: var(--accent-text);
     border-radius: 50%;
     width: 22px;
     min-width: 22px;
@@ -571,7 +632,7 @@
     font-family: 'JetBrains Mono', monospace;
   }
   .diagram {
-    background: #1a1a1a;
+    background: var(--diagram-bg);
     border-radius: 8px;
     padding: 16px 20px;
     display: inline-block;
@@ -591,32 +652,29 @@
     border-radius: 8px;
     padding: 12px 14px;
     margin-bottom: 8px;
+    box-shadow: var(--shadow);
   }
   .app-header { display: flex; justify-content: space-between; }
   .app-name { font-size: 14px; font-weight: 600; }
   .app-platform {
     font-size: 10px;
     color: var(--accent);
-    background: rgba(254, 228, 64, 0.08);
+    background: var(--accent-ghost);
     padding: 2px 8px;
     border-radius: 10px;
   }
   .app-use { font-size: 12px; color: var(--text2); margin-top: 4px; }
 
-  .tip-box {
-    border-radius: 10px;
-    padding: 16px;
-    margin-top: 16px;
-  }
-  .tip-box.green { background: rgba(46, 196, 182, 0.07); border: 1px solid rgba(46, 196, 182, 0.2); }
+  .tip-box { border-radius: 10px; padding: 16px; margin-top: 16px; }
+  .tip-box.green { background: var(--green-bg); border: 1px solid var(--green-border); }
   .tip-box-title { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
   .tip-box-text { font-size: 12px; color: var(--text2); line-height: 1.6; }
   .tip-box-text strong { color: var(--text1); }
 
   /* Deep link banner */
   .deep-link-banner {
-    background: linear-gradient(135deg, rgba(254, 228, 64, 0.15), rgba(255, 107, 53, 0.1));
-    border: 1px solid rgba(254, 228, 64, 0.3);
+    background: var(--deep-link-bg);
+    border: 1px solid var(--deep-link-border);
     border-radius: 10px;
     padding: 14px 16px;
     margin-bottom: 16px;
@@ -625,10 +683,7 @@
     gap: 10px;
     animation: bannerPulse 2s ease infinite;
   }
-  @keyframes bannerPulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.85; }
-  }
+  @keyframes bannerPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.85; } }
   .deep-link-icon { font-size: 24px; }
   .deep-link-text { font-size: 12px; color: var(--accent); font-family: 'JetBrains Mono', monospace; }
 
@@ -639,7 +694,7 @@
     left: 50%;
     transform: translateX(-50%) translateY(100px);
     background: var(--accent);
-    color: var(--bg);
+    color: var(--accent-text);
     padding: 10px 20px;
     border-radius: 8px;
     font-size: 13px;
@@ -650,56 +705,37 @@
   }
   .toast.show { transform: translateX(-50%) translateY(0); }
 
-  /* Hidden file input */
   #importInput { display: none; }
 
-  /* Packed checkbox */
-  .packed-row {
-    display: flex; align-items: center; gap: 10px;
-    padding: 12px 16px;
-    background: var(--surface2);
-    border-radius: 8px;
-    margin-bottom: 14px;
-    border: 1px solid var(--border);
+  /* ═══════════════════════════════════════════
+     DRILLDOWN
+     ═══════════════════════════════════════════ */
+  .drilldown-back {
+    background: none; border: none; color: var(--accent);
+    font-family: 'JetBrains Mono', monospace; font-size: 13px;
+    cursor: pointer; padding: 0; margin-bottom: 14px; display: block;
   }
-  .packed-checkbox {
-    width: 22px; height: 22px; border-radius: 5px;
-    border: 2px solid var(--border);
-    background: var(--surface);
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    font-size: 14px; flex-shrink: 0; transition: all 0.15s;
+  .drilldown-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .drilldown-sub { font-size: 12px; color: var(--text2); margin-bottom: 18px; }
+  .drilldown-bin-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px; margin-bottom: 10px;
+    border-left: 4px solid var(--accent);
+    cursor: pointer; transition: border-color .15s;
+    box-shadow: var(--shadow);
   }
-  .packed-checkbox.checked { background: var(--green); border-color: var(--green); }
-  .packed-label { font-size: 14px; font-weight: 600; flex: 1; }
-  .packed-badge {
-    font-size: 10px; font-family: 'JetBrains Mono', monospace;
-    padding: 2px 7px; border-radius: 10px;
-    background: rgba(46,196,182,0.15); color: var(--green);
-    border: 1px solid rgba(46,196,182,0.3);
-  }
-
-  /* Drilldown list views */
-  .drilldown-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
-  .drilldown-title { font-size: 18px; font-weight: 700; }
-  .drilldown-count { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text2); }
-  .drilldown-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px 16px;
-    margin-bottom: 10px;
-    cursor: pointer;
-    transition: border-color 0.15s;
-  }
-  .drilldown-card:hover { border-color: var(--text2); }
-  .drilldown-card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
-  .drilldown-bin-id { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; }
-  .drilldown-bin-label { font-size: 14px; font-weight: 600; }
-  .drilldown-meta { font-size: 11px; color: var(--text2); }
+  .drilldown-bin-card:hover { border-color: var(--accent); }
+  .drilldown-bin-id { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; margin-bottom: 3px; }
+  .drilldown-bin-label { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+  .drilldown-meta { font-size: 11px; color: var(--text2); margin-bottom: 8px; }
+  .drilldown-items-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .no-data { text-align: center; padding: 40px 20px; color: var(--text2); font-size: 13px; }
   .item-chip-list { margin-top: 8px; line-height: 2; }
   .item-chip { display: inline-block; background: var(--surface2); border-radius: 4px; padding: 2px 9px; margin: 2px 4px 2px 0; font-size: 12px; }
 
-  /* Sync badge */
+  /* ═══════════════════════════════════════════
+     SYNC / SETTINGS
+     ═══════════════════════════════════════════ */
   .sync-badge {
     display: inline-flex; align-items: center; gap: 5px;
     font-family: 'JetBrains Mono', monospace;
@@ -707,20 +743,20 @@
     border: 1px solid; transition: all 0.3s;
   }
   .sync-badge.local   { color: var(--text2); border-color: var(--border); }
-  .sync-badge.syncing { color: var(--accent); border-color: var(--accent); background: rgba(254,228,64,.07); }
-  .sync-badge.synced  { color: var(--green);  border-color: var(--green);  background: rgba(46,196,182,.07); }
-  .sync-badge.error   { color: var(--red);    border-color: var(--red);    background: rgba(230,57,70,.07); }
+  .sync-badge.syncing { color: var(--accent); border-color: var(--accent); background: var(--accent-ghost); }
+  .sync-badge.synced  { color: var(--green);  border-color: var(--green);  background: var(--green-bg); }
+  .sync-badge.error   { color: var(--red);    border-color: var(--red);    background: var(--red-bg); }
   .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
   .sync-spin { animation: spin .8s linear infinite; display: inline-block; }
   @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-  /* Settings panel */
   .settings-section {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 10px;
     padding: 16px;
     margin-bottom: 14px;
+    box-shadow: var(--shadow);
   }
   .settings-section-title {
     font-family: 'JetBrains Mono', monospace;
@@ -747,7 +783,7 @@
   .settings-btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
   .btn-sync-push {
     flex: 1; padding: 10px; background: var(--accent);
-    color: var(--bg); border: none; border-radius: 6px;
+    color: var(--accent-text); border: none; border-radius: 6px;
     font-weight: 700; font-size: 12px;
     font-family: 'JetBrains Mono', monospace;
     cursor: pointer; transition: background .15s;
@@ -760,9 +796,9 @@
     font-family: 'JetBrains Mono', monospace;
     cursor: pointer; transition: all .15s;
   }
-  .btn-sync-pull:hover { background: rgba(46,196,182,.1); }
+  .btn-sync-pull:hover { background: var(--green-bg); }
 
-  /* Rename bin input inline */
+  /* Rename */
   .rename-input {
     font-size: 20px; font-weight: 700;
     background: var(--surface2); border: 1px solid var(--accent);
@@ -781,10 +817,29 @@
   .btn-rename:hover { border-color: var(--accent); color: var(--accent); }
   .btn-rename-save {
     background: var(--accent); border: none;
-    color: var(--bg); padding: 5px 12px; border-radius: 5px;
+    color: var(--accent-text); padding: 5px 12px; border-radius: 5px;
     font-size: 11px; font-weight: 700; cursor: pointer;
     margin-top: 8px; margin-left: 6px;
   }
+
+  /* ═══════════════════════════════════════════
+     THEME PICKER IN SETTINGS
+     ═══════════════════════════════════════════ */
+  .theme-picker {
+    display: flex; gap: 10px; margin-top: 8px;
+  }
+  .theme-option {
+    flex: 1; padding: 14px 10px; border-radius: 10px;
+    text-align: center; cursor: pointer;
+    border: 2px solid var(--border);
+    transition: all 0.2s;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; font-weight: 600;
+  }
+  .theme-option:hover { border-color: var(--accent); }
+  .theme-option.active { border-color: var(--accent); background: var(--accent-ghost); }
+  .theme-option .theme-icon { font-size: 24px; display: block; margin-bottom: 6px; }
+  .theme-option .theme-name { display: block; }
 </style>
 </head>
 <body>
@@ -794,13 +849,40 @@
 <input type="file" id="importInput" accept=".json">
 
 <script>
+// ─── THEME SYSTEM ───
+function getTheme() {
+  return localStorage.getItem("movebin_theme") || "dark";
+}
+function setTheme(t) {
+  document.documentElement.setAttribute("data-theme", t);
+  localStorage.setItem("movebin_theme", t);
+  // Update meta theme-color for mobile browser chrome
+  const meta = document.getElementById("metaThemeColor");
+  if (meta) meta.content = t === "dark" ? "#0D1117" : "#F5F6F8";
+}
+function toggleTheme() {
+  const current = getTheme();
+  const next = current === "dark" ? "light" : "dark";
+  setTheme(next);
+  render();
+}
+// Apply saved theme immediately
+setTheme(getTheme());
+
 // ─── DATA LAYER ───
 const ZONES = ["All","Office / Desk","Kitchen","Bathroom","Bedroom","Living Room","Pets","Utility","Special"];
-const ZONE_COLORS = {
+const ZONE_COLORS_DARK = {
   "Office / Desk":"#FF6B35","Kitchen":"#2EC4B6","Bathroom":"#9B5DE5",
   "Bedroom":"#00BBF9","Living Room":"#F15BB5","Pets":"#FEE440",
   "Utility":"#8AC926","Special":"#E63946"
 };
+const ZONE_COLORS_LIGHT = {
+  "Office / Desk":"#E55A20","Kitchen":"#1A9E8F","Bathroom":"#7C3CC7",
+  "Bedroom":"#0096D6","Living Room":"#D43F9C","Pets":"#B89200",
+  "Utility":"#6BA018","Special":"#CC2936"
+};
+
+function zoneColors() { return getTheme() === "dark" ? ZONE_COLORS_DARK : ZONE_COLORS_LIGHT; }
 
 const DEFAULT_BINS = [
   {id:"BIN-01",label:"Electronics & Cables",icon:"⚡",zone:"Office / Desk",items:[],location:"",packed:false},
@@ -832,12 +914,6 @@ function saveBins(bins) {
 }
 
 // ─── CREDENTIAL SYSTEM ───
-// Credentials are NEVER in this file — it's public on GitHub Pages.
-// They arrive via NFC tag URL: ?bin=BIN-01&k=API_KEY&b=JSONBIN_ID
-// Cached in sessionStorage (memory only — cleared when tab closes).
-// Without a physical NFC scan, sync shows as disabled — data is still
-// saved locally via localStorage so nothing is lost.
-
 function loadCreds() {
   return {
     key: sessionStorage.getItem("mb_k") || "",
@@ -856,36 +932,29 @@ function hasCreds() {
 // ─── STATE ───
 let state = {
   bins: loadBins(),
-  view: "dashboard",   // dashboard | bins | search | settings | all-items | all-locations
+  view: "dashboard",
   selectedBin: null,
   zoneFilter: "All",
   searchQuery: "",
   showAddBin: false,
-  newBinLabel: "",
-  newBinZone: "Utility",
   newItem: "",
   deepLinkedBin: null,
-  syncStatus: "local",   // local | syncing | synced | error
-  renamingBin: false,    // renaming label
-  renamingBinId: false,  // renaming the BIN-XX id
-  drilldown: null,       // null | "items" | "locations"
+  syncStatus: "local",
+  renamingBin: false,
+  renamingBinId: false,
+  drilldown: null,
 };
 
-// ─── CHECK URL FOR ?bin= DEEP LINK + CREDENTIALS ───
+// ─── DEEP LINK ───
 function checkDeepLink() {
   const params = new URLSearchParams(window.location.search);
-
-  // Read credentials from URL params (written on NFC sticker)
   const k = params.get("k");
   const b = params.get("b");
   if (k && b) {
     saveCreds(k, b);
-    // Strip credentials from the visible URL bar immediately for privacy
     const binOnly = params.get("bin") ? "?bin=" + params.get("bin") : "";
     window.history.replaceState({}, "", window.location.pathname + binOnly);
   }
-
-  // Deep-link to specific bin
   const binParam = params.get("bin");
   if (binParam) {
     const found = state.bins.find(b => b.id.toUpperCase() === binParam.toUpperCase());
@@ -906,46 +975,35 @@ function showToast(msg) {
 }
 
 // ─── HELPERS ───
-function binColor(bin) { return ZONE_COLORS[bin.zone] || "#FEE440"; }
+function binColor(bin) { return zoneColors()[bin.zone] || "#D4A800"; }
 function totalItems() { return state.bins.reduce((s,b) => s + b.items.length, 0); }
-function packedBins() { return state.bins.filter(b => b.packed).length; }
-function locatedBins() { return state.bins.filter(b => b.location && b.location.trim()).length; }
 function packedCount() { return state.bins.filter(b => b.packed).length; }
 function locatedCount() { return state.bins.filter(b => b.location && b.location.trim()).length; }
 
-// ─── EXPORT ───
+// ─── EXPORTS ───
 function exportExcel() {
   const wb = XLSX.utils.book_new();
-
-  // ── Sheet 1: Summary ──
   const summaryRows = [
-    ["MOVE.BIN — Inventory Summary", "", "", "", ""],
-    ["Generated:", new Date().toLocaleString(), "", "", ""],
-    ["", "", "", "", ""],
-    ["BIN ID", "Label", "Zone", "Location", "Item Count"],
+    ["MOVE.BIN — Inventory Summary","","","",""],
+    ["Generated:", new Date().toLocaleString(),"","",""],
+    ["","","","",""],
+    ["BIN ID","Label","Zone","Location","Item Count"],
   ];
   state.bins.forEach(bin => {
     summaryRows.push([bin.id, bin.label, bin.zone, bin.location || "—", bin.items.length]);
   });
-  summaryRows.push(["", "", "", "TOTAL ITEMS", state.bins.reduce((s,b)=>s+b.items.length,0)]);
+  summaryRows.push(["","","","TOTAL ITEMS", state.bins.reduce((s,b)=>s+b.items.length,0)]);
   const wsSummary = XLSX.utils.aoa_to_sheet(summaryRows);
   wsSummary["!cols"] = [{wch:10},{wch:32},{wch:18},{wch:24},{wch:12}];
   XLSX.utils.book_append_sheet(wb, wsSummary, "Summary");
 
-  // ── Sheet 2: All Items ──
-  const itemRows = [["BIN ID", "Label", "Zone", "Location", "Item"]];
+  const itemRows = [["BIN ID","Label","Zone","Location","Item"]];
   state.bins.forEach(bin => {
     if (bin.items.length === 0) {
       itemRows.push([bin.id, bin.label, bin.zone, bin.location || "—", "(empty)"]);
     } else {
       bin.items.forEach((item, i) => {
-        itemRows.push([
-          i === 0 ? bin.id : "",
-          i === 0 ? bin.label : "",
-          i === 0 ? bin.zone : "",
-          i === 0 ? (bin.location || "—") : "",
-          item
-        ]);
+        itemRows.push([i===0?bin.id:"", i===0?bin.label:"", i===0?bin.zone:"", i===0?(bin.location||"—"):"", item]);
       });
     }
   });
@@ -953,24 +1011,13 @@ function exportExcel() {
   wsItems["!cols"] = [{wch:10},{wch:32},{wch:18},{wch:24},{wch:36}];
   XLSX.utils.book_append_sheet(wb, wsItems, "All Items");
 
-  // ── One sheet per zone ──
   const zones = [...new Set(state.bins.map(b => b.zone))];
   zones.forEach(zone => {
     const zoneBins = state.bins.filter(b => b.zone === zone);
     const rows = [["BIN ID","Label","Location","Item"]];
     zoneBins.forEach(bin => {
-      if (bin.items.length === 0) {
-        rows.push([bin.id, bin.label, bin.location || "—", "(empty)"]);
-      } else {
-        bin.items.forEach((item, i) => {
-          rows.push([
-            i===0?bin.id:"",
-            i===0?bin.label:"",
-            i===0?(bin.location||"—"):"",
-            item
-          ]);
-        });
-      }
+      if (bin.items.length === 0) { rows.push([bin.id, bin.label, bin.location || "—", "(empty)"]); }
+      else { bin.items.forEach((item, i) => { rows.push([i===0?bin.id:"", i===0?bin.label:"", i===0?(bin.location||"—"):"", item]); }); }
     });
     const ws = XLSX.utils.aoa_to_sheet(rows);
     ws["!cols"] = [{wch:10},{wch:28},{wch:22},{wch:36}];
@@ -978,31 +1025,21 @@ function exportExcel() {
   });
 
   try {
-    // Use manual blob download — works on mobile + all desktop browsers
     const wbout = XLSX.write(wb, { bookType:"xlsx", type:"array" });
     const blob = new Blob([wbout], { type:"application/octet-stream" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    const date = new Date().toISOString().slice(0,10);
-    a.href = url;
-    a.download = "movebin-inventory-" + date + ".xlsx";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    a.href = url; a.download = "movebin-inventory-" + new Date().toISOString().slice(0,10) + ".xlsx";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
     showToast("✅ Excel exported!");
-  } catch(e) {
-    showToast("❌ Export failed: " + e.message);
-    console.error(e);
-  }
+  } catch(e) { showToast("❌ Export failed: " + e.message); }
 }
 
 function exportJSON() {
   const blob = new Blob([JSON.stringify(state.bins, null, 2)], {type:"application/json"});
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  const date = new Date().toISOString().slice(0,10);
-  a.href = url; a.download = `movebin-backup-${date}.json`; a.click();
+  a.href = url; a.download = `movebin-backup-${new Date().toISOString().slice(0,10)}.json`; a.click();
   URL.revokeObjectURL(url);
   showToast("✅ JSON backup saved!");
 }
@@ -1010,114 +1047,56 @@ function exportJSON() {
 function exportPDF() {
   const w = window.open("", "_blank");
   const now = new Date().toLocaleString();
-  const totalItems = state.bins.reduce((s,b)=>s+b.items.length,0);
-  const packedBins = state.bins.filter(b=>b.items.length>0).length;
-
+  const ti = totalItems(), pb = state.bins.filter(b=>b.items.length>0).length;
   let rows = "";
   state.bins.forEach(bin => {
     const itemList = bin.items.length > 0
       ? bin.items.map(i => `<span class="item-chip">${i}</span>`).join("")
       : '<span style="color:#888;font-style:italic">Empty</span>';
-    rows += `<tr>
-      <td class="bin-id-cell">${bin.id}</td>
-      <td><strong>${bin.label}</strong></td>
-      <td>${bin.zone}</td>
-      <td>${bin.location || '<span style="color:#aaa">—</span>'}</td>
-      <td class="count-cell">${bin.items.length}</td>
-      <td class="items-cell">${itemList}</td>
-    </tr>`;
+    rows += `<tr><td class="bid">${bin.id}</td><td><strong>${bin.label}</strong></td><td>${bin.zone}</td><td>${bin.location||'<span style="color:#aaa">—</span>'}</td><td class="cnt">${bin.items.length}</td><td class="itms">${itemList}</td></tr>`;
   });
-
   w.document.write(`<!DOCTYPE html><html><head><title>MoveBin Inventory</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a2e; padding: 32px; font-size: 12px; }
-    .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; border-bottom: 3px solid #FEE440; padding-bottom: 16px; }
-    .logo { font-size: 24px; font-weight: 900; letter-spacing: -1px; }
-    .logo span { color: #FEE440; background: #1a1a2e; padding: 2px 8px; border-radius: 4px; }
-    .meta { text-align: right; font-size: 11px; color: #666; line-height: 1.8; }
-    .stats { display: flex; gap: 16px; margin-bottom: 24px; }
-    .stat { background: #f5f5f5; border-radius: 8px; padding: 12px 20px; text-align: center; flex: 1; }
-    .stat-val { font-size: 28px; font-weight: 900; color: #1a1a2e; }
-    .stat-lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-top: 2px; }
-    table { width: 100%; border-collapse: collapse; }
-    thead tr { background: #1a1a2e; color: #FEE440; }
-    thead th { padding: 10px 12px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
-    tbody tr { border-bottom: 1px solid #eee; }
-    tbody tr:nth-child(even) { background: #fafafa; }
-    td { padding: 8px 12px; vertical-align: top; }
-    .bin-id-cell { font-family: monospace; font-weight: 700; font-size: 11px; color: #FF6B35; white-space: nowrap; }
-    .count-cell { text-align: center; font-weight: 700; }
-    .items-cell { line-height: 1.8; }
-    .item-chip { display: inline-block; background: #f0f0f0; border-radius: 4px; padding: 1px 7px; margin: 2px 3px 2px 0; font-size: 11px; }
-    .footer { margin-top: 24px; text-align: center; font-size: 10px; color: #aaa; border-top: 1px solid #eee; padding-top: 12px; }
-    @media print { body { padding: 16px; } }
-  </style></head><body>
-  <div class="header">
-    <div><div class="logo">📦 MOVE<span>BIN</span></div><div style="font-size:11px;color:#888;margin-top:4px">Inventory Report</div></div>
-    <div class="meta">Generated: ${now}<br>Total Bins: ${state.bins.length}<br>Total Items: ${totalItems}</div>
-  </div>
-  <div class="stats">
-    <div class="stat"><div class="stat-val">${state.bins.length}</div><div class="stat-lbl">Total Bins</div></div>
-    <div class="stat"><div class="stat-val">${totalItems}</div><div class="stat-lbl">Items Logged</div></div>
-    <div class="stat"><div class="stat-val">${packedBins}</div><div class="stat-lbl">Bins Packed</div></div>
-    <div class="stat"><div class="stat-val">${state.bins.length>0?Math.round(packedBins/state.bins.length*100):0}%</div><div class="stat-lbl">Progress</div></div>
-  </div>
-  <table>
-    <thead><tr><th>Bin ID</th><th>Label</th><th>Zone</th><th>Location</th><th>#</th><th>Items</th></tr></thead>
-    <tbody>${rows}</tbody>
-  </table>
-  <div class="footer">MOVE.BIN — rickyfont94.github.io/movebin</div>
-  </body></html>`);
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Segoe UI',Arial,sans-serif;color:#1a1a2e;padding:32px;font-size:12px}.hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;border-bottom:3px solid #D4A800;padding-bottom:16px}.logo{font-size:24px;font-weight:900;letter-spacing:-1px}.logo span{color:#fff;background:#1a1a2e;padding:2px 8px;border-radius:4px}.meta{text-align:right;font-size:11px;color:#666;line-height:1.8}.sts{display:flex;gap:16px;margin-bottom:24px}.st{background:#f5f5f5;border-radius:8px;padding:12px 20px;text-align:center;flex:1}.sv{font-size:28px;font-weight:900;color:#1a1a2e}.sl{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#888;margin-top:2px}table{width:100%;border-collapse:collapse}thead tr{background:#1a1a2e;color:#D4A800}thead th{padding:10px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px}tbody tr{border-bottom:1px solid #eee}tbody tr:nth-child(even){background:#fafafa}td{padding:8px 12px;vertical-align:top}.bid{font-family:monospace;font-weight:700;font-size:11px;color:#E55A20;white-space:nowrap}.cnt{text-align:center;font-weight:700}.itms{line-height:1.8}.item-chip{display:inline-block;background:#f0f0f0;border-radius:4px;padding:1px 7px;margin:2px 3px 2px 0;font-size:11px}.ftr{margin-top:24px;text-align:center;font-size:10px;color:#aaa;border-top:1px solid #eee;padding-top:12px}@media print{body{padding:16px}}</style></head><body>
+  <div class="hdr"><div><div class="logo">📦 MOVE<span>BIN</span></div><div style="font-size:11px;color:#888;margin-top:4px">Inventory Report</div></div><div class="meta">Generated: ${now}<br>Total Bins: ${state.bins.length}<br>Total Items: ${ti}</div></div>
+  <div class="sts"><div class="st"><div class="sv">${state.bins.length}</div><div class="sl">Total Bins</div></div><div class="st"><div class="sv">${ti}</div><div class="sl">Items Logged</div></div><div class="st"><div class="sv">${pb}</div><div class="sl">Bins Packed</div></div><div class="st"><div class="sv">${state.bins.length>0?Math.round(pb/state.bins.length*100):0}%</div><div class="sl">Progress</div></div></div>
+  <table><thead><tr><th>Bin ID</th><th>Label</th><th>Zone</th><th>Location</th><th>#</th><th>Items</th></tr></thead><tbody>${rows}</tbody></table>
+  <div class="ftr">MOVE.BIN — rickyfont94.github.io/movebin</div></body></html>`);
   w.document.close();
   setTimeout(() => w.print(), 400);
 }
+
 function importData() { document.getElementById("importInput").click(); }
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("importInput").addEventListener("change", e => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const file = e.target.files[0]; if (!file) return;
     const reader = new FileReader();
     reader.onload = ev => {
       try {
         const data = JSON.parse(ev.target.result);
-        if (Array.isArray(data) && data[0]?.id) {
-          state.bins = data;
-          saveBins(state.bins);
-          showToast("Imported " + data.length + " bins");
-          render();
-        }
+        if (Array.isArray(data) && data[0]?.id) { state.bins = data; saveBins(state.bins); showToast("Imported " + data.length + " bins"); render(); }
       } catch(err) { showToast("Invalid JSON file"); }
     };
-    reader.readAsText(file);
-    e.target.value = "";
+    reader.readAsText(file); e.target.value = "";
   });
 });
 
-// ─── CLOUD SYNC (JSONBin.io — credentials hardcoded) ───
+// ─── CLOUD SYNC ───
 const JSONBIN_URL = "https://api.jsonbin.io/v3/b";
-
-// Debounced auto-push: waits 1.5s after last change before pushing
 let _pushTimer = null;
-function scheduleAutoPush() {
-  clearTimeout(_pushTimer);
-  _pushTimer = setTimeout(() => pushToCloud(), 1500);
-}
-
+function scheduleAutoPush() { clearTimeout(_pushTimer); _pushTimer = setTimeout(() => pushToCloud(), 1500); }
 function setSyncStatus(s) { state.syncStatus = s; renderSyncBadge(); }
 
 function renderSyncBadge() {
   const el = document.getElementById("syncBadge");
   if (!el) return;
   const map = {
-    local:   {cls:"local",   html:`<span class="sync-dot"></span> LOCAL`},
-    syncing: {cls:"syncing", html:`<span class="sync-spin">⟳</span> SYNCING`},
-    synced:  {cls:"synced",  html:`<span class="sync-dot"></span> SYNCED`},
-    error:   {cls:"error",   html:`<span class="sync-dot"></span> ERR`},
+    local:   {cls:"local",   html:'<span class="sync-dot"></span> LOCAL'},
+    syncing: {cls:"syncing", html:'<span class="sync-spin">⟳</span> SYNCING'},
+    synced:  {cls:"synced",  html:'<span class="sync-dot"></span> SYNCED'},
+    error:   {cls:"error",   html:'<span class="sync-dot"></span> ERR'},
   };
   const m = map[state.syncStatus] || map.local;
-  el.className = `sync-badge ${m.cls}`;
-  el.innerHTML = m.html;
+  el.className = `sync-badge ${m.cls}`; el.innerHTML = m.html;
 }
 
 async function pushToCloud() {
@@ -1125,18 +1104,14 @@ async function pushToCloud() {
   if (!creds.key || !creds.bid) { setSyncStatus("local"); return; }
   setSyncStatus("syncing");
   try {
-    const payload = { bins: state.bins, updatedAt: new Date().toISOString() };
     const res = await fetch(`${JSONBIN_URL}/${creds.bid}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json", "X-Master-Key": creds.key },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({ bins: state.bins, updatedAt: new Date().toISOString() })
     });
     if (!res.ok) throw new Error(await res.text());
     setSyncStatus("synced");
-  } catch(e) {
-    setSyncStatus("error");
-    console.error("Push failed:", e.message);
-  }
+  } catch(e) { setSyncStatus("error"); console.error("Push failed:", e.message); }
 }
 
 async function pullFromCloud() {
@@ -1144,29 +1119,19 @@ async function pullFromCloud() {
   if (!creds.key || !creds.bid) { setSyncStatus("local"); return; }
   setSyncStatus("syncing");
   try {
-    const res = await fetch(`${JSONBIN_URL}/${creds.bid}/latest`, {
-      headers: { "X-Master-Key": creds.key }
-    });
+    const res = await fetch(`${JSONBIN_URL}/${creds.bid}/latest`, { headers: { "X-Master-Key": creds.key } });
     if (!res.ok) throw new Error(await res.text());
     const data = await res.json();
     const payload = data.record;
     if (payload.bins && Array.isArray(payload.bins)) {
-      state.bins = payload.bins;
-      saveBins(state.bins);
-      setSyncStatus("synced");
-      showToast("✅ Synced — " + payload.bins.length + " bins loaded");
-      render();
+      state.bins = payload.bins; saveBins(state.bins); setSyncStatus("synced");
+      showToast("✅ Synced — " + payload.bins.length + " bins loaded"); render();
     } else { throw new Error("Unexpected data format"); }
-  } catch(e) {
-    setSyncStatus("error");
-    showToast("❌ Sync failed: " + e.message);
-  }
+  } catch(e) { setSyncStatus("error"); showToast("❌ Sync failed: " + e.message); }
 }
+
+// ─── ACTIONS ───
 function setView(v) { state.view = v; state.selectedBin = null; state.deepLinkedBin = null; state.renamingBin = false; state.renamingBinId = false; state.drilldown = null; render(); }
-function togglePacked(binId) {
-  const bin = state.bins.find(b => b.id === binId);
-  if (bin) { bin.packed = !bin.packed; saveBins(state.bins); render(); }
-}
 function openDrilldown(type) { state.drilldown = type; render(); }
 function closeDrilldown() { state.drilldown = null; render(); }
 function selectBin(id) { state.selectedBin = id; state.deepLinkedBin = null; state.renamingBin = false; state.renamingBinId = false; render(); }
@@ -1186,18 +1151,11 @@ function startRenameBinId() { state.renamingBinId = true; state.renamingBin = fa
 function saveRenameBinId() {
   const raw = document.getElementById("renameBinIdInput")?.value?.trim().toUpperCase();
   if (!raw) { state.renamingBinId = false; render(); return; }
-  // Format: allow "BIN-XX" or just digits like "05" -> "BIN-05"
   const newId = /^BIN-/.test(raw) ? raw : "BIN-" + raw;
-  // Check for duplicates
   const conflict = state.bins.find(b => b.id === newId && b.id !== state.selectedBin);
   if (conflict) { showToast("❌ " + newId + " already exists"); return; }
   const bin = state.bins.find(b => b.id === state.selectedBin);
-  if (bin) {
-    bin.id = newId;
-    state.selectedBin = newId;
-    saveBins(state.bins);
-    showToast("📦 ID changed to " + newId);
-  }
+  if (bin) { bin.id = newId; state.selectedBin = newId; saveBins(state.bins); showToast("📦 ID changed to " + newId); }
   state.renamingBinId = false; render();
 }
 function cancelRenameBinId() { state.renamingBinId = false; render(); }
@@ -1206,19 +1164,17 @@ function togglePacked(binId) {
   const bin = state.bins.find(b => b.id === binId);
   if (bin) { bin.packed = !bin.packed; saveBins(state.bins); render(); }
 }
-
 function saveLocation(binId) {
   const val = document.getElementById("locationInput")?.value?.trim() ?? "";
   const bin = state.bins.find(b => b.id === binId);
   if (bin !== undefined) { bin.location = val; saveBins(state.bins); showToast("📍 Location saved!"); }
 }
-
 function addItem(binId) {
   const input = document.getElementById("itemInput");
   const val = input?.value?.trim();
   if (!val) return;
   const bin = state.bins.find(b => b.id === binId);
-  if (bin) { bin.items.push(val); saveBins(state.bins); input.value = ""; state.newItem = ""; render(); }
+  if (bin) { bin.items.push(val); saveBins(state.bins); input.value = ""; render(); }
 }
 function removeItem(binId, idx) {
   const bin = state.bins.find(b => b.id === binId);
@@ -1227,32 +1183,41 @@ function removeItem(binId, idx) {
 function deleteBin(binId) {
   if (!confirm("Delete this bin and all its items?")) return;
   state.bins = state.bins.filter(b => b.id !== binId);
-  saveBins(state.bins);
-  state.selectedBin = null;
-  render();
+  saveBins(state.bins); state.selectedBin = null; render();
 }
 function toggleAddBin() { state.showAddBin = !state.showAddBin; render(); }
 function addBin() {
   const label = document.getElementById("newBinLabel")?.value?.trim();
   const zone = document.getElementById("newBinZone")?.value;
-  const location = document.getElementById("newBinLocation")?.value?.trim() || "";
   if (!label) return;
   const nextNum = state.bins.length + 1;
   const id = "BIN-" + String(nextNum).padStart(2, "0");
-  state.bins.push({ id, label, icon:"📦", zone: zone || "Utility", location, items:[], packed:false });
-  saveBins(state.bins);
-  state.showAddBin = false;
-  showToast("Added " + id);
-  render();
+  state.bins.push({ id, label, icon:"📦", zone: zone || "Utility", location: "", items:[], packed:false });
+  saveBins(state.bins); state.showAddBin = false; showToast("Added " + id); render();
+}
+function importFromFile(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (Array.isArray(data) && data[0]?.id) { state.bins = data; saveBins(state.bins); showToast("Imported " + data.length + " bins"); render(); }
+    } catch(err) { showToast("Invalid JSON file"); }
+  };
+  reader.readAsText(file); e.target.value = "";
 }
 
-// ─── RENDER ───
+// ═══════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════
 function render() {
   const app = document.getElementById("app");
-  let html = "";
+  const isDark = getTheme() === "dark";
+  const themeIcon = isDark ? "☀️" : "🌙";
+  let h = "";
 
   // Header
-  html += `<div class="header">
+  h += `<div class="header">
     <div class="header-top">
       <div>
         <div class="logo">📦 MOVE.BIN</div>
@@ -1262,131 +1227,92 @@ function render() {
         <span class="sync-badge ${state.syncStatus}" id="syncBadge">${
           state.syncStatus==='syncing'?'<span class="sync-spin">⟳</span> SYNCING':
           state.syncStatus==='synced'?'<span class="sync-dot"></span> SYNCED':
-          state.syncStatus==='error'?'<span class="sync-dot"></span> SYNC ERR':
+          state.syncStatus==='error'?'<span class="sync-dot"></span> ERR':
           '<span class="sync-dot"></span> LOCAL'
         }</span>
-        <button class="btn-small export" onclick="exportExcel()">📊 Excel</button><button class="btn-small export" onclick="exportPDF()" style="border-color:var(--pink);color:var(--pink)">📄 PDF</button>
-        <button class="btn-small import" onclick="importData()">Import</button>
+        <button class="btn-small export" onclick="exportExcel()">📊</button>
+        <button class="btn-small export" onclick="exportPDF()" style="border-color:var(--pink);color:var(--pink)">📄</button>
+        <button class="btn-small import" onclick="importData()">⬆</button>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">${themeIcon}</button>
       </div>
     </div>
     <div class="tabs">
       ${["dashboard","bins","search","settings"].map(t =>
         `<button class="tab ${state.view===t?"active":""}" onclick="setView('${t}')">${
-          t==="dashboard"?"📊":t==="bins"?"📦":t==="search"?"🔍":"⚙️"
-        } ${
-          t==="dashboard"?"Dash":t==="bins"?"Bins":t==="search"?"Find":"Sync"
+          ({dashboard:"📊 Dash",bins:"📦 Bins",search:"🔍 Find",settings:"⚙️ Sync"})[t]
         }</button>`
       ).join("")}
     </div>
   </div>`;
 
-  html += `<div class="content">`;
+  h += `<div class="content">`;
 
   // ─── DASHBOARD ───
   if (state.view === "dashboard" && !state.drilldown) {
     const ti = totalItems(), pc = packedCount(), lc = locatedCount();
     const pct = state.bins.length > 0 ? Math.round((pc/state.bins.length)*100) : 0;
-    html += `<div class="stats">
-      <div class="stat">
-        <div class="stat-value" style="color:var(--accent)">${state.bins.length}</div>
-        <div class="stat-label">Total Bins</div>
-      </div>
-      <div class="stat stat-clickable" onclick="openDrilldown('items')" style="border:1px solid var(--border);border-radius:10px">
-        <div class="stat-value" style="color:var(--green)">${ti}</div>
-        <div class="stat-label">Items Logged</div>
-        <div class="stat-tap-hint">tap to view ↗</div>
-      </div>
-      <div class="stat stat-clickable" onclick="openDrilldown('locations')" style="border:1px solid var(--border);border-radius:10px">
-        <div class="stat-value" style="color:var(--blue)">${lc}</div>
-        <div class="stat-label">Locations Set</div>
-        <div class="stat-tap-hint">tap to view ↗</div>
-      </div>
-      <div class="stat">
-        <div class="stat-value" style="color:var(--orange)">${pc}</div>
-        <div class="stat-label">Packed</div>
-      </div>
+    h += `<div class="stats">
+      <div class="stat"><div class="stat-value" style="color:var(--accent)">${state.bins.length}</div><div class="stat-label">Total Bins</div></div>
+      <div class="stat stat-clickable" onclick="openDrilldown('items')"><div class="stat-value" style="color:var(--green)">${ti}</div><div class="stat-label">Items Logged</div><div class="stat-tap-hint">tap to view ↗</div></div>
+      <div class="stat stat-clickable" onclick="openDrilldown('locations')"><div class="stat-value" style="color:var(--blue)">${lc}</div><div class="stat-label">Locations Set</div><div class="stat-tap-hint">tap to view ↗</div></div>
+      <div class="stat"><div class="stat-value" style="color:var(--orange)">${pc}</div><div class="stat-label">Packed</div></div>
     </div>`;
-    html += `<div class="progress-wrap">
-      <div class="progress-header"><span style="font-weight:600">Packing Progress</span><span class="progress-pct">${pct}%</span></div>
-      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
-    </div>`;
-    html += `<div class="section-title">By Zone</div>`;
+    h += `<div class="progress-wrap"><div class="progress-header"><span style="font-weight:600">Packing Progress</span><span class="progress-pct">${pct}%</span></div><div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div></div>`;
+    h += `<div class="section-title">By Zone</div>`;
     ZONES.filter(z=>z!=="All").forEach(zone => {
       const zb = state.bins.filter(b=>b.zone===zone);
       if (zb.length === 0) return;
-      const zi = zb.reduce((s,b)=>s+b.items.length,0);
-      const zp = zb.filter(b=>b.packed).length;
-      html += `<div class="zone-card" onclick="state.zoneFilter='${zone}';setView('bins')">
-        <div>
-          <div class="zone-name">${zone}</div>
-          <div class="zone-count">${zb.length} bin${zb.length>1?"s":""} · ${zp} packed</div>
-        </div>
-        <div class="zone-items">${zi} items</div>
-      </div>`;
+      const zi = zb.reduce((s,b)=>s+b.items.length,0), zp = zb.filter(b=>b.packed).length;
+      h += `<div class="zone-card" onclick="state.zoneFilter='${zone}';setView('bins')"><div><div class="zone-name">${zone}</div><div class="zone-count">${zb.length} bin${zb.length>1?"s":""} · ${zp} packed</div></div><div class="zone-items">${zi} items</div></div>`;
     });
   }
 
-  // ─── DRILLDOWN: ITEMS LOGGED ───
+  // ─── DRILLDOWN: ITEMS ───
   if (state.view === "dashboard" && state.drilldown === "items") {
-    const binsWithAny = state.bins.filter(b => b.items.length > 0);
-    html += `<button class="drilldown-back" onclick="closeDrilldown()">← Back to Dashboard</button>`;
-    html += `<div class="drilldown-title">All Items Logged</div>`;
-    html += `<div class="drilldown-sub">${totalItems()} items across ${binsWithAny.length} bin${binsWithAny.length!==1?"s":""}</div>`;
-    if (binsWithAny.length === 0) {
-      html += `<div class="no-data">No items logged yet — start packing!</div>`;
-    } else {
-      binsWithAny.forEach(bin => {
-        const c = binColor(bin);
-        html += `<div class="drilldown-bin-card" style="border-left-color:${c}" onclick="selectBin('${bin.id}');state.view='bins'">
-          <div class="drilldown-bin-id" style="color:${c}">${bin.id} ${bin.packed?'<span class="packed-badge">✓ PACKED</span>':''}</div>
-          <div class="drilldown-bin-label">${bin.icon} ${bin.label}</div>
-          <div class="drilldown-meta">Zone: ${bin.zone}${bin.location?' · 📍 '+bin.location:''}</div>
-          <div class="drilldown-items-wrap">
-            ${bin.items.map(i=>`<span class="drilldown-item-chip" style="background:${c}1a;border:1px solid ${c}44;color:${c}">${i}</span>`).join("")}
-          </div>
-        </div>`;
-      });
-    }
+    const bwa = state.bins.filter(b => b.items.length > 0);
+    h += `<button class="drilldown-back" onclick="closeDrilldown()">← Back to Dashboard</button>`;
+    h += `<div class="drilldown-title">All Items Logged</div><div class="drilldown-sub">${totalItems()} items across ${bwa.length} bin${bwa.length!==1?"s":""}</div>`;
+    if (!bwa.length) { h += `<div class="no-data">No items logged yet</div>`; }
+    else { bwa.forEach(bin => {
+      const c = binColor(bin);
+      h += `<div class="drilldown-bin-card" style="border-left-color:${c}" onclick="selectBin('${bin.id}');state.view='bins';render()">
+        <div class="drilldown-bin-id" style="color:${c}">${bin.id} ${bin.packed?'<span class="packed-badge">✓ PACKED</span>':''}</div>
+        <div class="drilldown-bin-label">${bin.icon} ${bin.label}</div>
+        <div class="drilldown-meta">Zone: ${bin.zone}${bin.location?' · 📍 '+bin.location:''}</div>
+        <div class="drilldown-items-wrap">${bin.items.map(i=>`<span style="display:inline-block;background:${c}1a;border:1px solid ${c}44;color:${c};border-radius:6px;padding:3px 10px;font-size:12px;font-weight:500">${i}</span>`).join("")}</div>
+      </div>`;
+    }); }
   }
 
   // ─── DRILLDOWN: LOCATIONS ───
   if (state.view === "dashboard" && state.drilldown === "locations") {
     const withLoc = state.bins.filter(b => b.location && b.location.trim());
-    const noLoc   = state.bins.filter(b => !b.location || !b.location.trim());
-    html += `<button class="drilldown-back" onclick="closeDrilldown()">← Back to Dashboard</button>`;
-    html += `<div class="drilldown-title">Bin Locations</div>`;
-    html += `<div class="drilldown-sub">${withLoc.length} of ${state.bins.length} bins have a location set</div>`;
-    if (withLoc.length === 0) {
-      html += `<div class="no-data">No locations set yet — open a bin and add a location.</div>`;
-    } else {
-      // Group by location string
+    const noLoc = state.bins.filter(b => !b.location || !b.location.trim());
+    h += `<button class="drilldown-back" onclick="closeDrilldown()">← Back to Dashboard</button>`;
+    h += `<div class="drilldown-title">Bin Locations</div><div class="drilldown-sub">${withLoc.length} of ${state.bins.length} bins have a location set</div>`;
+    if (!withLoc.length) { h += `<div class="no-data">No locations set yet</div>`; }
+    else {
       const groups = {};
-      withLoc.forEach(b => {
-        const loc = b.location.trim();
-        if (!groups[loc]) groups[loc] = [];
-        groups[loc].push(b);
-      });
+      withLoc.forEach(b => { const l = b.location.trim(); if(!groups[l]) groups[l]=[]; groups[l].push(b); });
       Object.entries(groups).forEach(([loc, bins]) => {
-        html += `<div style="margin-bottom:18px">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--blue);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📍 ${loc}</div>`;
+        h += `<div style="margin-bottom:18px"><div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--blue);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📍 ${loc}</div>`;
         bins.forEach(bin => {
           const c = binColor(bin);
-          html += `<div class="drilldown-bin-card" style="border-left-color:${c};margin-bottom:6px" onclick="selectBin('${bin.id}');state.view='bins'">
+          h += `<div class="drilldown-bin-card" style="border-left-color:${c};margin-bottom:6px" onclick="selectBin('${bin.id}');state.view='bins';render()">
             <div class="drilldown-bin-id" style="color:${c}">${bin.id} ${bin.packed?'<span class="packed-badge">✓ PACKED</span>':''}</div>
             <div class="drilldown-bin-label">${bin.icon} ${bin.label}</div>
             <div class="drilldown-meta">Zone: ${bin.zone} · ${bin.items.length} item${bin.items.length!==1?"s":""}</div>
           </div>`;
         });
-        html += `</div>`;
+        h += `</div>`;
       });
     }
     if (noLoc.length > 0) {
-      html += `<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px">⚠ No Location Set (${noLoc.length})</div>`;
+      h += `<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px">⚠ No Location Set (${noLoc.length})</div>`;
       noLoc.forEach(bin => {
         const c = binColor(bin);
-        html += `<div class="drilldown-bin-card" style="border-left-color:${c};opacity:0.5;margin-bottom:6px" onclick="selectBin('${bin.id}');state.view='bins'">
-          <div class="drilldown-bin-id" style="color:${c}">${bin.id}</div>
-          <div class="drilldown-bin-label">${bin.icon} ${bin.label}</div>
+        h += `<div class="drilldown-bin-card" style="border-left-color:${c};opacity:0.5;margin-bottom:6px" onclick="selectBin('${bin.id}');state.view='bins';render()">
+          <div class="drilldown-bin-id" style="color:${c}">${bin.id}</div><div class="drilldown-bin-label">${bin.icon} ${bin.label}</div>
         </div>`;
       });
     }
@@ -1394,49 +1320,37 @@ function render() {
 
   // ─── BINS LIST ───
   if (state.view === "bins" && !state.selectedBin) {
-    html += `<div class="filter-scroll">${ZONES.map(z =>
+    h += `<div class="filter-scroll">${ZONES.map(z =>
       `<button class="filter-pill ${state.zoneFilter===z?"active":""}" onclick="setZoneFilter('${z}')">${z}</button>`
     ).join("")}</div>`;
 
-    const filtered = state.bins.filter(b => {
-      return (state.zoneFilter==="All" || b.zone===state.zoneFilter);
-    });
-    filtered.forEach(bin => {
+    state.bins.filter(b => state.zoneFilter==="All" || b.zone===state.zoneFilter).forEach(bin => {
       const c = binColor(bin);
       const packedTag = bin.packed ? `<span class="packed-badge">✓ Packed</span>` : "";
       const locationTag = bin.location ? `<span style="font-size:10px;color:var(--text2);margin-right:6px">📍 ${bin.location}</span>` : "";
       const previewItems = bin.items.slice(0,4).map(i => `<span class="item-token" style="color:${c}">${i}</span>`).join(`<span class="item-sep">·</span>`);
       const previewMore = bin.items.length > 4 ? `<span class="item-more"> +${bin.items.length-4} more</span>` : "";
-      const preview = (bin.location || bin.items.length > 0)
-        ? `<div class="bin-preview">${locationTag}${previewItems}${previewMore}</div>` : "";
-      html += `<div class="bin-card" style="border-left-color:${c};${bin.packed?"opacity:0.75;":""}" onclick="selectBin('${bin.id}')">
+      const preview = (bin.location || bin.items.length > 0) ? `<div class="bin-preview">${locationTag}${previewItems}${previewMore}</div>` : "";
+      h += `<div class="bin-card" style="border-left-color:${c};${bin.packed?"opacity:0.75;":""}" onclick="selectBin('${bin.id}')">
         <div class="bin-top">
-          <div class="bin-info">
-            <span class="bin-icon">${bin.icon}</span>
-            <div>
-              <div class="bin-id" style="color:${c}">${bin.id}${packedTag}</div>
-              <div class="bin-label">${bin.label}</div>
-              <div class="bin-zone-tag">${bin.zone}</div>
-            </div>
-          </div>
+          <div class="bin-info"><span class="bin-icon">${bin.icon}</span><div>
+            <div class="bin-id" style="color:${c}">${bin.id}${packedTag}</div>
+            <div class="bin-label">${bin.label}</div>
+            <div class="bin-zone-tag">${bin.zone}</div>
+          </div></div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
             <div class="bin-count" style="background:${bin.items.length>0?c+"22":"var(--surface2)"};color:${bin.items.length>0?c:"var(--text2)"}">${bin.items.length}</div>
-            ${bin.packed ? '<span style="font-size:9px;font-family:JetBrains Mono,monospace;background:rgba(46,196,182,0.15);color:var(--green);border:1px solid rgba(46,196,182,0.3);padding:2px 6px;border-radius:8px">✓ PACKED</span>' : ''}
           </div>
         </div>${preview}
       </div>`;
     });
 
-    if (!state.showAddBin) {
-      html += `<button class="add-bin-btn" onclick="toggleAddBin()">+ Add New Bin</button>`;
-    } else {
-      html += `<div class="form-card">
+    if (!state.showAddBin) { h += `<button class="add-bin-btn" onclick="toggleAddBin()">+ Add New Bin</button>`; }
+    else {
+      h += `<div class="form-card">
         <input class="form-input" id="newBinLabel" placeholder="Bin label (e.g. Shoes & Accessories)">
         <select class="form-select" id="newBinZone">${ZONES.filter(z=>z!=="All").map(z=>`<option value="${z}">${z}</option>`).join("")}</select>
-        <div class="form-actions">
-          <button class="btn-primary" onclick="addBin()">Add Bin</button>
-          <button class="btn-cancel" onclick="toggleAddBin()">Cancel</button>
-        </div>
+        <div class="form-actions"><button class="btn-primary" onclick="addBin()">Add Bin</button><button class="btn-cancel" onclick="toggleAddBin()">Cancel</button></div>
       </div>`;
     }
   }
@@ -1446,218 +1360,126 @@ function render() {
     const bin = state.bins.find(b => b.id === state.selectedBin);
     if (bin) {
       const c = binColor(bin);
-      if (state.deepLinkedBin) {
-        html += `<div class="deep-link-banner">
-          <span class="deep-link-icon">📱</span>
-          <div class="deep-link-text">NFC Scan → Opened ${bin.id}</div>
-        </div>`;
-      }
-      html += `<button class="back-btn" onclick="goBackBins()">← Back to bins</button>`;
-      html += `<div class="detail-header" style="border:1px solid ${c}">
-        <div class="detail-top">
-          <div style="flex:1">
-            <div class="detail-icon">${bin.icon}</div>
-            ${state.renamingBinId
-              ? `<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
-                   <input class="rename-input" id="renameBinIdInput" value="${bin.id}" style="font-size:13px;font-family:'JetBrains Mono',monospace;font-weight:700;max-width:140px" onkeydown="if(event.key==='Enter')saveRenameBinId();if(event.key==='Escape')cancelRenameBinId()">
-                   <button class="btn-rename-save" onclick="saveRenameBinId()">Save</button>
-                   <button class="btn-rename" onclick="cancelRenameBinId()">✕</button>
-                 </div>
-                 <div class="rename-hint">Format: BIN-01 to BIN-100. Enter to save.</div>`
-              : `<div style="display:flex;align-items:center;gap:8px">
-                   <div class="detail-id" style="color:${c}">${bin.id}</div>
-                   <button class="btn-rename" onclick="startRenameBinId()">✏️ ID</button>
-                 </div>`
-            }
-            ${state.renamingBin
-              ? `<input class="rename-input" id="renameInput" value="${bin.label.replace(/"/g,'&quot;')}" onkeydown="if(event.key==='Enter')saveRename();if(event.key==='Escape')cancelRename()">
-                 <div class="rename-hint">Press Enter to save, Esc to cancel</div>
-                 <button class="btn-rename-save" onclick="saveRename()">Save</button>
-                 <button class="btn-rename" onclick="cancelRename()">Cancel</button>`
-              : `<div class="detail-label">${bin.label}</div>
-                 <button class="btn-rename" onclick="startRename()">✏️ Label</button>`
-            }
-            <div class="detail-zone">Zone: ${bin.zone}</div>
-            <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
-              <span style="font-size:11px;color:var(--text2)">📍</span>
-              <input
-                id="locationInput"
-                class="add-input"
-                style="flex:1;padding:6px 10px;font-size:12px;max-width:220px"
-                placeholder="Location (e.g. Storage Unit A)"
-                value="${(bin.location||'').replace(/"/g,'&quot;')}"
-                onchange="saveLocation('${bin.id}')"
-                onblur="saveLocation('${bin.id}')">
-            </div>
-          </div>
-          <button class="btn-delete" onclick="deleteBin('${bin.id}')">Delete</button>
-        </div>
-        <div class="nfc-badge">📱 NFC Tag → Write "${bin.id}" to sticker</div>
-      </div>`;
+      if (state.deepLinkedBin) { h += `<div class="deep-link-banner"><span class="deep-link-icon">📱</span><div class="deep-link-text">NFC Scan → Opened ${bin.id}</div></div>`; }
+      h += `<button class="back-btn" onclick="goBackBins()">← Back to bins</button>`;
+      h += `<div class="detail-header" style="border:1px solid ${c}"><div class="detail-top"><div style="flex:1"><div class="detail-icon">${bin.icon}</div>`;
 
-      html += `<div class="packed-row ${bin.packed?'is-packed':''}" onclick="togglePacked('${bin.id}')">
+      // Bin ID rename
+      if (state.renamingBinId) {
+        h += `<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+          <input class="rename-input" id="renameBinIdInput" value="${bin.id}" style="font-size:13px;font-family:'JetBrains Mono',monospace;font-weight:700;max-width:140px" onkeydown="if(event.key==='Enter')saveRenameBinId();if(event.key==='Escape')cancelRenameBinId()">
+          <button class="btn-rename-save" onclick="saveRenameBinId()">Save</button><button class="btn-rename" onclick="cancelRenameBinId()">✕</button>
+        </div><div class="rename-hint">Format: BIN-01 to BIN-100</div>`;
+      } else {
+        h += `<div style="display:flex;align-items:center;gap:8px"><div class="detail-id" style="color:${c}">${bin.id}</div><button class="btn-rename" onclick="startRenameBinId()">✏️ ID</button></div>`;
+      }
+
+      // Label rename
+      if (state.renamingBin) {
+        h += `<input class="rename-input" id="renameInput" value="${bin.label.replace(/"/g,'&quot;')}" onkeydown="if(event.key==='Enter')saveRename();if(event.key==='Escape')cancelRename()">
+        <div class="rename-hint">Press Enter to save, Esc to cancel</div>
+        <button class="btn-rename-save" onclick="saveRename()">Save</button><button class="btn-rename" onclick="cancelRename()">Cancel</button>`;
+      } else {
+        h += `<div class="detail-label">${bin.label}</div><button class="btn-rename" onclick="startRename()">✏️ Label</button>`;
+      }
+
+      h += `<div class="detail-zone">Zone: ${bin.zone}</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+          <span style="font-size:11px;color:var(--text2)">📍</span>
+          <input id="locationInput" class="add-input" style="flex:1;padding:6px 10px;font-size:12px;max-width:220px"
+            placeholder="Location (e.g. Storage Unit A)" value="${(bin.location||'').replace(/"/g,'&quot;')}"
+            onchange="saveLocation('${bin.id}')" onblur="saveLocation('${bin.id}')">
+        </div>
+      </div><button class="btn-delete" onclick="deleteBin('${bin.id}')">Delete</button></div>
+      <div class="nfc-badge">📱 NFC Tag → Write "${bin.id}" to sticker</div></div>`;
+
+      // Packed toggle
+      h += `<div class="packed-row ${bin.packed?'is-packed':''}" onclick="togglePacked('${bin.id}')">
         <input type="checkbox" class="packed-checkbox" ${bin.packed?'checked':''} onclick="event.stopPropagation();togglePacked('${bin.id}')">
         <span class="packed-label ${bin.packed?'done':''}">${bin.packed?'✓ This bin is packed':'Mark as Packed'}</span>
       </div>`;
 
-      html += `<div class="add-row" style="margin-top:14px">
+      // Add item
+      h += `<div class="add-row" style="margin-top:14px">
         <input class="add-input" id="itemInput" placeholder="Add item (e.g. HDMI cables)" onkeydown="if(event.key==='Enter')addItem('${bin.id}')">
         <button class="btn-add" onclick="addItem('${bin.id}')">+</button>
       </div>`;
 
-      html += `<div class="items-count">${bin.items.length} item${bin.items.length!==1?"s":""} in this bin</div>`;
-      if (bin.items.length === 0) {
-        html += `<div class="empty-state">No items yet — start packing!</div>`;
-      }
+      h += `<div class="items-count">${bin.items.length} item${bin.items.length!==1?"s":""} in this bin</div>`;
+      if (bin.items.length === 0) { h += `<div class="empty-state">No items yet — start packing!</div>`; }
       bin.items.forEach((item, idx) => {
-        html += `<div class="item-row">
-          <span class="item-index">${String(idx+1).padStart(2,'0')}</span>
-          <span class="item-name">${item}</span>
-          <button class="btn-remove" onclick="removeItem('${bin.id}',${idx})">✕</button>
-        </div>`;
-      });
-    }
-  }
-
-  // ─── ALL ITEMS DRILLDOWN ───
-  if (state.view === "all-items") {
-    const allBinsWithItems = state.bins.filter(b => b.items.length > 0);
-    const ti = totalItems();
-    html += `<button class="back-btn" onclick="setView('dashboard')">← Back to dashboard</button>`;
-    html += `<div class="drilldown-header">
-      <div class="drilldown-title">📦 All Items</div>
-      <div class="drilldown-count">${ti} item${ti!==1?"s":""} across ${allBinsWithItems.length} bin${allBinsWithItems.length!==1?"s":""}</div>
-    </div>`;
-    if (allBinsWithItems.length === 0) {
-      html += `<div class="empty-state">No items logged yet — open a bin and start adding!</div>`;
-    }
-    allBinsWithItems.forEach(bin => {
-      const c = binColor(bin);
-      html += `<div class="drilldown-card" onclick="selectBin('${bin.id}');state.view='bins';render()">
-        <div class="drilldown-card-top">
-          <span style="font-size:20px">${bin.icon}</span>
-          <div style="flex:1">
-            <div class="drilldown-bin-id" style="color:${c}">${bin.id} · ${bin.zone}</div>
-            <div class="drilldown-bin-label">${bin.label}</div>
-            ${bin.location ? `<div class="drilldown-meta">📍 ${bin.location}</div>` : ""}
-          </div>
-          <div class="bin-count" style="background:${c}22;color:${c}">${bin.items.length}</div>
-        </div>
-        <div class="item-chip-list">
-          ${bin.items.map(i => `<span class="item-chip">${i}</span>`).join("")}
-        </div>
-      </div>`;
-    });
-  }
-
-  // ─── ALL LOCATIONS DRILLDOWN ───
-  if (state.view === "all-locations") {
-    const binsWithLoc = state.bins.filter(b => b.location && b.location.trim());
-    const binsNoLoc = state.bins.filter(b => !b.location || !b.location.trim());
-    html += `<button class="back-btn" onclick="setView('dashboard')">← Back to dashboard</button>`;
-    html += `<div class="drilldown-header">
-      <div class="drilldown-title">📍 Locations</div>
-      <div class="drilldown-count">${binsWithLoc.length} bin${binsWithLoc.length!==1?"s":""} with a location set</div>
-    </div>`;
-    // Group by location
-    const locMap = {};
-    binsWithLoc.forEach(bin => {
-      const loc = bin.location.trim();
-      if (!locMap[loc]) locMap[loc] = [];
-      locMap[loc].push(bin);
-    });
-    Object.entries(locMap).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([loc, bins]) => {
-      html += `<div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin:16px 0 8px;font-family:'JetBrains Mono',monospace">📍 ${loc}</div>`;
-      bins.forEach(bin => {
-        const c = binColor(bin);
-        html += `<div class="drilldown-card" onclick="selectBin('${bin.id}');state.view='bins';render()">
-          <div class="drilldown-card-top">
-            <span style="font-size:20px">${bin.icon}</span>
-            <div style="flex:1">
-              <div class="drilldown-bin-id" style="color:${c}">${bin.id} · ${bin.zone}</div>
-              <div class="drilldown-bin-label">${bin.label}</div>
-              ${bin.packed ? '<span class="packed-badge" style="font-size:10px">✓ PACKED</span>' : ''}
-            </div>
-            <div class="bin-count" style="background:${c}22;color:${c}">${bin.items.length} items</div>
-          </div>
-          ${bin.items.length > 0 ? `<div class="item-chip-list">${bin.items.slice(0,6).map(i=>`<span class="item-chip">${i}</span>`).join("")}${bin.items.length>6?`<span class="item-chip" style="color:var(--text2)">+${bin.items.length-6} more</span>`:""}</div>` : ""}
-        </div>`;
-      });
-    });
-    if (binsNoLoc.length > 0) {
-      html += `<div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text2);margin:16px 0 8px;font-family:'JetBrains Mono',monospace">⬜ No location set (${binsNoLoc.length})</div>`;
-      binsNoLoc.forEach(bin => {
-        const c = binColor(bin);
-        html += `<div class="drilldown-card" onclick="selectBin('${bin.id}');state.view='bins';render()">
-          <div class="drilldown-card-top">
-            <span style="font-size:20px">${bin.icon}</span>
-            <div style="flex:1">
-              <div class="drilldown-bin-id" style="color:${c}">${bin.id} · ${bin.zone}</div>
-              <div class="drilldown-bin-label">${bin.label}</div>
-            </div>
-            <div style="font-size:11px;color:var(--text2)">tap to set →</div>
-          </div>
-        </div>`;
+        h += `<div class="item-row"><span class="item-index">${String(idx+1).padStart(2,'0')}</span><span class="item-name">${item}</span><button class="btn-remove" onclick="removeItem('${bin.id}',${idx})">✕</button></div>`;
       });
     }
   }
 
   // ─── SEARCH ───
   if (state.view === "search") {
-    html += `<div class="guide-title">Find an Item</div>
-    <div class="guide-desc">Search across all bins to find where you packed something.</div>`;
-    html += `<input class="search-input" id="searchInput" placeholder="Search items (e.g. HDMI, charger, towels)" oninput="state.searchQuery=this.value;renderSearch()" value="${state.searchQuery}">`;
-    html += `<div id="searchResults"></div>`;
+    h += `<div class="guide-title">Find an Item</div><div class="guide-desc">Search across all bins to find where you packed something.</div>`;
+    h += `<input class="search-input" id="searchInput" placeholder="Search items (e.g. HDMI, charger, towels)" oninput="state.searchQuery=this.value;renderSearch()" value="${state.searchQuery}">`;
+    h += `<div id="searchResults"></div>`;
   }
 
-  // ─── SETTINGS / SYNC ───
+  // ─── SETTINGS ───
   if (state.view === "settings") {
-    html += `<div class="guide-title">☁️ Sync & Settings</div>
-    <div class="guide-desc">Credentials are baked into this file — every device auto-syncs on load and after every change.</div>`;
+    h += `<div class="guide-title">⚙️ Settings & Sync</div><div class="guide-desc">Theme, cloud sync, and backup options.</div>`;
 
-    html += `<div class="settings-section">
+    // Theme section
+    h += `<div class="settings-section">
+      <div class="settings-section-title">Theme</div>
+      <div class="theme-picker">
+        <div class="theme-option ${isDark?'active':''}" onclick="setTheme('dark');render()">
+          <span class="theme-icon">🌙</span><span class="theme-name">Dark</span>
+        </div>
+        <div class="theme-option ${!isDark?'active':''}" onclick="setTheme('light');render()">
+          <span class="theme-icon">☀️</span><span class="theme-name">Light</span>
+        </div>
+      </div>
+    </div>`;
+
+    // Cloud sync
+    h += `<div class="settings-section">
       <div class="settings-section-title">Cloud Sync Status</div>
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
         <span class="sync-badge ${state.syncStatus}" style="font-size:13px;padding:6px 14px">${
-          state.syncStatus==='synced'  ? '✅ SYNCED' :
-          state.syncStatus==='syncing' ? '⟳ SYNCING...' :
-          state.syncStatus==='error'   ? '❌ SYNC ERROR' : '⬤ LOCAL ONLY'
+          state.syncStatus==='synced'?'✅ SYNCED':state.syncStatus==='syncing'?'⟳ SYNCING...':state.syncStatus==='error'?'❌ SYNC ERROR':'⬤ LOCAL ONLY'
         }</span>
       </div>
       <div class="settings-hint" style="border-left-color:var(--green)">
         ${hasCreds()
-          ? "<strong>✅ Credentials loaded from NFC.</strong> Auto-sync is active — changes push automatically and data pulls on every page open."
-          : "<strong>⚠️ No credentials in this session.</strong> Data saves locally only. Scan any bin NFC tag to unlock cloud sync for this session."
+          ? "<strong>✅ Credentials loaded from NFC.</strong> Auto-sync is active."
+          : "<strong>⚠️ No credentials in this session.</strong> Scan any bin NFC tag to unlock cloud sync."
         }
       </div>
       <div class="settings-btn-row">
         <button class="btn-sync-push" onclick="pushToCloud().then(()=>showToast('✅ Pushed!'))">↑ PUSH NOW</button>
         <button class="btn-sync-pull" onclick="pullFromCloud()">↓ PULL NOW</button>
       </div>
-    </div>
+    </div>`;
 
-    <div class="settings-section">
+    // Backup
+    h += `<div class="settings-section">
       <div class="settings-section-title">Local Backup</div>
       <div class="settings-btn-row">
-        <button class="btn-sync-pull" onclick="exportExcel()">📊 Export Excel</button><button class="btn-sync-pull" onclick="exportPDF()" style="border-color:var(--pink);color:var(--pink)">📄 Export PDF</button><button class="btn-sync-pull" onclick="exportJSON()" style="border-color:var(--orange);color:var(--orange)">💾 Export JSON</button>
-        <label class="btn-sync-push" style="cursor:pointer;text-align:center">
-          ⬆ Import JSON
-          <input type="file" accept=".json" style="display:none" onchange="importFromFile(event)">
-        </label>
+        <button class="btn-sync-pull" onclick="exportExcel()">📊 Excel</button>
+        <button class="btn-sync-pull" onclick="exportPDF()" style="border-color:var(--pink);color:var(--pink)">📄 PDF</button>
+        <button class="btn-sync-pull" onclick="exportJSON()" style="border-color:var(--orange);color:var(--orange)">💾 JSON</button>
+        <label class="btn-sync-push" style="cursor:pointer;text-align:center">⬆ Import JSON<input type="file" accept=".json" style="display:none" onchange="importFromFile(event)"></label>
       </div>
+    </div>`;
+
+    // Reset
+    h += `<div class="settings-section">
+      <div class="settings-section-title">Danger Zone</div>
+      <button class="btn-sync-pull" style="border-color:var(--red);color:var(--red);width:100%" onclick="if(confirm('Reset ALL bins to defaults? Cannot be undone.')){state.bins=JSON.parse(JSON.stringify(DEFAULT_BINS));saveBins(state.bins);showToast('Reset to defaults');render()}">🗑 Reset All Data to Defaults</button>
     </div>`;
   }
 
-  html += `</div>`; // close content
-  app.innerHTML = html;
+  h += `</div>`;
+  app.innerHTML = h;
 
-  // Re-render search results if on search view
   if (state.view === "search" && state.searchQuery) renderSearch();
-
-  // Focus item input on bin detail
-  if (state.view === "bins" && state.selectedBin) {
-    setTimeout(() => document.getElementById("itemInput")?.focus(), 50);
-  }
+  if (state.view === "bins" && state.selectedBin) { setTimeout(() => document.getElementById("itemInput")?.focus(), 50); }
 }
 
 function renderSearch() {
@@ -1665,51 +1487,23 @@ function renderSearch() {
   const container = document.getElementById("searchResults");
   if (!container || !q) { if(container) container.innerHTML = ""; return; }
   const results = state.bins.filter(b => b.items.some(i => i.toLowerCase().includes(q)));
-  if (results.length === 0) {
-    container.innerHTML = `<div class="empty-state">No items matching "${state.searchQuery}" found in any bin.</div>`;
-    return;
-  }
+  if (!results.length) { container.innerHTML = `<div class="empty-state">No items matching "${state.searchQuery}" found.</div>`; return; }
   let html = "";
   results.forEach(bin => {
     const c = binColor(bin);
     const matches = bin.items.filter(i => i.toLowerCase().includes(q));
     html += `<div class="search-result" style="border-left-color:${c}" onclick="selectBin('${bin.id}');state.view='bins';render()">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-        <span style="font-size:20px">${bin.icon}</span>
-        <div>
-          <div class="bin-id" style="color:${c}">${bin.id}</div>
-          <div style="font-size:14px;font-weight:600">${bin.label}</div>
-        </div>
-      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:20px">${bin.icon}</span><div><div class="bin-id" style="color:${c}">${bin.id}</div><div style="font-size:14px;font-weight:600">${bin.label}</div></div></div>
       ${matches.map(m => `<div class="search-match">→ ${m}</div>`).join("")}
     </div>`;
   });
   container.innerHTML = html;
 }
 
-// Credentials are now hardcoded — no manual config needed.
-function importFromFile(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    try {
-      const data = JSON.parse(ev.target.result);
-      if (Array.isArray(data) && data[0]?.id) {
-        state.bins = data; saveBins(state.bins);
-        showToast("Imported " + data.length + " bins"); render();
-      }
-    } catch(err) { showToast("Invalid JSON file"); }
-  };
-  reader.readAsText(file);
-  e.target.value = "";
-}
-
 // ─── INIT ───
-// Pull latest data from cloud on every page load (phone or desktop)
 checkDeepLink();
 render();
-pullFromCloud(); // pulls only if NFC creds are in session, otherwise no-op
+pullFromCloud();
 </script>
 </body>
 </html>
