@@ -5,23 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#080B11" id="metaThemeColor">
+<meta name="theme-color" content="#0C1017" id="metaThemeColor">
 <title>MOVE.BIN</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 /* ═══ THEMES ═══ */
 [data-theme="dark"]{
-  --bg:#080B11;--surface:rgba(18,22,30,.55);--surface2:rgba(28,34,46,.5);--border:rgba(255,255,255,.06);--border-hi:rgba(255,255,255,.1);
-  --text1:#EDF2F7;--text2:#6B7A90;--text3:#3E4A5C;
-  --accent:#CDFA3E;--accent-dim:rgba(205,250,62,.1);--accent-border:rgba(205,250,62,.2);--accent-glow:rgba(205,250,62,.06);--accent-text:#080B11;
+  --bg:#0C1017;--surface:rgba(20,26,36,.65);--surface2:rgba(30,38,52,.55);--border:rgba(255,255,255,.08);--border-hi:rgba(255,255,255,.14);
+  --text1:#F1F5F9;--text2:#94A3B8;--text3:#64748B;
+  --accent:#CDFA3E;--accent-dim:rgba(205,250,62,.1);--accent-border:rgba(205,250,62,.2);--accent-glow:rgba(205,250,62,.06);--accent-text:#0C1017;
   --red:#FF5A65;--red-bg:rgba(255,90,101,.08);--red-border:rgba(255,90,101,.18);
   --green:#34D399;--green-bg:rgba(52,211,153,.06);--green-border:rgba(52,211,153,.15);
   --orange:#FB923C;--blue:#60A5FA;--pink:#F472B6;--purple:#A78BFA;
-  --blur:24px;--shadow:0 8px 32px rgba(0,0,0,.4);--shadow-sm:0 2px 12px rgba(0,0,0,.3);
-  --mesh:radial-gradient(ellipse 60% 50% at 15% 45%,rgba(205,250,62,.035) 0%,transparent 70%),radial-gradient(ellipse 50% 60% at 85% 25%,rgba(96,165,250,.025) 0%,transparent 70%),radial-gradient(ellipse 40% 40% at 50% 90%,rgba(244,114,182,.02) 0%,transparent 60%);
-  --header-bg:rgba(8,11,17,.8);--item-hover:rgba(205,250,62,.03);
-  --ring-track:rgba(255,255,255,.05);
+  --blur:24px;--shadow:0 8px 32px rgba(0,0,0,.35);--shadow-sm:0 2px 12px rgba(0,0,0,.25);
+  --mesh:radial-gradient(ellipse 60% 50% at 15% 45%,rgba(205,250,62,.03) 0%,transparent 70%),radial-gradient(ellipse 50% 60% at 85% 25%,rgba(96,165,250,.02) 0%,transparent 70%);
+  --header-bg:rgba(12,16,23,.82);--item-hover:rgba(205,250,62,.04);--ring-track:rgba(255,255,255,.07);
 }
 [data-theme="light"]{
   --bg:#F4F5F7;--surface:rgba(255,255,255,.7);--surface2:rgba(240,242,248,.7);--border:rgba(0,0,0,.05);--border-hi:rgba(0,0,0,.08);
@@ -32,25 +31,19 @@
   --orange:#D97706;--blue:#2563EB;--pink:#DB2777;--purple:#7C3AED;
   --blur:18px;--shadow:0 2px 16px rgba(0,0,0,.05);--shadow-sm:0 1px 4px rgba(0,0,0,.04);
   --mesh:radial-gradient(ellipse 60% 50% at 15% 45%,rgba(101,163,13,.03) 0%,transparent 70%),radial-gradient(ellipse 50% 60% at 85% 25%,rgba(37,99,235,.02) 0%,transparent 70%);
-  --header-bg:rgba(244,245,247,.85);--item-hover:rgba(101,163,13,.04);
-  --ring-track:rgba(0,0,0,.06);
+  --header-bg:rgba(244,245,247,.85);--item-hover:rgba(101,163,13,.04);--ring-track:rgba(0,0,0,.06);
 }
 
-/* ═══ BASE ═══ */
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{background:var(--bg);color:var(--text1);font-family:'Outfit',-apple-system,sans-serif;min-height:100dvh;overflow-x:hidden;transition:background .4s,color .4s}
 body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:var(--mesh);transition:background .4s}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border-hi);border-radius:8px}
 
-/* ═══ GLASS ═══ */
-.g{background:var(--surface);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow);transition:background .35s,border-color .2s,box-shadow .2s}
-.g:hover{border-color:var(--border-hi)}
-.g-sm{border-radius:14px}
+.g{background:var(--surface);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow);transition:background .35s,border-color .2s}
+.g:hover{border-color:var(--border-hi)}.g-sm{border-radius:14px}
 .g-glow{box-shadow:var(--shadow),0 0 40px var(--accent-glow)}
 
-/* ═══ ANIMATIONS ═══ */
 @keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes countUp{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
 @keyframes ringDraw{from{stroke-dashoffset:283}to{stroke-dashoffset:var(--offset)}}
 @keyframes slideIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
@@ -59,79 +52,75 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .a1{animation-delay:.05s}.a2{animation-delay:.1s}.a3{animation-delay:.15s}.a4{animation-delay:.2s}.a5{animation-delay:.25s}.a6{animation-delay:.3s}
 
 /* ═══ HEADER ═══ */
-.hdr{background:var(--header-bg);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border-bottom:1px solid var(--border);padding:14px 20px 10px;position:sticky;top:0;z-index:100;transition:background .4s}
+.hdr{background:var(--header-bg);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border-bottom:1px solid var(--border);padding:14px 20px 10px;position:sticky;top:0;z-index:100}
 .hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .logo{display:flex;align-items:center;gap:10px}
 .logo-mark{width:32px;height:32px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 12px rgba(205,250,62,.2)}
 .logo-text{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:17px;color:var(--text1);letter-spacing:-.5px}
-.logo-text span{color:var(--accent)}
-.logo-sub{font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;font-weight:500}
+.logo-text span{color:var(--accent)}.logo-sub{font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;font-weight:500}
 .hdr-btns{display:flex;gap:5px;align-items:center}
-.ib{width:34px;height:34px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all .15s;color:var(--text2)}
+.ib{width:34px;height:34px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all .15s;color:var(--text2);position:relative}
 .ib:hover{border-color:var(--accent);color:var(--accent);transform:scale(1.06)}.ib:active{transform:scale(.94)}
+/* Tooltips */
+.ib[data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:-30px;left:50%;transform:translateX(-50%);background:var(--text1);color:var(--bg);font-size:10px;font-weight:600;padding:4px 10px;border-radius:6px;white-space:nowrap;z-index:200;pointer-events:none;animation:rise .2s ease both}
 .tabs{display:flex;gap:2px;background:var(--surface2);border-radius:14px;padding:3px}
 .tab{flex:1;padding:8px 4px;background:transparent;color:var(--text3);border:none;border-radius:12px;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center;font-family:'Outfit',sans-serif;letter-spacing:.3px}
 .tab.on{background:var(--accent);color:var(--accent-text);font-weight:700;box-shadow:0 2px 12px rgba(205,250,62,.2)}
-
 .cnt{padding:16px 20px 120px;position:relative;z-index:1}
 
-/* ═══ HERO STATS ═══ */
+/* ═══ HERO ═══ */
 .hero{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
 @media(min-width:480px){.hero{grid-template-columns:repeat(4,1fr)}}
-.hero-card{padding:20px 14px;text-align:center;position:relative;overflow:hidden}
-.hero-card::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:40px;height:2px;background:var(--accent);border-radius:2px;opacity:.5}
-.hero-card.tap{cursor:pointer;transition:transform .15s}
-.hero-card.tap:hover{transform:translateY(-4px);border-color:var(--accent-border)}
-.hero-card.tap:active{transform:scale(.97)}
-.hero-num{font-size:44px;font-weight:900;letter-spacing:-2px;line-height:1;animation:countUp .6s cubic-bezier(.22,1,.36,1) both}
-.hero-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-top:8px}
-.hero-hint{font-size:7px;color:var(--text3);margin-top:8px;text-transform:uppercase;letter-spacing:1px;opacity:.6}
+.hc{padding:20px 14px;text-align:center;position:relative;overflow:hidden}
+.hc::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:40px;height:2px;background:var(--accent);border-radius:2px;opacity:.5}
+.hc.tap{cursor:pointer;transition:transform .15s}.hc.tap:hover{transform:translateY(-4px);border-color:var(--accent-border)}
+.hc.tap:active{transform:scale(.97)}
+.hn{font-size:44px;font-weight:900;letter-spacing:-2px;line-height:1;animation:countUp .6s cubic-bezier(.22,1,.36,1) both}
+.hl{font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:2px;font-weight:700;margin-top:8px}
+.hh{font-size:7px;color:var(--text3);margin-top:8px;text-transform:uppercase;letter-spacing:1px;opacity:.7}
 
-/* ═══ RING GAUGE ═══ */
-.ring-wrap{padding:20px;margin-bottom:20px;display:flex;align-items:center;gap:20px;position:relative;overflow:hidden}
-.ring-wrap::before{content:'';position:absolute;right:-20px;top:-20px;width:120px;height:120px;background:radial-gradient(circle,var(--accent-glow),transparent 70%);pointer-events:none}
+/* Ring */
+.rw{padding:20px;margin-bottom:20px;display:flex;align-items:center;gap:20px;position:relative;overflow:hidden}
+.rw::before{content:'';position:absolute;right:-20px;top:-20px;width:120px;height:120px;background:radial-gradient(circle,var(--accent-glow),transparent 70%);pointer-events:none}
 .ring-svg{width:90px;height:90px;flex-shrink:0;transform:rotate(-90deg)}
 .ring-track{fill:none;stroke:var(--ring-track);stroke-width:6}
 .ring-fill{fill:none;stroke:var(--accent);stroke-width:6;stroke-linecap:round;stroke-dasharray:283;animation:ringDraw 1s cubic-bezier(.22,1,.36,1) both;animation-delay:.3s}
 .ring-center{font-size:22px;font-weight:900;fill:var(--text1);dominant-baseline:central;text-anchor:middle;transform:rotate(90deg);transform-origin:center}
-.ring-info{flex:1}
-.ring-title{font-size:14px;font-weight:700;margin-bottom:4px}
-.ring-sub{font-size:11px;color:var(--text2);line-height:1.6}
+.ri{flex:1}.ri-t{font-size:14px;font-weight:700;margin-bottom:4px}.ri-s{font-size:12px;color:var(--text2);line-height:1.6}
 
-/* ═══ ZONE CARDS ═══ */
-.sec-title{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px}
-.zone{padding:14px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:transform .1s}
-.zone:active{transform:scale(.98)}
-.zone-name{font-size:14px;font-weight:700}.zone-sub{font-size:10px;color:var(--text3);margin-top:2px;font-weight:500}
-.zone-badge{background:var(--accent-dim);border:1px solid var(--accent-border);padding:5px 14px;border-radius:20px;font-size:12px;color:var(--accent);font-family:'JetBrains Mono',monospace;font-weight:700}
+/* Zones */
+.st{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px}
+.zc{padding:14px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:transform .1s}
+.zc:active{transform:scale(.98)}
+.zn{font-size:14px;font-weight:700}.zs{font-size:10px;color:var(--text2);margin-top:2px;font-weight:500}
+.zb{background:var(--accent-dim);border:1px solid var(--accent-border);padding:5px 14px;border-radius:20px;font-size:12px;color:var(--accent);font-family:'JetBrains Mono',monospace;font-weight:700}
 
-/* ═══ FILTER / SORT ═══ */
+/* Filters/Sort */
 .filters{overflow-x:auto;white-space:nowrap;margin-bottom:12px;display:flex;gap:6px;padding-bottom:4px}
-.pill{display:inline-block;padding:7px 16px;background:var(--surface2);color:var(--text3);border:1px solid var(--border);border-radius:24px;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0}
-.pill.on{background:var(--accent);color:var(--accent-text);border-color:var(--accent);font-weight:700;box-shadow:0 2px 10px rgba(205,250,62,.15)}
+.pill{display:inline-block;padding:7px 16px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:24px;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0}
+.pill.on{background:var(--accent);color:var(--accent-text);border-color:var(--accent);font-weight:700}
 .sort-row{display:flex;align-items:center;gap:8px;margin-bottom:14px}
 .sort-lbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;flex-shrink:0}
-.sort-sel{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:7px 30px 7px 12px;color:var(--text1);font-size:11px;font-weight:600;font-family:'Outfit',sans-serif;cursor:pointer;outline:none;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%236B7A90' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;transition:border-color .15s}
+.sort-sel{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:7px 30px 7px 12px;color:var(--text1);font-size:11px;font-weight:600;font-family:'Outfit',sans-serif;cursor:pointer;outline:none;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%2394A3B8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
 .sort-sel:focus{border-color:var(--accent)}
 
-/* ═══ BIN CARDS ═══ */
-.bc{padding:16px 18px;margin-bottom:10px;cursor:pointer;border-left:3px solid var(--accent);transition:transform .1s,border-color .2s;position:relative;overflow:hidden}
-.bc::after{content:'';position:absolute;top:0;right:0;width:60px;height:100%;background:linear-gradient(270deg,var(--accent-glow),transparent);opacity:0;transition:opacity .2s;pointer-events:none}
-.bc:hover::after{opacity:1}
+/* Bin cards */
+.bc{padding:16px 18px;margin-bottom:10px;cursor:pointer;border-left:3px solid var(--accent);transition:transform .1s;position:relative;overflow:hidden}
+.bc::after{content:'';position:absolute;top:0;right:0;width:60px;height:100%;background:linear-gradient(270deg,var(--accent-glow),transparent);opacity:0;transition:opacity .2s;pointer-events:none}.bc:hover::after{opacity:1}
 .bc:active{transform:scale(.98)}
 .bc-top{display:flex;justify-content:space-between;align-items:flex-start}
 .bc-info{display:flex;align-items:center;gap:14px}
 .bc-icon{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
 .bc-id{font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:700;letter-spacing:.5px}
-.bc-label{font-size:14px;font-weight:700;margin-top:2px}.bc-zone{font-size:10px;color:var(--text3);margin-top:1px;font-weight:500}
+.bc-label{font-size:14px;font-weight:700;margin-top:2px;color:var(--text1)}.bc-zone{font-size:10px;color:var(--text2);margin-top:1px;font-weight:500}
 .bc-count{padding:6px 14px;border-radius:24px;font-size:14px;font-weight:800;font-family:'JetBrains Mono',monospace;min-width:36px;text-align:center}
 .bc-preview{margin-top:10px;font-size:11px;color:var(--text2);line-height:1.7;font-weight:500}
 .bc-preview b{color:var(--text1);font-weight:600}
 .pk-badge{font-size:8px;font-family:'JetBrains Mono',monospace;padding:3px 9px;border-radius:20px;background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);font-weight:700;letter-spacing:.5px;text-transform:uppercase}
-.add-btn{width:100%;padding:18px;background:transparent;border:2px dashed var(--border);border-radius:20px;color:var(--text3);font-size:13px;font-weight:600;cursor:pointer;margin-top:8px;transition:all .15s}
+.add-btn{width:100%;padding:18px;background:transparent;border:2px dashed var(--border);border-radius:20px;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;margin-top:8px;transition:all .15s}
 .add-btn:hover{border-color:var(--accent);color:var(--accent)}
 
-/* ═══ DETAIL ═══ */
+/* Detail */
 .back{background:transparent;border:none;color:var(--accent);font-size:13px;cursor:pointer;padding:0;margin-bottom:16px;font-family:'JetBrains Mono',monospace;font-weight:700}
 .det-hdr{padding:24px 20px;margin-bottom:16px;position:relative;overflow:hidden}
 .det-hdr::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,var(--accent-glow),transparent 70%);pointer-events:none}
@@ -139,7 +128,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .det-icon{font-size:48px;margin-bottom:12px}
 .det-id{font-size:13px;font-family:'JetBrains Mono',monospace;font-weight:700;letter-spacing:.5px}
 .det-label{font-size:24px;font-weight:900;margin-top:4px;letter-spacing:-.5px;line-height:1.2}
-.det-zone{font-size:12px;color:var(--text3);margin-top:4px;font-weight:500}
+.det-zone{font-size:12px;color:var(--text2);margin-top:4px;font-weight:500}
 .btn-del{background:var(--red-bg);border:1px solid var(--red-border);color:var(--red);padding:8px 16px;border-radius:12px;font-size:11px;cursor:pointer;font-weight:700;transition:all .15s}
 .btn-del:hover{background:var(--red);color:#fff}
 .nfc{margin-top:16px;background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:14px;padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:11px;color:var(--accent);font-family:'JetBrains Mono',monospace;font-weight:700}
@@ -148,11 +137,11 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .inp:focus{border-color:var(--accent)}.inp::placeholder{color:var(--text3)}
 .btn-plus{padding:13px 24px;background:var(--accent);color:var(--accent-text);border:none;border-radius:14px;font-weight:900;font-size:20px;cursor:pointer;transition:all .15s;box-shadow:0 2px 12px rgba(205,250,62,.15)}
 .btn-plus:hover{transform:scale(1.06)}.btn-plus:active{transform:scale(.94)}
-.ic{font-size:11px;color:var(--text3);margin-bottom:10px;font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:.5px}
-.empty{background:var(--surface2);border:1px dashed var(--border);border-radius:20px;padding:40px;text-align:center;color:var(--text3);font-size:13px;font-weight:500}
+.ic{font-size:11px;color:var(--text2);margin-bottom:10px;font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:.5px}
+.empty{background:var(--surface2);border:1px dashed var(--border);border-radius:20px;padding:40px;text-align:center;color:var(--text2);font-size:13px;font-weight:500}
 .ir{padding:12px 16px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;animation:slideIn .25s cubic-bezier(.4,0,.2,1) both;border-left:3px solid transparent;transition:all .15s}
 .ir:hover{border-left-color:var(--accent);background:var(--item-hover)}
-.ir-n{font-size:14px;font-weight:600;color:var(--text1)}.ir-i{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text3);margin-right:10px;min-width:22px;font-weight:600}
+.ir-n{font-size:14px;font-weight:600;color:var(--text1)}.ir-i{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text2);margin-right:10px;min-width:22px;font-weight:600}
 .btn-rm{background:var(--red-bg);border:none;color:var(--red);padding:5px 14px;border-radius:10px;font-size:11px;cursor:pointer;font-weight:700;transition:all .15s}
 .btn-rm:hover{background:var(--red);color:#fff}
 .pk-row{display:flex;align-items:center;gap:12px;padding:14px 16px;margin-top:14px;border-radius:14px;cursor:pointer;user-select:none;background:var(--surface2);border:1px solid var(--border);transition:all .15s}
@@ -162,53 +151,64 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .dl-banner{background:linear-gradient(135deg,var(--accent-dim),rgba(52,211,153,.04));border:1px solid var(--accent-border);border-radius:16px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;animation:glow 3s ease infinite}
 .dl-icon{font-size:24px}.dl-text{font-size:11px;color:var(--accent);font-family:'JetBrains Mono',monospace;font-weight:700}
 
-/* ═══ SEARCH ═══ */
+/* Search */
 .si{width:100%;padding:15px 20px;background:var(--surface);backdrop-filter:blur(var(--blur));border:2px solid var(--border);border-radius:16px;color:var(--text1);font-size:16px;font-weight:500;outline:none;font-family:'Outfit',sans-serif;transition:border-color .2s;margin-bottom:16px}
 .si:focus{border-color:var(--accent)}.si::placeholder{color:var(--text3)}
 .sr{padding:14px;margin-bottom:10px;cursor:pointer;border-left:3px solid var(--accent)}
 .sm{background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:10px;padding:6px 14px;margin-top:4px;font-size:12px;color:var(--accent);font-weight:700}
 
-/* ═══ FORMS / SETTINGS ═══ */
+/* Forms */
 .fc{border:1px solid var(--accent-border);border-radius:20px;padding:18px;margin-top:8px;background:var(--surface)}
 .fi{width:100%;padding:12px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;color:var(--text1);font-size:13px;margin-bottom:8px;outline:none;font-family:'Outfit',sans-serif;font-weight:500}
+.fi:focus{border-color:var(--accent)}
 .fs{width:100%;padding:12px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;color:var(--text1);font-size:13px;margin-bottom:10px}
 .fa{display:flex;gap:8px}
 .bp{flex:1;padding:12px;background:var(--accent);color:var(--accent-text);border:none;border-radius:12px;font-weight:700;cursor:pointer;font-size:13px}
 .bx{padding:12px 18px;background:var(--surface2);color:var(--text2);border:none;border-radius:12px;cursor:pointer;font-weight:600}
+.cat-row{display:flex;gap:8px;margin-bottom:10px}
+.cat-inp{flex:1;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;color:var(--text1);font-size:12px;outline:none;font-family:'Outfit',sans-serif;font-weight:500}
+.cat-inp:focus{border-color:var(--accent)}.cat-inp::placeholder{color:var(--text3)}
+.cat-add{padding:10px 16px;background:var(--accent);color:var(--accent-text);border:none;border-radius:12px;font-weight:700;cursor:pointer;font-size:12px}
+.id-hint{font-size:11px;color:var(--text2);margin-bottom:10px;font-family:'JetBrains Mono',monospace;display:flex;align-items:center;gap:6px}
+.id-hint span{color:var(--accent);font-weight:700}
 .rn-i{font-size:22px;font-weight:900;background:var(--surface2);border:1px solid var(--accent);border-radius:12px;color:var(--text1);padding:8px 14px;width:100%;outline:none;font-family:'Outfit',sans-serif;margin-top:2px}
-.rn-h{font-size:10px;color:var(--text3);margin-top:4px;font-weight:500}
-.br{background:transparent;border:1px solid var(--border);color:var(--text3);padding:5px 12px;border-radius:10px;font-size:10px;cursor:pointer;margin-top:8px;transition:all .15s;font-weight:700}
+.rn-h{font-size:10px;color:var(--text2);margin-top:4px;font-weight:500}
+.br{background:transparent;border:1px solid var(--border);color:var(--text2);padding:5px 12px;border-radius:10px;font-size:10px;cursor:pointer;margin-top:8px;transition:all .15s;font-weight:700}
 .br:hover{border-color:var(--accent);color:var(--accent)}
 .brs{background:var(--accent);border:none;color:var(--accent-text);padding:5px 14px;border-radius:10px;font-size:10px;font-weight:700;cursor:pointer;margin-top:8px;margin-left:6px}
+
+/* Settings */
 .gt{font-size:22px;font-weight:900;margin-bottom:4px;letter-spacing:-.5px}
-.gd{font-size:12px;color:var(--text3);margin-bottom:22px;line-height:1.6;font-weight:500}
+.gd{font-size:12px;color:var(--text2);margin-bottom:22px;line-height:1.6;font-weight:500}
 .ss{padding:18px;margin-bottom:14px}
 .sst{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;font-weight:700}
 .sh{font-size:12px;color:var(--text2);line-height:1.7;margin-top:12px;padding:14px 16px;background:var(--surface2);border-radius:12px;border-left:3px solid var(--accent);font-weight:500}
 .sh strong{color:var(--text1)}
 .sbr{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
-.bsp{flex:1;padding:12px;background:var(--accent);color:var(--accent-text);border:none;border-radius:12px;font-weight:700;font-size:12px;font-family:'JetBrains Mono',monospace;cursor:pointer;transition:all .15s}
-.bsp:hover{transform:scale(1.02)}
-.bsl{flex:1;padding:12px;background:transparent;color:var(--green);border:1px solid var(--green-border);border-radius:12px;font-weight:700;font-size:12px;font-family:'JetBrains Mono',monospace;cursor:pointer;transition:all .15s}
+.bsp{flex:1;padding:12px;background:var(--accent);color:var(--accent-text);border:none;border-radius:12px;font-weight:700;font-size:12px;font-family:'JetBrains Mono',monospace;cursor:pointer}
+.bsl{flex:1;padding:12px;background:transparent;color:var(--green);border:1px solid var(--green-border);border-radius:12px;font-weight:700;font-size:12px;font-family:'JetBrains Mono',monospace;cursor:pointer}
 .bsl:hover{background:var(--green-bg)}
 .tp{display:flex;gap:12px;margin-top:10px}
 .to{flex:1;padding:18px 10px;border-radius:16px;text-align:center;cursor:pointer;border:2px solid var(--border);transition:all .2s;font-weight:700;font-size:12px}
-.to:hover{border-color:var(--accent)}
-.to.on{border-color:var(--accent);background:var(--accent-dim);box-shadow:0 0 20px var(--accent-glow)}
+.to:hover{border-color:var(--accent)}.to.on{border-color:var(--accent);background:var(--accent-dim)}
 .to i{font-size:30px;display:block;margin-bottom:8px;font-style:normal}
 .sb{display:inline-flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;font-size:9px;padding:4px 10px;border-radius:20px;border:1px solid;font-weight:700;letter-spacing:.5px}
-.sb.local{color:var(--text3);border-color:var(--border)}
-.sb.syncing{color:var(--accent);border-color:var(--accent);background:var(--accent-dim)}
-.sb.synced{color:var(--green);border-color:var(--green);background:var(--green-bg)}
-.sb.error{color:var(--red);border-color:var(--red);background:var(--red-bg)}
+.sb.local{color:var(--text3);border-color:var(--border)}.sb.syncing{color:var(--accent);border-color:var(--accent);background:var(--accent-dim)}
+.sb.synced{color:var(--green);border-color:var(--green);background:var(--green-bg)}.sb.error{color:var(--red);border-color:var(--red);background:var(--red-bg)}
 .sd{width:5px;height:5px;border-radius:50%;background:currentColor}
-.sp{animation:spin .8s linear infinite;display:inline-block}
-@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.sp{animation:spin .8s linear infinite;display:inline-block}@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--accent);color:var(--accent-text);padding:12px 28px;border-radius:14px;font-size:13px;font-weight:700;z-index:999;transition:transform .3s cubic-bezier(.22,1,.36,1);pointer-events:none;box-shadow:0 4px 24px rgba(205,250,62,.2)}
 .toast.show{transform:translateX(-50%) translateY(0)}
 .dback{background:none;border:none;color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:13px;cursor:pointer;padding:0;margin-bottom:14px;display:block;font-weight:700}
 .dbi{padding:14px 16px;margin-bottom:10px;border-left:3px solid var(--accent);cursor:pointer}
-.no{text-align:center;padding:40px 20px;color:var(--text3);font-size:13px;font-weight:500}
+.no{text-align:center;padding:40px 20px;color:var(--text2);font-size:13px;font-weight:500}
+/* NFC Guide */
+.nfc-step{display:flex;gap:12px;align-items:flex-start;padding:12px 0}
+.nfc-num{width:28px;height:28px;background:var(--accent);color:var(--accent-text);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
+.nfc-txt{font-size:13px;color:var(--text1);line-height:1.6;font-weight:500}
+.nfc-txt strong{color:var(--accent);font-weight:700}
+.nfc-txt code{background:var(--surface2);padding:2px 8px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);font-weight:600}
+.nfc-divider{border:none;border-top:1px solid var(--border);margin:4px 0}
 #importInput{display:none}
 </style>
 </head>
@@ -216,16 +216,32 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 <div id="app"></div><div class="toast" id="toast"></div><input type="file" id="importInput" accept=".json">
 <script>
 function getTheme(){return localStorage.getItem("movebin_theme")||"dark"}
-function setTheme(t){document.documentElement.setAttribute("data-theme",t);localStorage.setItem("movebin_theme",t);document.getElementById("metaThemeColor").content=t==="dark"?"#080B11":"#F4F5F7"}
+function setTheme(t){document.documentElement.setAttribute("data-theme",t);localStorage.setItem("movebin_theme",t);document.getElementById("metaThemeColor").content=t==="dark"?"#0C1017":"#F4F5F7"}
 function toggleTheme(){setTheme(getTheme()==="dark"?"light":"dark");render()}
 setTheme(getTheme());
-const ZONES=["All","Office / Desk","Kitchen","Bathroom","Bedroom","Living Room","Pets","Utility","Special"];
+
+// Default zones + custom zones stored separately
+const BASE_ZONES=["Office / Desk","Kitchen","Bathroom","Bedroom","Living Room","Pets","Utility","Special"];
+function loadCustomZones(){try{return JSON.parse(localStorage.getItem("movebin_zones")||"[]")}catch(e){return[]}}
+function saveCustomZones(z){localStorage.setItem("movebin_zones",JSON.stringify(z))}
+function allZones(){return[...BASE_ZONES,...loadCustomZones()]}
+
 const ZD={"Office / Desk":"#FB923C",Kitchen:"#34D399",Bathroom:"#A78BFA",Bedroom:"#60A5FA","Living Room":"#F472B6",Pets:"#CDFA3E",Utility:"#4ADE80",Special:"#FF5A65"};
 const ZL={"Office / Desk":"#D97706",Kitchen:"#059669",Bathroom:"#7C3AED",Bedroom:"#2563EB","Living Room":"#DB2777",Pets:"#65A30D",Utility:"#16A34A",Special:"#DC2626"};
-function zc(){return getTheme()==="dark"?ZD:ZL}
-const DEFBINS=[{id:"BIN-01",label:"Electronics & Cables",icon:"⚡",zone:"Office / Desk",items:[],location:"",packed:false},{id:"BIN-02",label:"Monitors & Peripherals",icon:"🖥️",zone:"Office / Desk",items:[],location:"",packed:false},{id:"BIN-03",label:"Networking Gear",icon:"📡",zone:"Office / Desk",items:[],location:"",packed:false},{id:"BIN-04",label:"Kitchen - Cookware",icon:"🍳",zone:"Kitchen",items:[],location:"",packed:false},{id:"BIN-05",label:"Kitchen - Utensils & Small",icon:"🥄",zone:"Kitchen",items:[],location:"",packed:false},{id:"BIN-06",label:"Kitchen - Pantry & Dry Goods",icon:"🥫",zone:"Kitchen",items:[],location:"",packed:false},{id:"BIN-07",label:"Bathroom & Toiletries",icon:"🧴",zone:"Bathroom",items:[],location:"",packed:false},{id:"BIN-08",label:"Bedroom - Linens & Pillows",icon:"🛏️",zone:"Bedroom",items:[],location:"",packed:false},{id:"BIN-09",label:"Bedroom - Clothes (Seasonal)",icon:"👕",zone:"Bedroom",items:[],location:"",packed:false},{id:"BIN-10",label:"Living Room - Decor & Misc",icon:"🏠",zone:"Living Room",items:[],location:"",packed:false},{id:"BIN-11",label:"Cat Supplies (Jax & Ekko)",icon:"🐱",zone:"Pets",items:["Cat food","Litter bags","Toys","Brushes"],location:"",packed:false},{id:"BIN-12",label:"Tools & Hardware",icon:"🔧",zone:"Utility",items:[],location:"",packed:false},{id:"BIN-13",label:"Documents & Important Papers",icon:"📄",zone:"Utility",items:[],location:"",packed:false},{id:"BIN-14",label:"Fragile / Special Items",icon:"⚠️",zone:"Special",items:[],location:"",packed:false}];
+const EXTRA_COLORS=["#22D3EE","#FB7185","#A3E635","#FBBF24","#818CF8","#2DD4BF","#F97316","#E879F9"];
+function zc(){const base=getTheme()==="dark"?ZD:ZL;const cz=loadCustomZones();const merged={...base};cz.forEach((z,i)=>{if(!merged[z])merged[z]=EXTRA_COLORS[i%EXTRA_COLORS.length]});return merged}
+
+const DEFBINS=[];
 function loadBins(){try{const r=localStorage.getItem("movebin_data");if(r)return JSON.parse(r)}catch(e){}return JSON.parse(JSON.stringify(DEFBINS))}
 function saveBins(b){localStorage.setItem("movebin_data",JSON.stringify(b));scheduleAutoPush()}
+
+// Smart bin numbering: find first gap
+function nextBinId(bins){
+  const nums=bins.map(b=>{const m=b.id.match(/^BIN-(\d+)$/);return m?parseInt(m[1],10):0}).filter(n=>n>0).sort((a,b)=>a-b);
+  for(let i=1;i<=nums.length+1;i++){if(!nums.includes(i))return "BIN-"+String(i).padStart(3,"0")}
+  return "BIN-001";
+}
+
 function loadCreds(){return{key:sessionStorage.getItem("mb_k")||"",bid:sessionStorage.getItem("mb_b")||""}}
 function saveCreds(k,b){if(k)sessionStorage.setItem("mb_k",k);if(b)sessionStorage.setItem("mb_b",b)}
 function hasCreds(){const c=loadCreds();return!!(c.key&&c.bid)}
@@ -237,27 +253,28 @@ function ti(){return S.bins.reduce((s,b)=>s+b.items.length,0)}
 function pc(){return S.bins.filter(b=>b.packed).length}
 function lc(){return S.bins.filter(b=>b.location&&b.location.trim()).length}
 function sortBins(bins){const a=[...bins];switch(S.sort){case"id-asc":return a.sort((x,y)=>x.id.localeCompare(y.id));case"id-desc":return a.sort((x,y)=>y.id.localeCompare(x.id));case"label-asc":return a.sort((x,y)=>x.label.localeCompare(y.label));case"label-desc":return a.sort((x,y)=>y.label.localeCompare(x.label));case"items-desc":return a.sort((x,y)=>y.items.length-x.items.length);case"items-asc":return a.sort((x,y)=>x.items.length-y.items.length);case"zone":return a.sort((x,y)=>x.zone.localeCompare(y.zone));case"packed":return a.sort((x,y)=>(y.packed?1:0)-(x.packed?1:0));case"unpacked":return a.sort((x,y)=>(x.packed?1:0)-(y.packed?1:0));default:return a}}
+function ringSVG(pct){const r=45,c=2*Math.PI*r,o=c-(pct/100)*c;return`<svg class="ring-svg" viewBox="0 0 100 100" width="90" height="90"><circle cx="50" cy="50" r="45" class="ring-track"/><circle cx="50" cy="50" r="45" class="ring-fill" style="--offset:${o};stroke-dashoffset:${o}"/><text x="50" y="50" class="ring-center">${pct}%</text></svg>`}
 
 // Exports
-function exportExcel(){const wb=XLSX.utils.book_new();const sr=[["MOVE.BIN","","","",""],["Generated:",new Date().toLocaleString(),"","",""],["","","","",""],["ID","Label","Zone","Location","Items"]];S.bins.forEach(b=>sr.push([b.id,b.label,b.zone,b.location||"—",b.items.length]));sr.push(["","","","TOTAL",ti()]);const ws=XLSX.utils.aoa_to_sheet(sr);ws["!cols"]=[{wch:10},{wch:30},{wch:16},{wch:22},{wch:10}];XLSX.utils.book_append_sheet(wb,ws,"Summary");const ir=[["ID","Label","Zone","Location","Item"]];S.bins.forEach(b=>{if(!b.items.length)ir.push([b.id,b.label,b.zone,b.location||"—","(empty)"]);else b.items.forEach((it,i)=>ir.push([i?"":(b.id),i?"":b.label,i?"":b.zone,i?"":(b.location||"—"),it]))});const wi=XLSX.utils.aoa_to_sheet(ir);wi["!cols"]=[{wch:10},{wch:30},{wch:16},{wch:22},{wch:34}];XLSX.utils.book_append_sheet(wb,wi,"Items");try{const o=XLSX.write(wb,{bookType:"xlsx",type:"array"});const bl=new Blob([o],{type:"application/octet-stream"});const u=URL.createObjectURL(bl);const a=document.createElement("a");a.href=u;a.download="movebin-"+new Date().toISOString().slice(0,10)+".xlsx";document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);showToast("✅ Excel exported!")}catch(e){showToast("❌ "+e.message)}}
-function exportJSON(){const bl=new Blob([JSON.stringify(S.bins,null,2)],{type:"application/json"});const u=URL.createObjectURL(bl);const a=document.createElement("a");a.href=u;a.download=`movebin-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(u);showToast("✅ JSON saved!")}
-function exportPDF(){const w=window.open("","_blank");let rows="";S.bins.forEach(b=>{const il=b.items.length>0?b.items.map(i=>`<span style="display:inline-block;background:#f0f0f0;border-radius:4px;padding:1px 7px;margin:2px 3px 2px 0;font-size:11px">${i}</span>`).join(""):'<i style="color:#888">Empty</i>';rows+=`<tr><td style="font-family:monospace;font-weight:700;color:#65A30D">${b.id}</td><td><b>${b.label}</b></td><td>${b.zone}</td><td>${b.location||'—'}</td><td style="text-align:center;font-weight:700">${b.items.length}</td><td style="line-height:1.8">${il}</td></tr>`});w.document.write(`<!DOCTYPE html><html><head><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Segoe UI',sans-serif;color:#111;padding:32px;font-size:12px}table{width:100%;border-collapse:collapse}thead tr{background:#111;color:#CDFA3E}thead th{padding:10px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px}tbody tr{border-bottom:1px solid #eee}tbody tr:nth-child(even){background:#fafafa}td{padding:8px 12px;vertical-align:top}@media print{body{padding:16px}}</style></head><body><div style="display:flex;justify-content:space-between;margin-bottom:24px;border-bottom:3px solid #CDFA3E;padding-bottom:16px"><div><div style="font-size:24px;font-weight:900">📦 MOVE.BIN</div><div style="font-size:11px;color:#888;margin-top:4px">${new Date().toLocaleString()}</div></div><div style="text-align:right;font-size:11px;color:#666">Bins: ${S.bins.length} | Items: ${ti()}</div></div><table><thead><tr><th>ID</th><th>Label</th><th>Zone</th><th>Location</th><th>#</th><th>Items</th></tr></thead><tbody>${rows}</tbody></table></body></html>`);w.document.close();setTimeout(()=>w.print(),400)}
+function exportExcel(){const wb=XLSX.utils.book_new();const sr=[["MOVE.BIN","","","",""],["Generated:",new Date().toLocaleString(),"","",""],["","","","",""],["ID","Label","Zone","Location","Items"]];S.bins.forEach(b=>sr.push([b.id,b.label,b.zone,b.location||"—",b.items.length]));sr.push(["","","","TOTAL",ti()]);const ws=XLSX.utils.aoa_to_sheet(sr);ws["!cols"]=[{wch:10},{wch:30},{wch:16},{wch:22},{wch:10}];XLSX.utils.book_append_sheet(wb,ws,"Summary");const ir=[["ID","Label","Zone","Location","Item"]];S.bins.forEach(b=>{if(!b.items.length)ir.push([b.id,b.label,b.zone,b.location||"—","(empty)"]);else b.items.forEach((it,i)=>ir.push([i?"":b.id,i?"":b.label,i?"":b.zone,i?"":(b.location||"—"),it]))});const wi=XLSX.utils.aoa_to_sheet(ir);wi["!cols"]=[{wch:10},{wch:30},{wch:16},{wch:22},{wch:34}];XLSX.utils.book_append_sheet(wb,wi,"Items");try{const o=XLSX.write(wb,{bookType:"xlsx",type:"array"});const bl=new Blob([o],{type:"application/octet-stream"});const u=URL.createObjectURL(bl);const a=document.createElement("a");a.href=u;a.download="movebin-"+new Date().toISOString().slice(0,10)+".xlsx";document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);showToast("✅ Excel!")}catch(e){showToast("❌ "+e.message)}}
+function exportJSON(){const bl=new Blob([JSON.stringify(S.bins,null,2)],{type:"application/json"});const u=URL.createObjectURL(bl);const a=document.createElement("a");a.href=u;a.download=`movebin-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(u);showToast("✅ JSON!")}
+function exportPDF(){const w=window.open("","_blank");let rows="";S.bins.forEach(b=>{const il=b.items.length>0?b.items.map(i=>`<span style="display:inline-block;background:#f0f0f0;border-radius:4px;padding:1px 7px;margin:2px 3px 2px 0;font-size:11px">${i}</span>`).join(""):'<i style="color:#888">Empty</i>';rows+=`<tr><td style="font-family:monospace;font-weight:700;color:#65A30D">${b.id}</td><td><b>${b.label}</b></td><td>${b.zone}</td><td>${b.location||'—'}</td><td style="text-align:center;font-weight:700">${b.items.length}</td><td style="line-height:1.8">${il}</td></tr>`});w.document.write(`<!DOCTYPE html><html><head><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Segoe UI',sans-serif;color:#111;padding:32px;font-size:12px}table{width:100%;border-collapse:collapse}thead tr{background:#111;color:#CDFA3E}thead th{padding:10px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px}tbody tr{border-bottom:1px solid #eee}tbody tr:nth-child(even){background:#fafafa}td{padding:8px 12px;vertical-align:top}@media print{body{padding:16px}}</style></head><body><div style="display:flex;justify-content:space-between;margin-bottom:24px;border-bottom:3px solid #CDFA3E;padding-bottom:16px"><div><div style="font-size:24px;font-weight:900">📦 MOVE.BIN</div><div style="font-size:11px;color:#888;margin-top:4px">${new Date().toLocaleString()}</div></div><div style="text-align:right;font-size:11px;color:#666">${S.bins.length} bins | ${ti()} items</div></div><table><thead><tr><th>ID</th><th>Label</th><th>Zone</th><th>Location</th><th>#</th><th>Items</th></tr></thead><tbody>${rows}</tbody></table></body></html>`);w.document.close();setTimeout(()=>w.print(),400)}
 function importData(){document.getElementById("importInput").click()}
-document.addEventListener("DOMContentLoaded",()=>{document.getElementById("importInput").addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(Array.isArray(d)&&d[0]?.id){S.bins=d;saveBins(S.bins);showToast("Imported "+d.length+" bins");render()}}catch(e){showToast("Invalid JSON")}};r.readAsText(f);e.target.value=""})});
+document.addEventListener("DOMContentLoaded",()=>{document.getElementById("importInput").addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(Array.isArray(d)&&d[0]?.id){S.bins=d;saveBins(S.bins);showToast("Imported "+d.length);render()}}catch(e){showToast("Invalid")}};r.readAsText(f);e.target.value=""})});
 
-// Cloud sync — X-Master-Key
+// Sync
 const JB="https://api.jsonbin.io/v3/b";let _pt=null;
 function scheduleAutoPush(){clearTimeout(_pt);_pt=setTimeout(()=>push(),1500)}
 function setSync(s){S.ss=s;const e=document.getElementById("sb");if(!e)return;const m={local:{c:"local",h:'<span class="sd"></span>LOCAL'},syncing:{c:"syncing",h:'<span class="sp">⟳</span>SYNC'},synced:{c:"synced",h:'<span class="sd"></span>SYNCED'},error:{c:"error",h:'<span class="sd"></span>ERR'}};const v=m[s]||m.local;e.className=`sb ${v.c}`;e.innerHTML=v.h}
-async function push(){const c=loadCreds();if(!c.key||!c.bid){setSync("local");return}setSync("syncing");try{const r=await fetch(`${JB}/${c.bid}`,{method:"PUT",headers:{"Content-Type":"application/json","X-Master-Key":c.key},body:JSON.stringify({bins:S.bins,updatedAt:new Date().toISOString()})});if(!r.ok)throw new Error(await r.text());setSync("synced")}catch(e){setSync("error");console.error(e.message)}}
-async function pull(){const c=loadCreds();if(!c.key||!c.bid){setSync("local");return}setSync("syncing");try{const r=await fetch(`${JB}/${c.bid}/latest`,{headers:{"X-Master-Key":c.key}});if(!r.ok)throw new Error(await r.text());const d=await r.json();const p=d.record;if(p.bins&&Array.isArray(p.bins)){S.bins=p.bins;saveBins(S.bins);setSync("synced");showToast("✅ "+p.bins.length+" bins synced");render()}else throw new Error("Bad format")}catch(e){setSync("error");showToast("❌ "+e.message)}}
+async function push(){const c=loadCreds();if(!c.key||!c.bid){setSync("local");return}setSync("syncing");try{const r=await fetch(`${JB}/${c.bid}`,{method:"PUT",headers:{"Content-Type":"application/json","X-Master-Key":c.key},body:JSON.stringify({bins:S.bins,zones:loadCustomZones(),updatedAt:new Date().toISOString()})});if(!r.ok)throw new Error(await r.text());setSync("synced")}catch(e){setSync("error")}}
+async function pull(){const c=loadCreds();if(!c.key||!c.bid){setSync("local");return}setSync("syncing");try{const r=await fetch(`${JB}/${c.bid}/latest`,{headers:{"X-Master-Key":c.key}});if(!r.ok)throw new Error(await r.text());const d=await r.json();const p=d.record;if(p.bins&&Array.isArray(p.bins)){S.bins=p.bins;saveBins(S.bins);if(p.zones)saveCustomZones(p.zones);setSync("synced");showToast("✅ "+p.bins.length+" bins");render()}else throw new Error("Bad format")}catch(e){setSync("error");showToast("❌ "+e.message)}}
 
 // Actions
 function setView(v){S.view=v;S.sel=null;S.dl=null;S.rnL=false;S.rnI=false;S.dd=null;render()}
 function openDD(t){S.dd=t;render()}
 function closeDD(){S.dd=null;render()}
 function selBin(id){S.sel=id;S.dl=null;S.rnL=false;S.rnI=false;render()}
-function goBack(){S.sel=null;S.rnL=false;S.rnI=false;render()}
+function goBack(){S.sel=null;render()}
 function setZF(z){S.zf=z;render()}
 function setSort(v){S.sort=v;render()}
 function startRnL(){S.rnL=true;S.rnI=false;render();setTimeout(()=>document.getElementById("rnI")?.focus(),50)}
@@ -272,91 +289,85 @@ function addItem(id){const i=document.getElementById("itI");const v=i?.value?.tr
 function rmItem(id,idx){const b=S.bins.find(b=>b.id===id);if(b){b.items.splice(idx,1);saveBins(S.bins);render()}}
 function delBin(id){if(!confirm("Delete bin?"))return;S.bins=S.bins.filter(b=>b.id!==id);saveBins(S.bins);S.sel=null;render()}
 function togAdd(){S.showAdd=!S.showAdd;render()}
-function addBin(){const l=document.getElementById("nbL")?.value?.trim();const z=document.getElementById("nbZ")?.value;if(!l)return;const n=S.bins.length+1;const id="BIN-"+String(n).padStart(2,"0");S.bins.push({id,label:l,icon:"📦",zone:z||"Utility",location:"",items:[],packed:false});saveBins(S.bins);S.showAdd=false;showToast("+ "+id);render()}
+function addBin(){const l=document.getElementById("nbL")?.value?.trim();const z=document.getElementById("nbZ")?.value;if(!l)return;const id=nextBinId(S.bins);S.bins.push({id,label:l,icon:"📦",zone:z||"Utility",location:"",items:[],packed:false});saveBins(S.bins);S.showAdd=false;showToast("+ "+id);render()}
+function addCustomZone(){const inp=document.getElementById("czI");const v=inp?.value?.trim();if(!v)return;const cz=loadCustomZones();if(cz.includes(v)||BASE_ZONES.includes(v)){showToast("Already exists");return}cz.push(v);saveCustomZones(cz);inp.value="";showToast("+ "+v);render()}
 function impFile(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(Array.isArray(d)&&d[0]?.id){S.bins=d;saveBins(S.bins);showToast("Imported "+d.length);render()}}catch(e){showToast("Invalid")}};r.readAsText(f);e.target.value=""}
 
-// Ring gauge SVG helper
-function ringSVG(pct,size=90){
-  const r=45,c=2*Math.PI*r;const offset=c-(pct/100)*c;
-  return `<svg class="ring-svg" viewBox="0 0 100 100" width="${size}" height="${size}">
-    <circle cx="50" cy="50" r="45" class="ring-track"/>
-    <circle cx="50" cy="50" r="45" class="ring-fill" style="--offset:${offset};stroke-dashoffset:${offset}"/>
-    <text x="50" y="50" class="ring-center">${pct}%</text>
-  </svg>`;
-}
-
-// ═══ RENDER ═══
 function render(){
-const dk=getTheme()==="dark";let h="";
-// Header
-h+=`<div class="hdr"><div class="hdr-top"><div class="logo"><div class="logo-mark">📦</div><div><div class="logo-text">MOVE<span>.BIN</span></div><div class="logo-sub">NFC Inventory</div></div></div><div class="hdr-btns"><span class="sb ${S.ss}" id="sb">${S.ss==='synced'?'<span class="sd"></span>SYNCED':S.ss==='syncing'?'<span class="sp">⟳</span>SYNC':S.ss==='error'?'<span class="sd"></span>ERR':'<span class="sd"></span>LOCAL'}</span><button class="ib" onclick="exportExcel()">📊</button><button class="ib" onclick="exportPDF()">📄</button><button class="ib" onclick="importData()">⬆</button><button class="ib" onclick="toggleTheme()">${dk?"☀️":"🌙"}</button></div></div><div class="tabs">${["dashboard","bins","search","settings"].map(t=>`<button class="tab ${S.view===t?"on":""}" onclick="setView('${t}')">${({dashboard:"📊 Dash",bins:"📦 Bins",search:"🔍 Find",settings:"⚙️ Settings"})[t]}</button>`).join("")}</div></div>`;
+const dk=getTheme()==="dark";const zones=allZones();let h="";
+
+h+=`<div class="hdr"><div class="hdr-top"><div class="logo"><div class="logo-mark">📦</div><div><div class="logo-text">MOVE<span>.BIN</span></div><div class="logo-sub">NFC Inventory</div></div></div><div class="hdr-btns"><span class="sb ${S.ss}" id="sb">${S.ss==='synced'?'<span class="sd"></span>SYNCED':S.ss==='syncing'?'<span class="sp">⟳</span>SYNC':S.ss==='error'?'<span class="sd"></span>ERR':'<span class="sd"></span>LOCAL'}</span><button class="ib" data-tip="Export Excel" onclick="exportExcel()">📊</button><button class="ib" data-tip="Export PDF" onclick="exportPDF()">📄</button><button class="ib" data-tip="Import JSON" onclick="importData()">⬆</button><button class="ib" data-tip="${dk?'Light Mode':'Dark Mode'}" onclick="toggleTheme()">${dk?"☀️":"🌙"}</button></div></div><div class="tabs">${["dashboard","bins","search","settings"].map(t=>`<button class="tab ${S.view===t?"on":""}" onclick="setView('${t}')">${({dashboard:"📊 Dash",bins:"📦 Bins",search:"🔍 Find",settings:"⚙️ Settings"})[t]}</button>`).join("")}</div></div>`;
 h+=`<div class="cnt">`;
 
 // ═══ DASHBOARD ═══
 if(S.view==="dashboard"&&!S.dd){
   const t=ti(),p=pc(),l=lc(),pct=S.bins.length>0?Math.round((p/S.bins.length)*100):0;
-  h+=`<div class="hero">
-    <div class="g hero-card anim a1"><div class="hero-num" style="color:var(--accent)">${S.bins.length}</div><div class="hero-label">Total Bins</div></div>
-    <div class="g hero-card tap anim a2" onclick="openDD('items')"><div class="hero-num" style="color:var(--green)">${t}</div><div class="hero-label">Items</div><div class="hero-hint">Tap to view ↗</div></div>
-    <div class="g hero-card tap anim a3" onclick="openDD('locations')"><div class="hero-num" style="color:var(--blue)">${l}</div><div class="hero-label">Located</div><div class="hero-hint">Tap to view ↗</div></div>
-    <div class="g hero-card anim a4"><div class="hero-num" style="color:var(--orange)">${p}</div><div class="hero-label">Packed</div></div>
-  </div>`;
-  // Ring gauge
-  h+=`<div class="g ring-wrap g-glow anim a5">${ringSVG(pct)}<div class="ring-info"><div class="ring-title">Packing Progress</div><div class="ring-sub">${p} of ${S.bins.length} bins packed<br>${t} items logged across all bins</div></div></div>`;
-  h+=`<div class="sec-title anim a6">Zones</div>`;
-  ZONES.filter(z=>z!=="All").forEach((zone,i)=>{
-    const zb=S.bins.filter(b=>b.zone===zone);if(!zb.length)return;
-    const zi=zb.reduce((s,b)=>s+b.items.length,0),zp=zb.filter(b=>b.packed).length;
-    h+=`<div class="g g-sm zone anim" style="animation-delay:${.3+i*.04}s" onclick="S.zf='${zone}';setView('bins')"><div><div class="zone-name">${zone}</div><div class="zone-sub">${zb.length} bin${zb.length>1?"s":""} · ${zp} packed</div></div><div class="zone-badge">${zi}</div></div>`;
-  });
+  h+=`<div class="hero"><div class="g hc anim a1"><div class="hn" style="color:var(--accent)">${S.bins.length}</div><div class="hl">Total Bins</div></div><div class="g hc tap anim a2" onclick="openDD('items')"><div class="hn" style="color:var(--green)">${t}</div><div class="hl">Items</div><div class="hh">Tap to view ↗</div></div><div class="g hc tap anim a3" onclick="openDD('locations')"><div class="hn" style="color:var(--blue)">${l}</div><div class="hl">Located</div><div class="hh">Tap to view ↗</div></div><div class="g hc anim a4"><div class="hn" style="color:var(--orange)">${p}</div><div class="hl">Packed</div></div></div>`;
+  h+=`<div class="g rw g-glow anim a5">${ringSVG(pct)}<div class="ri"><div class="ri-t">Packing Progress</div><div class="ri-s">${p} of ${S.bins.length} bins packed<br>${t} items logged</div></div></div>`;
+  h+=`<div class="st anim a6">Zones</div>`;
+  zones.forEach((zone,i)=>{const zb=S.bins.filter(b=>b.zone===zone);if(!zb.length)return;const zi=zb.reduce((s,b)=>s+b.items.length,0),zp=zb.filter(b=>b.packed).length;
+    h+=`<div class="g g-sm zc anim" style="animation-delay:${.3+i*.04}s" onclick="S.zf='${zone}';setView('bins')"><div><div class="zn">${zone}</div><div class="zs">${zb.length} bin${zb.length>1?"s":""} · ${zp} packed</div></div><div class="zb">${zi}</div></div>`});
 }
 
 // Drilldowns
-if(S.view==="dashboard"&&S.dd==="items"){const bwa=S.bins.filter(b=>b.items.length>0);h+=`<button class="dback" onclick="closeDD()">← Dashboard</button><div class="gt">All Items</div><div class="gd">${ti()} items across ${bwa.length} bins</div>`;if(!bwa.length)h+=`<div class="no">No items yet</div>`;else bwa.forEach(b=>{const c=bc(b);h+=`<div class="g g-sm dbi" style="border-left-color:${c}" onclick="selBin('${b.id}');S.view='bins';render()"><div class="bc-id" style="color:${c}">${b.id} ${b.packed?'<span class="pk-badge">✓ PACKED</span>':''}</div><div style="font-size:14px;font-weight:700;margin:4px 0">${b.icon} ${b.label}</div><div style="font-size:11px;color:var(--text3)">${b.zone}${b.location?' · 📍 '+b.location:''}</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">${b.items.map(i=>`<span style="display:inline-block;background:${c}15;border:1px solid ${c}35;color:${c};border-radius:8px;padding:3px 10px;font-size:11px;font-weight:600">${i}</span>`).join("")}</div></div>`})}
-if(S.view==="dashboard"&&S.dd==="locations"){const wl=S.bins.filter(b=>b.location&&b.location.trim()),nl=S.bins.filter(b=>!b.location||!b.location.trim());h+=`<button class="dback" onclick="closeDD()">← Dashboard</button><div class="gt">Locations</div><div class="gd">${wl.length} of ${S.bins.length} located</div>`;if(!wl.length)h+=`<div class="no">No locations set</div>`;else{const g={};wl.forEach(b=>{const l=b.location.trim();if(!g[l])g[l]=[];g[l].push(b)});Object.entries(g).forEach(([loc,bins])=>{h+=`<div style="margin-bottom:18px"><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--blue);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;font-weight:700">📍 ${loc}</div>`;bins.forEach(b=>{const c=bc(b);h+=`<div class="g g-sm dbi" style="border-left-color:${c};margin-bottom:6px" onclick="selBin('${b.id}');S.view='bins';render()"><div class="bc-id" style="color:${c}">${b.id} ${b.packed?'<span class="pk-badge">✓</span>':''}</div><div style="font-size:14px;font-weight:700;margin:2px 0">${b.icon} ${b.label}</div><div style="font-size:10px;color:var(--text3)">${b.zone} · ${b.items.length} items</div></div>`});h+=`</div>`})}if(nl.length>0){h+=`<div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:2px;margin:16px 0 8px;font-weight:700">⚠ UNLOCATED (${nl.length})</div>`;nl.forEach(b=>{const c=bc(b);h+=`<div class="g g-sm dbi" style="border-left-color:${c};opacity:.4;margin-bottom:6px" onclick="selBin('${b.id}');S.view='bins';render()"><div class="bc-id" style="color:${c}">${b.id}</div><div style="font-size:14px;font-weight:700">${b.icon} ${b.label}</div></div>`})}}
+if(S.view==="dashboard"&&S.dd==="items"){const bwa=S.bins.filter(b=>b.items.length>0);h+=`<button class="dback" onclick="closeDD()">← Dashboard</button><div class="gt">All Items</div><div class="gd">${ti()} items across ${bwa.length} bins</div>`;if(!bwa.length)h+=`<div class="no">No items yet</div>`;else bwa.forEach(b=>{const c=bc(b);h+=`<div class="g g-sm dbi" style="border-left-color:${c}" onclick="selBin('${b.id}');S.view='bins';render()"><div class="bc-id" style="color:${c}">${b.id} ${b.packed?'<span class="pk-badge">✓ PACKED</span>':''}</div><div style="font-size:14px;font-weight:700;margin:4px 0">${b.icon} ${b.label}</div><div style="font-size:11px;color:var(--text2)">${b.zone}${b.location?' · 📍 '+b.location:''}</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">${b.items.map(i=>`<span style="display:inline-block;background:${c}15;border:1px solid ${c}35;color:${c};border-radius:8px;padding:3px 10px;font-size:11px;font-weight:600">${i}</span>`).join("")}</div></div>`})}
+if(S.view==="dashboard"&&S.dd==="locations"){const wl=S.bins.filter(b=>b.location&&b.location.trim()),nl=S.bins.filter(b=>!b.location||!b.location.trim());h+=`<button class="dback" onclick="closeDD()">← Dashboard</button><div class="gt">Locations</div><div class="gd">${wl.length} of ${S.bins.length} located</div>`;if(!wl.length)h+=`<div class="no">No locations set</div>`;else{const g={};wl.forEach(b=>{const l=b.location.trim();if(!g[l])g[l]=[];g[l].push(b)});Object.entries(g).forEach(([loc,bins])=>{h+=`<div style="margin-bottom:18px"><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--blue);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;font-weight:700">📍 ${loc}</div>`;bins.forEach(b=>{const c=bc(b);h+=`<div class="g g-sm dbi" style="border-left-color:${c};margin-bottom:6px" onclick="selBin('${b.id}');S.view='bins';render()"><div class="bc-id" style="color:${c}">${b.id}</div><div style="font-size:14px;font-weight:700">${b.icon} ${b.label}</div><div style="font-size:10px;color:var(--text2)">${b.zone} · ${b.items.length} items</div></div>`});h+=`</div>`})}if(nl.length){h+=`<div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:2px;margin:16px 0 8px;font-weight:700">⚠ UNLOCATED (${nl.length})</div>`;nl.forEach(b=>{const c=bc(b);h+=`<div class="g g-sm dbi" style="border-left-color:${c};opacity:.4;margin-bottom:6px" onclick="selBin('${b.id}');S.view='bins';render()"><div class="bc-id" style="color:${c}">${b.id}</div><div style="font-size:14px;font-weight:700">${b.icon} ${b.label}</div></div>`})}}
 
-// ═══ BINS LIST ═══
+// ═══ BINS ═══
 if(S.view==="bins"&&!S.sel){
-  h+=`<div class="filters">${ZONES.map(z=>`<button class="pill ${S.zf===z?"on":""}" onclick="setZF('${z}')">${z}</button>`).join("")}</div>`;
+  h+=`<div class="filters"><button class="pill ${S.zf==="All"?"on":""}" onclick="setZF('All')">All</button>${zones.map(z=>`<button class="pill ${S.zf===z?"on":""}" onclick="setZF('${z}')">${z}</button>`).join("")}</div>`;
   h+=`<div class="sort-row"><span class="sort-lbl">Sort</span><select class="sort-sel" onchange="setSort(this.value)"><option value="id-asc"${S.sort==="id-asc"?" selected":""}>ID ↑</option><option value="id-desc"${S.sort==="id-desc"?" selected":""}>ID ↓</option><option value="label-asc"${S.sort==="label-asc"?" selected":""}>A-Z</option><option value="label-desc"${S.sort==="label-desc"?" selected":""}>Z-A</option><option value="items-desc"${S.sort==="items-desc"?" selected":""}>Most Items</option><option value="items-asc"${S.sort==="items-asc"?" selected":""}>Fewest</option><option value="zone"${S.sort==="zone"?" selected":""}>Zone</option><option value="packed"${S.sort==="packed"?" selected":""}>Packed ✓</option><option value="unpacked"${S.sort==="unpacked"?" selected":""}>Unpacked</option></select></div>`;
-  sortBins(S.bins.filter(b=>S.zf==="All"||b.zone===S.zf)).forEach((bin,i)=>{
-    const c=bc(bin);const pt=bin.packed?`<span class="pk-badge">✓ PACKED</span>`:"";
-    const lt=bin.location?`<span style="font-size:10px;color:var(--text3);margin-right:6px">📍 ${bin.location}</span>`:"";
-    const pi=bin.items.slice(0,3).map(i=>`<b>${i}</b>`).join(` <span style="color:var(--text3)">·</span> `);
-    const pm=bin.items.length>3?` <span style="color:var(--text3);font-style:italic">+${bin.items.length-3}</span>`:"";
-    const pv=(bin.location||bin.items.length>0)?`<div class="bc-preview">${lt}${pi}${pm}</div>`:"";
-    h+=`<div class="g g-sm bc anim" style="border-left-color:${c};animation-delay:${i*.03}s;${bin.packed?"opacity:.65;":""}" onclick="selBin('${bin.id}')"><div class="bc-top"><div class="bc-info"><div class="bc-icon" style="background:${c}12;border:1px solid ${c}20">${bin.icon}</div><div><div class="bc-id" style="color:${c}">${bin.id} ${pt}</div><div class="bc-label">${bin.label}</div><div class="bc-zone">${bin.zone}</div></div></div><div class="bc-count" style="background:${bin.items.length>0?c+"14":"var(--surface2)"};color:${bin.items.length>0?c:"var(--text3)"};border:1px solid ${bin.items.length>0?c+"25":"transparent"}">${bin.items.length}</div></div>${pv}</div>`;
-  });
+  sortBins(S.bins.filter(b=>S.zf==="All"||b.zone===S.zf)).forEach((bin,i)=>{const c=bc(bin);const pt=bin.packed?`<span class="pk-badge">✓ PACKED</span>`:"";const lt=bin.location?`<span style="font-size:10px;color:var(--text2);margin-right:6px">📍 ${bin.location}</span>`:"";const pi=bin.items.slice(0,3).map(i=>`<b>${i}</b>`).join(` <span style="color:var(--text3)">·</span> `);const pm=bin.items.length>3?` <span style="color:var(--text3);font-style:italic">+${bin.items.length-3}</span>`:"";const pv=(bin.location||bin.items.length>0)?`<div class="bc-preview">${lt}${pi}${pm}</div>`:"";
+    h+=`<div class="g g-sm bc anim" style="border-left-color:${c};animation-delay:${i*.03}s;${bin.packed?"opacity:.65;":""}" onclick="selBin('${bin.id}')"><div class="bc-top"><div class="bc-info"><div class="bc-icon" style="background:${c}12;border:1px solid ${c}20">${bin.icon}</div><div><div class="bc-id" style="color:${c}">${bin.id} ${pt}</div><div class="bc-label">${bin.label}</div><div class="bc-zone">${bin.zone}</div></div></div><div class="bc-count" style="background:${bin.items.length>0?c+"14":"var(--surface2)"};color:${bin.items.length>0?c:"var(--text2)"};border:1px solid ${bin.items.length>0?c+"25":"transparent"}">${bin.items.length}</div></div>${pv}</div>`});
   if(!S.showAdd)h+=`<button class="add-btn" onclick="togAdd()">+ Add New Bin</button>`;
-  else h+=`<div class="g fc"><input class="fi" id="nbL" placeholder="Bin label"><select class="fs" id="nbZ">${ZONES.filter(z=>z!=="All").map(z=>`<option value="${z}">${z}</option>`).join("")}</select><div class="fa"><button class="bp" onclick="addBin()">Add</button><button class="bx" onclick="togAdd()">Cancel</button></div></div>`;
+  else{
+    const sugId=nextBinId(S.bins);
+    h+=`<div class="g fc"><div class="id-hint">Next ID: <span>${sugId}</span></div><input class="fi" id="nbL" placeholder="Bin label (e.g. Monitors & Cables)">`;
+    h+=`<select class="fs" id="nbZ">${zones.map(z=>`<option value="${z}">${z}</option>`).join("")}</select>`;
+    h+=`<div class="cat-row"><input class="cat-inp" id="czI" placeholder="+ New category (e.g. Garage)" onkeydown="if(event.key==='Enter')addCustomZone()"><button class="cat-add" onclick="addCustomZone()">+ Add</button></div>`;
+    h+=`<div class="fa"><button class="bp" onclick="addBin()">Create ${sugId}</button><button class="bx" onclick="togAdd()">Cancel</button></div></div>`;
+  }
 }
 
-// ═══ BIN DETAIL ═══
+// ═══ DETAIL ═══
 if(S.view==="bins"&&S.sel){const bin=S.bins.find(b=>b.id===S.sel);if(bin){const c=bc(bin);
   if(S.dl)h+=`<div class="dl-banner"><span class="dl-icon">📱</span><div class="dl-text">NFC → ${bin.id}</div></div>`;
-  h+=`<button class="back" onclick="goBack()">← Back</button>`;
-  h+=`<div class="g det-hdr anim a1" style="border-color:${c}30"><div class="det-top"><div style="flex:1"><div class="det-icon">${bin.icon}</div>`;
-  if(S.rnI)h+=`<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><input class="rn-i" id="rnId" value="${bin.id}" style="font-size:13px;font-family:'JetBrains Mono',monospace;max-width:140px" onkeydown="if(event.key==='Enter')saveRnId();if(event.key==='Escape')cancelRnId()"><button class="brs" onclick="saveRnId()">Save</button><button class="br" onclick="cancelRnId()">✕</button></div>`;
+  h+=`<button class="back" onclick="goBack()">← Back</button><div class="g det-hdr anim a1" style="border-color:${c}30"><div class="det-top"><div style="flex:1"><div class="det-icon">${bin.icon}</div>`;
+  if(S.rnI)h+=`<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><input class="rn-i" id="rnId" value="${bin.id}" style="font-size:13px;font-family:'JetBrains Mono',monospace;max-width:160px" onkeydown="if(event.key==='Enter')saveRnId();if(event.key==='Escape')cancelRnId()"><button class="brs" onclick="saveRnId()">Save</button><button class="br" onclick="cancelRnId()">✕</button></div>`;
   else h+=`<div style="display:flex;align-items:center;gap:8px"><div class="det-id" style="color:${c}">${bin.id}</div><button class="br" onclick="startRnId()">✏️ ID</button></div>`;
   if(S.rnL)h+=`<input class="rn-i" id="rnI" value="${bin.label.replace(/"/g,'&quot;')}" onkeydown="if(event.key==='Enter')saveRnL();if(event.key==='Escape')cancelRnL()"><div class="rn-h">Enter to save</div><button class="brs" onclick="saveRnL()">Save</button><button class="br" onclick="cancelRnL()">Cancel</button>`;
   else h+=`<div class="det-label">${bin.label}</div><button class="br" onclick="startRnL()">✏️ Label</button>`;
-  h+=`<div class="det-zone">${bin.zone}</div><div style="display:flex;align-items:center;gap:8px;margin-top:8px"><span style="font-size:11px;color:var(--text3)">📍</span><input id="locI" class="inp" style="flex:1;padding:8px 14px;font-size:12px;max-width:240px;border-radius:12px" placeholder="Location" value="${(bin.location||'').replace(/"/g,'&quot;')}" onchange="saveLoc('${bin.id}')" onblur="saveLoc('${bin.id}')"></div></div><button class="btn-del" onclick="delBin('${bin.id}')">Delete</button></div><div class="nfc">📱 NFC → "${bin.id}"</div></div>`;
+  h+=`<div class="det-zone">${bin.zone}</div><div style="display:flex;align-items:center;gap:8px;margin-top:8px"><span style="font-size:11px;color:var(--text2)">📍</span><input id="locI" class="inp" style="flex:1;padding:8px 14px;font-size:12px;max-width:240px;border-radius:12px" placeholder="Location" value="${(bin.location||'').replace(/"/g,'&quot;')}" onchange="saveLoc('${bin.id}')" onblur="saveLoc('${bin.id}')"></div></div><button class="btn-del" onclick="delBin('${bin.id}')">Delete</button></div><div class="nfc">📱 NFC → "${bin.id}"</div></div>`;
   h+=`<div class="pk-row anim a2 ${bin.packed?'on':''}" onclick="togPk('${bin.id}')"><input type="checkbox" class="pk-cb" ${bin.packed?'checked':''} onclick="event.stopPropagation();togPk('${bin.id}')"><span class="pk-lbl ${bin.packed?'done':''}">${bin.packed?'✓ Packed':'Mark as Packed'}</span></div>`;
   h+=`<div class="add-row anim a3" style="margin-top:14px"><input class="inp" id="itI" placeholder="Add item" onkeydown="if(event.key==='Enter')addItem('${bin.id}')"><button class="btn-plus" onclick="addItem('${bin.id}')">+</button></div>`;
   h+=`<div class="ic">${bin.items.length} item${bin.items.length!==1?"s":""}</div>`;
   if(!bin.items.length)h+=`<div class="empty">Empty — start packing!</div>`;
-  bin.items.forEach((item,idx)=>{h+=`<div class="g g-sm ir" style="animation-delay:${idx*.03}s"><span class="ir-i">${String(idx+1).padStart(2,'0')}</span><span class="ir-n">${item}</span><button class="btn-rm" onclick="rmItem('${bin.id}',${idx})">✕</button></div>`});
-}}
+  bin.items.forEach((item,idx)=>{h+=`<div class="g g-sm ir" style="animation-delay:${idx*.03}s"><span class="ir-i">${String(idx+1).padStart(2,'0')}</span><span class="ir-n">${item}</span><button class="btn-rm" onclick="rmItem('${bin.id}',${idx})">✕</button></div>`})}}
 
 // ═══ SEARCH ═══
 if(S.view==="search"){h+=`<div class="gt anim a1">Find Item</div><div class="gd anim a2">Search all bins.</div><input class="si anim a3" id="sI" placeholder="Search (e.g. HDMI, charger)" oninput="S.sq=this.value;renderSearch()" value="${S.sq}"><div id="sR"></div>`}
 
 // ═══ SETTINGS ═══
 if(S.view==="settings"){
-  h+=`<div class="gt anim a1">Settings</div><div class="gd anim a2">Theme, sync, backup.</div>`;
+  h+=`<div class="gt anim a1">Settings</div><div class="gd anim a2">Theme, sync, NFC setup, backup.</div>`;
   h+=`<div class="g ss anim a3"><div class="sst">Theme</div><div class="tp"><div class="to ${dk?'on':''}" onclick="setTheme('dark');render()"><i>🌙</i>Dark</div><div class="to ${!dk?'on':''}" onclick="setTheme('light');render()"><i>☀️</i>Light</div></div></div>`;
-  h+=`<div class="g ss anim a4"><div class="sst">Cloud Sync</div><div style="margin-bottom:12px"><span class="sb ${S.ss}" style="font-size:12px;padding:6px 14px">${S.ss==='synced'?'✅ SYNCED':S.ss==='syncing'?'⟳ SYNCING':S.ss==='error'?'❌ ERROR':'⬤ LOCAL'}</span></div><div class="sh">${hasCreds()?"<strong>✅ Credentials loaded.</strong> Auto-sync active.":"<strong>⚠️ No credentials.</strong> Scan NFC to enable."}</div><div class="sbr"><button class="bsp" onclick="push().then(()=>showToast('✅ Pushed!'))">↑ PUSH</button><button class="bsl" onclick="pull()">↓ PULL</button></div></div>`;
-  h+=`<div class="g ss anim a5"><div class="sst">Backup</div><div class="sbr"><button class="bsl" onclick="exportExcel()">📊 Excel</button><button class="bsl" onclick="exportPDF()" style="border-color:var(--pink);color:var(--pink)">📄 PDF</button><button class="bsl" onclick="exportJSON()" style="border-color:var(--orange);color:var(--orange)">💾 JSON</button><label class="bsp" style="cursor:pointer;text-align:center">⬆ Import<input type="file" accept=".json" style="display:none" onchange="impFile(event)"></label></div></div>`;
+  h+=`<div class="g ss anim a4"><div class="sst">Cloud Sync</div><div style="margin-bottom:12px"><span class="sb ${S.ss}" style="font-size:12px;padding:6px 14px">${S.ss==='synced'?'✅ SYNCED':S.ss==='syncing'?'⟳ SYNCING':S.ss==='error'?'❌ ERROR':'⬤ LOCAL'}</span></div><div class="sh">${hasCreds()?"<strong>✅ Credentials loaded.</strong> Auto-sync active.":"<strong>⚠️ No credentials.</strong> Open your bookmark URL with ?k= and &b= params to enable sync."}</div><div class="sbr"><button class="bsp" onclick="push().then(()=>showToast('✅ Pushed!'))">↑ PUSH</button><button class="bsl" onclick="pull()">↓ PULL</button></div></div>`;
+
+  // NFC Guide
+  h+=`<div class="g ss anim a5"><div class="sst">📱 NFC Tag Setup</div>
+    <div class="nfc-step"><div class="nfc-num">1</div><div class="nfc-txt">Install <strong>NFC Tools</strong> (free) from Play Store on your Samsung</div></div><hr class="nfc-divider">
+    <div class="nfc-step"><div class="nfc-num">2</div><div class="nfc-txt">Open NFC Tools → tap the <strong>Write</strong> tab at the bottom</div></div><hr class="nfc-divider">
+    <div class="nfc-step"><div class="nfc-num">3</div><div class="nfc-txt">Tap <strong>Add a record</strong> → select <strong>URL / URI</strong></div></div><hr class="nfc-divider">
+    <div class="nfc-step"><div class="nfc-num">4</div><div class="nfc-txt">In the URL field, type:<br><code>https://rickyfont94.github.io/movebin/?bin=BIN-001</code><br>Change <strong>BIN-001</strong> to match the bin this sticker goes on</div></div><hr class="nfc-divider">
+    <div class="nfc-step"><div class="nfc-num">5</div><div class="nfc-txt">To enable auto-sync, add your credentials to the URL:<br><code>?k=YOUR_MASTER_KEY&b=YOUR_BIN_ID&bin=BIN-001</code></div></div><hr class="nfc-divider">
+    <div class="nfc-step"><div class="nfc-num">6</div><div class="nfc-txt">Tap <strong>Write / XX Bytes</strong> at the bottom</div></div><hr class="nfc-divider">
+    <div class="nfc-step"><div class="nfc-num">7</div><div class="nfc-txt">Hold your phone flat against the NFC sticker until you see <strong>"Write complete"</strong></div></div><hr class="nfc-divider">
+    <div class="nfc-step"><div class="nfc-num">8</div><div class="nfc-txt">Stick it on the <strong>front-center of the bin</strong>, 2 inches below the rim. Cover with clear packing tape.</div></div><hr class="nfc-divider">
+    <div class="nfc-step"><div class="nfc-num">9</div><div class="nfc-txt">Repeat for each bin, changing the <strong>bin=BIN-XXX</strong> in the URL each time</div></div>
+    <div class="sh" style="margin-top:16px"><strong>Test it:</strong> Lock your phone, then tap it on the sticker. Chrome should open directly to that bin's page.</div>
+  </div>`;
+
+  h+=`<div class="g ss anim a6"><div class="sst">Backup</div><div class="sbr"><button class="bsl" onclick="exportExcel()">📊 Excel</button><button class="bsl" onclick="exportPDF()" style="border-color:var(--pink);color:var(--pink)">📄 PDF</button><button class="bsl" onclick="exportJSON()" style="border-color:var(--orange);color:var(--orange)">💾 JSON</button><label class="bsp" style="cursor:pointer;text-align:center">⬆ Import<input type="file" accept=".json" style="display:none" onchange="impFile(event)"></label></div></div>`;
 }
 h+=`</div>`;document.getElementById("app").innerHTML=h;
 if(S.view==="search"&&S.sq)renderSearch();
