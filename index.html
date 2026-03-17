@@ -4,378 +4,503 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0C1017" id="metaThemeColor">
+<meta name="theme-color" content="#0C1017" id="mtc">
 <title>MOVE.BIN</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-/* ═══ THEMES ═══ */
+/* ═══════════════════════════════
+   THEME TOKENS
+   ═══════════════════════════════ */
 [data-theme="dark"]{
-  --bg:#0C1017;--surface:rgba(20,26,36,.65);--surface2:rgba(30,38,52,.55);--border:rgba(255,255,255,.08);--border-hi:rgba(255,255,255,.14);
-  --text1:#F1F5F9;--text2:#94A3B8;--text3:#64748B;
-  --accent:#CDFA3E;--accent-dim:rgba(205,250,62,.1);--accent-border:rgba(205,250,62,.2);--accent-glow:rgba(205,250,62,.06);--accent-text:#0C1017;
-  --red:#FF5A65;--red-bg:rgba(255,90,101,.08);--red-border:rgba(255,90,101,.18);
-  --green:#34D399;--green-bg:rgba(52,211,153,.06);--green-border:rgba(52,211,153,.15);
-  --orange:#FB923C;--blue:#60A5FA;--pink:#F472B6;--purple:#A78BFA;
-  --blur:24px;--shadow:0 8px 32px rgba(0,0,0,.35);--shadow-sm:0 2px 12px rgba(0,0,0,.25);
-  --mesh:radial-gradient(ellipse 60% 50% at 15% 45%,rgba(205,250,62,.03) 0%,transparent 70%),radial-gradient(ellipse 50% 60% at 85% 25%,rgba(96,165,250,.02) 0%,transparent 70%);
-  --header-bg:rgba(12,16,23,.82);--item-hover:rgba(205,250,62,.04);--ring-track:rgba(255,255,255,.07);
+  --bg:#0C1017;--sf:rgba(20,26,36,.65);--sf2:rgba(30,38,52,.5);
+  --bd:rgba(255,255,255,.08);--bdh:rgba(255,255,255,.14);
+  --t1:#F1F5F9;--t2:#94A3B8;--t3:#64748B;
+  --ac:#CDFA3E;--acd:rgba(205,250,62,.1);--acb:rgba(205,250,62,.2);--act:#0C1017;
+  --red:#FF5A65;--redb:rgba(255,90,101,.08);
+  --grn:#34D399;--grnb:rgba(52,211,153,.06);--grnbd:rgba(52,211,153,.15);
+  --org:#FB923C;--blu:#60A5FA;--pnk:#F472B6;--prp:#A78BFA;--ylw:#FBBF24;
+  --blur:24px;--shd:0 4px 24px rgba(0,0,0,.3);
+  --hdr:rgba(12,16,23,.82);
+  --mesh:radial-gradient(ellipse 60% 50% at 10% 40%,rgba(205,250,62,.025) 0%,transparent 70%),
+         radial-gradient(ellipse 50% 60% at 90% 20%,rgba(96,165,250,.015) 0%,transparent 70%);
 }
 [data-theme="light"]{
-  --bg:#F4F5F7;--surface:rgba(255,255,255,.7);--surface2:rgba(240,242,248,.7);--border:rgba(0,0,0,.05);--border-hi:rgba(0,0,0,.08);
-  --text1:#0F172A;--text2:#64748B;--text3:#94A3B8;
-  --accent:#65A30D;--accent-dim:rgba(101,163,13,.08);--accent-border:rgba(101,163,13,.18);--accent-glow:rgba(101,163,13,.04);--accent-text:#fff;
-  --red:#DC2626;--red-bg:rgba(220,38,38,.05);--red-border:rgba(220,38,38,.12);
-  --green:#059669;--green-bg:rgba(5,150,105,.05);--green-border:rgba(5,150,105,.12);
-  --orange:#D97706;--blue:#2563EB;--pink:#DB2777;--purple:#7C3AED;
-  --blur:18px;--shadow:0 2px 16px rgba(0,0,0,.05);--shadow-sm:0 1px 4px rgba(0,0,0,.04);
-  --mesh:radial-gradient(ellipse 60% 50% at 15% 45%,rgba(101,163,13,.03) 0%,transparent 70%),radial-gradient(ellipse 50% 60% at 85% 25%,rgba(37,99,235,.02) 0%,transparent 70%);
-  --header-bg:rgba(244,245,247,.85);--item-hover:rgba(101,163,13,.04);--ring-track:rgba(0,0,0,.06);
+  --bg:#F3F4F6;--sf:rgba(255,255,255,.72);--sf2:rgba(240,242,248,.65);
+  --bd:rgba(0,0,0,.06);--bdh:rgba(0,0,0,.1);
+  --t1:#0F172A;--t2:#64748B;--t3:#94A3B8;
+  --ac:#4D7C0F;--acd:rgba(77,124,15,.08);--acb:rgba(77,124,15,.18);--act:#fff;
+  --red:#DC2626;--redb:rgba(220,38,38,.06);
+  --grn:#059669;--grnb:rgba(5,150,105,.05);--grnbd:rgba(5,150,105,.12);
+  --org:#D97706;--blu:#2563EB;--pnk:#DB2777;--prp:#7C3AED;--ylw:#D97706;
+  --blur:16px;--shd:0 1px 8px rgba(0,0,0,.04);
+  --hdr:rgba(243,244,246,.88);
+  --mesh:radial-gradient(ellipse 60% 50% at 10% 40%,rgba(77,124,15,.025) 0%,transparent 70%);
 }
 
+/* ═══════════════════════════════
+   BASE
+   ═══════════════════════════════ */
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{background:var(--bg);color:var(--text1);font-family:'Outfit',-apple-system,sans-serif;min-height:100dvh;overflow-x:hidden;transition:background .4s,color .4s}
-body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:var(--mesh);transition:background .4s}
-::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border-hi);border-radius:8px}
+body{background:var(--bg);color:var(--t1);font-family:'Outfit',sans-serif;min-height:100dvh;overflow-x:hidden;transition:background .3s,color .3s}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:var(--mesh)}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:var(--bdh);border-radius:6px}
 
-.g{background:var(--surface);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow);transition:background .35s,border-color .2s}
-.g:hover{border-color:var(--border-hi)}.g-sm{border-radius:14px}
-.g-glow{box-shadow:var(--shadow),0 0 40px var(--accent-glow)}
+/* Glass card */
+.g{background:var(--sf);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));border:1px solid var(--bd);border-radius:16px;box-shadow:var(--shd);transition:background .3s,border-color .15s}
+.g:hover{border-color:var(--bdh)}
+.gs{border-radius:12px}
 
-@keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-@keyframes countUp{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
-@keyframes ringDraw{from{stroke-dashoffset:283}to{stroke-dashoffset:var(--offset)}}
-@keyframes slideIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
-@keyframes glow{0%,100%{box-shadow:0 0 0 rgba(205,250,62,0)}50%{box-shadow:0 0 24px rgba(205,250,62,.08)}}
-.anim{animation:rise .5s cubic-bezier(.22,1,.36,1) both}
-.a1{animation-delay:.05s}.a2{animation-delay:.1s}.a3{animation-delay:.15s}.a4{animation-delay:.2s}.a5{animation-delay:.25s}.a6{animation-delay:.3s}
+/* Animations */
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+@keyframes ringDraw{from{stroke-dashoffset:251}to{stroke-dashoffset:var(--o)}}
+.an{animation:rise .4s cubic-bezier(.22,1,.36,1) both}
+.d1{animation-delay:.04s}.d2{animation-delay:.08s}.d3{animation-delay:.12s}
+.d4{animation-delay:.16s}.d5{animation-delay:.2s}.d6{animation-delay:.24s}
 
-/* ═══ HEADER ═══ */
-.hdr{background:var(--header-bg);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border-bottom:1px solid var(--border);padding:14px 20px 10px;position:sticky;top:0;z-index:100}
-.hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.logo{display:flex;align-items:center;gap:10px}
-.logo-mark{width:32px;height:32px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 12px rgba(205,250,62,.2)}
-.logo-text{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:17px;color:var(--text1);letter-spacing:-.5px}
-.logo-text span{color:var(--accent)}.logo-sub{font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;font-weight:500}
-.hdr-btns{display:flex;gap:5px;align-items:center}
-.ib{width:34px;height:34px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all .15s;color:var(--text2);position:relative}
-.ib:hover{border-color:var(--accent);color:var(--accent);transform:scale(1.06)}.ib:active{transform:scale(.94)}
-/* Tooltips */
-.ib[data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:-30px;left:50%;transform:translateX(-50%);background:var(--text1);color:var(--bg);font-size:10px;font-weight:600;padding:4px 10px;border-radius:6px;white-space:nowrap;z-index:200;pointer-events:none;animation:rise .2s ease both}
-.tabs{display:flex;gap:2px;background:var(--surface2);border-radius:14px;padding:3px}
-.tab{flex:1;padding:8px 4px;background:transparent;color:var(--text3);border:none;border-radius:12px;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center;font-family:'Outfit',sans-serif;letter-spacing:.3px}
-.tab.on{background:var(--accent);color:var(--accent-text);font-weight:700;box-shadow:0 2px 12px rgba(205,250,62,.2)}
-.cnt{padding:16px 20px 120px;position:relative;z-index:1}
+/* ═══════════════════════════════
+   HEADER
+   ═══════════════════════════════ */
+.hdr{background:var(--hdr);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border-bottom:1px solid var(--bd);padding:10px 14px 8px;position:sticky;top:0;z-index:100}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.logo{display:flex;align-items:center;gap:8px}
+.logo-m{width:28px;height:28px;background:var(--ac);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.logo-t{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:15px;color:var(--t1)}.logo-t span{color:var(--ac)}
+.logo-s{font-size:8px;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase}
+.hdr-r{display:flex;gap:4px;align-items:center}
+/* Sync badge */
+.sb{display:inline-flex;align-items:center;gap:3px;font-family:'JetBrains Mono',monospace;font-size:8px;padding:3px 8px;border-radius:16px;border:1px solid;font-weight:700}
+.sb.local{color:var(--t3);border-color:var(--bd)}.sb.syncing{color:var(--ac);border-color:var(--ac);background:var(--acd)}
+.sb.synced{color:var(--grn);border-color:var(--grn);background:var(--grnb)}.sb.error{color:var(--red);border-color:var(--red)}
+.sd{width:4px;height:4px;border-radius:50%;background:currentColor}
+.sp{animation:spin .7s linear infinite;display:inline-block}@keyframes spin{to{transform:rotate(360deg)}}
+/* Icon buttons with tooltip */
+.ib{width:30px;height:30px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;transition:all .12s;color:var(--t2);position:relative}
+.ib:hover{border-color:var(--ac);color:var(--ac);transform:scale(1.08)}.ib:active{transform:scale(.92)}
+.ib[data-t]:hover::after{content:attr(data-t);position:absolute;top:calc(100% + 4px);left:50%;transform:translateX(-50%);background:var(--t1);color:var(--bg);font-size:8px;font-weight:700;padding:2px 7px;border-radius:4px;white-space:nowrap;z-index:200;pointer-events:none}
+/* Tabs */
+.tabs{display:flex;gap:2px;background:var(--sf2);border-radius:11px;padding:2px}
+.tab{flex:1;padding:6px 2px;background:transparent;color:var(--t3);border:none;border-radius:9px;font-size:9px;font-weight:600;cursor:pointer;transition:all .15s;text-align:center;font-family:'Outfit',sans-serif}
+.tab.on{background:var(--ac);color:var(--act);font-weight:700}
 
-/* ═══ HERO ═══ */
-.hero{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
-@media(min-width:480px){.hero{grid-template-columns:repeat(4,1fr)}}
-.hc{padding:20px 14px;text-align:center;position:relative;overflow:hidden}
-.hc::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:40px;height:2px;background:var(--accent);border-radius:2px;opacity:.5}
-.hc.tap{cursor:pointer;transition:transform .15s}.hc.tap:hover{transform:translateY(-4px);border-color:var(--accent-border)}
-.hc.tap:active{transform:scale(.97)}
-.hn{font-size:44px;font-weight:900;letter-spacing:-2px;line-height:1;animation:countUp .6s cubic-bezier(.22,1,.36,1) both}
-.hl{font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:2px;font-weight:700;margin-top:8px}
-.hh{font-size:7px;color:var(--text3);margin-top:8px;text-transform:uppercase;letter-spacing:1px;opacity:.7}
+.cnt{padding:12px 14px 100px;position:relative;z-index:1}
 
-/* Ring */
-.rw{padding:20px;margin-bottom:20px;display:flex;align-items:center;gap:20px;position:relative;overflow:hidden}
-.rw::before{content:'';position:absolute;right:-20px;top:-20px;width:120px;height:120px;background:radial-gradient(circle,var(--accent-glow),transparent 70%);pointer-events:none}
-.ring-svg{width:90px;height:90px;flex-shrink:0;transform:rotate(-90deg)}
-.ring-track{fill:none;stroke:var(--ring-track);stroke-width:6}
-.ring-fill{fill:none;stroke:var(--accent);stroke-width:6;stroke-linecap:round;stroke-dasharray:283;animation:ringDraw 1s cubic-bezier(.22,1,.36,1) both;animation-delay:.3s}
-.ring-center{font-size:22px;font-weight:900;fill:var(--text1);dominant-baseline:central;text-anchor:middle;transform:rotate(90deg);transform-origin:center}
-.ri{flex:1}.ri-t{font-size:14px;font-weight:700;margin-bottom:4px}.ri-s{font-size:12px;color:var(--text2);line-height:1.6}
+/* ═══════════════════════════════
+   DASHBOARD — Hero Stats
+   No "Packed" here (it's in status row)
+   ═══════════════════════════════ */
+.hero{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.hc{padding:14px 8px;text-align:center}
+.hc.tap{cursor:pointer;transition:transform .12s}.hc.tap:hover{transform:translateY(-2px)}
+.hn{font-size:36px;font-weight:900;letter-spacing:-2px;line-height:1}
+.hl{font-size:7px;color:var(--t2);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-top:6px}
+.hh{font-size:6px;color:var(--t3);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
 
-/* Zones */
-.st{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px}
-.zc{padding:14px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:transform .1s}
-.zc:active{transform:scale(.98)}
-.zn{font-size:14px;font-weight:700}.zs{font-size:10px;color:var(--text2);margin-top:2px;font-weight:500}
-.zb{background:var(--accent-dim);border:1px solid var(--accent-border);padding:5px 14px;border-radius:20px;font-size:12px;color:var(--accent);font-family:'JetBrains Mono',monospace;font-weight:700}
+/* ═══════════════════════════════
+   DASHBOARD — Status Row (COMPACT)
+   Single row, small badges
+   ═══════════════════════════════ */
+.status-row{display:flex;gap:6px;margin-bottom:12px}
+.status-chip{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:8px 6px;border-radius:10px;background:var(--sf);border:1px solid var(--bd)}
+.st-dot{display:block;width:6px;height:6px;min-width:6px;max-width:6px;min-height:6px;max-height:6px;border-radius:50%;flex-shrink:0;flex-grow:0}
+.st-dot.empty{background:var(--t3)}.st-dot.started{background:var(--ylw)}.st-dot.packed{background:var(--grn)}
+.st-num{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:800;line-height:1}
+.st-label{font-size:8px;color:var(--t2);font-weight:600}
 
-/* Filters/Sort */
-.filters{overflow-x:auto;white-space:nowrap;margin-bottom:12px;display:flex;gap:6px;padding-bottom:4px}
-.pill{display:inline-block;padding:7px 16px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:24px;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0}
-.pill.on{background:var(--accent);color:var(--accent-text);border-color:var(--accent);font-weight:700}
-.sort-row{display:flex;align-items:center;gap:8px;margin-bottom:14px}
-.sort-lbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;flex-shrink:0}
-.sort-sel{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:7px 30px 7px 12px;color:var(--text1);font-size:11px;font-weight:600;font-family:'Outfit',sans-serif;cursor:pointer;outline:none;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%2394A3B8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
-.sort-sel:focus{border-color:var(--accent)}
+/* ═══════════════════════════════
+   Ring Gauge
+   ═══════════════════════════════ */
+.ring-row{padding:14px;margin-bottom:12px;display:flex;align-items:center;gap:14px}
+.ring-svg{width:70px;height:70px;flex-shrink:0;transform:rotate(-90deg)}
+.ring-track{fill:none;stroke:var(--bd);stroke-width:5}
+.ring-fill{fill:none;stroke:var(--ac);stroke-width:5;stroke-linecap:round;stroke-dasharray:251;animation:ringDraw .8s cubic-bezier(.22,1,.36,1) both;animation-delay:.2s}
+.ring-pct{font-size:18px;font-weight:900;fill:var(--t1);dominant-baseline:central;text-anchor:middle;transform:rotate(90deg);transform-origin:center}
+.ring-info{flex:1}.ring-t{font-size:13px;font-weight:700;margin-bottom:2px}.ring-s{font-size:11px;color:var(--t2);line-height:1.5}
 
-/* Bin cards */
-.bc{padding:16px 18px;margin-bottom:10px;cursor:pointer;border-left:3px solid var(--accent);transition:transform .1s;position:relative;overflow:hidden}
-.bc::after{content:'';position:absolute;top:0;right:0;width:60px;height:100%;background:linear-gradient(270deg,var(--accent-glow),transparent);opacity:0;transition:opacity .2s;pointer-events:none}.bc:hover::after{opacity:1}
+/* ═══════════════════════════════
+   Sections, Zones, Important
+   ═══════════════════════════════ */
+.sec-h{font-size:9px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:2px;margin:14px 0 8px}
+.zone{padding:12px 14px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:transform .08s}.zone:active{transform:scale(.98)}
+.zone-n{font-size:13px;font-weight:700}.zone-s{font-size:9px;color:var(--t2);margin-top:1px}
+.zone-items{font-size:9px;color:var(--t2);margin-top:4px;line-height:1.5}.zone-items b{color:var(--t1);font-weight:600}
+.zone-b{background:var(--acd);border:1px solid var(--acb);padding:3px 10px;border-radius:16px;font-size:10px;color:var(--ac);font-family:'JetBrains Mono',monospace;font-weight:700;flex-shrink:0}
+.imp-item{display:flex;align-items:center;gap:8px;padding:8px 12px;margin-bottom:4px;font-size:12px;font-weight:600;cursor:pointer}
+.imp-star{font-size:14px}.imp-bin{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t2);font-weight:700;margin-left:auto}
+
+/* ═══════════════════════════════
+   BINS TAB — Filters + Sort
+   ═══════════════════════════════ */
+.filters{overflow-x:auto;white-space:nowrap;display:flex;gap:4px;margin-bottom:10px;padding-bottom:4px}
+.pill{display:inline-flex;align-items:center;gap:3px;padding:5px 12px;background:var(--sf2);color:var(--t2);border:1px solid var(--bd);border-radius:20px;font-size:10px;font-weight:600;cursor:pointer;transition:all .12s;flex-shrink:0}
+.pill.on{background:var(--ac);color:var(--act);border-color:var(--ac);font-weight:700}
+.pill .pc{font-size:8px;font-weight:700;opacity:.7}
+.sort-row{display:flex;align-items:center;gap:6px;margin-bottom:10px}
+.sort-lbl{font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:1.5px;font-weight:700}
+.sort-sel{background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:5px 24px 5px 8px;color:var(--t1);font-size:10px;font-weight:600;font-family:'Outfit',sans-serif;cursor:pointer;outline:none;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='8' height='5' viewBox='0 0 8 5' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l3 3 3-3' stroke='%2394A3B8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
+
+/* ═══════════════════════════════
+   BIN CARDS — Rich info
+   ═══════════════════════════════ */
+.bc{padding:12px 14px;margin-bottom:8px;cursor:pointer;border-left:3px solid var(--ac);transition:transform .08s;position:relative}
 .bc:active{transform:scale(.98)}
-.bc-top{display:flex;justify-content:space-between;align-items:flex-start}
-.bc-info{display:flex;align-items:center;gap:14px}
-.bc-icon{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
-.bc-id{font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:700;letter-spacing:.5px}
-.bc-label{font-size:14px;font-weight:700;margin-top:2px;color:var(--text1)}.bc-zone{font-size:10px;color:var(--text2);margin-top:1px;font-weight:500}
-.bc-count{padding:6px 14px;border-radius:24px;font-size:14px;font-weight:800;font-family:'JetBrains Mono',monospace;min-width:36px;text-align:center}
-.bc-preview{margin-top:10px;font-size:11px;color:var(--text2);line-height:1.7;font-weight:500}
-.bc-preview b{color:var(--text1);font-weight:600}
-.pk-badge{font-size:8px;font-family:'JetBrains Mono',monospace;padding:3px 9px;border-radius:20px;background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);font-weight:700;letter-spacing:.5px;text-transform:uppercase}
-.add-btn{width:100%;padding:18px;background:transparent;border:2px dashed var(--border);border-radius:20px;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;margin-top:8px;transition:all .15s}
-.add-btn:hover{border-color:var(--accent);color:var(--accent)}
+.bc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.bc-info{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+.bc-icon{width:36px;height:36px;min-width:36px;max-width:36px;min-height:36px;max-height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;flex-grow:0;overflow:hidden}
+.bc-meta{min-width:0}
+.bc-id{font-size:9px;font-family:'JetBrains Mono',monospace;font-weight:700;letter-spacing:.3px}
+.bc-label{font-size:13px;font-weight:700;margin-top:1px;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bc-zone{font-size:9px;color:var(--t2);font-weight:500}
+.bc-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
+.bc-count{padding:3px 10px;border-radius:16px;font-size:11px;font-weight:800;font-family:'JetBrains Mono',monospace}
+.bc-st{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;display:inline-flex;align-items:center;gap:3px;line-height:1}
+.bc-st.empty{color:var(--t3)}.bc-st.started{color:var(--ylw)}.bc-st.packed{color:var(--grn)}
+.bc-loc{font-size:9px;color:var(--t2);margin-top:6px;font-weight:500}
+.bc-chips{margin-top:6px;display:flex;flex-wrap:wrap;gap:3px}
+.bc-chip{background:var(--sf2);border:1px solid var(--bd);border-radius:6px;padding:2px 7px;font-size:9px;font-weight:500;color:var(--t1)}
+.bc-chip.imp{border-color:rgba(251,191,36,.3);color:var(--ylw)}
+.bc-chip.more{color:var(--t3);font-style:italic;border:none;background:transparent;padding:2px 3px}
+.add-btn{width:100%;padding:14px;background:transparent;border:2px dashed var(--bd);border-radius:16px;color:var(--t2);font-size:11px;font-weight:600;cursor:pointer;margin-top:6px}.add-btn:hover{border-color:var(--ac);color:var(--ac)}
 
-/* Detail */
-.back{background:transparent;border:none;color:var(--accent);font-size:13px;cursor:pointer;padding:0;margin-bottom:16px;font-family:'JetBrains Mono',monospace;font-weight:700}
-.det-hdr{padding:24px 20px;margin-bottom:16px;position:relative;overflow:hidden}
-.det-hdr::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,var(--accent-glow),transparent 70%);pointer-events:none}
-.det-top{display:flex;justify-content:space-between;align-items:flex-start;position:relative}
-.det-icon{font-size:48px;margin-bottom:12px}
-.det-id{font-size:13px;font-family:'JetBrains Mono',monospace;font-weight:700;letter-spacing:.5px}
-.det-label{font-size:24px;font-weight:900;margin-top:4px;letter-spacing:-.5px;line-height:1.2}
-.det-zone{font-size:12px;color:var(--text2);margin-top:4px;font-weight:500}
-.btn-del{background:var(--red-bg);border:1px solid var(--red-border);color:var(--red);padding:8px 16px;border-radius:12px;font-size:11px;cursor:pointer;font-weight:700;transition:all .15s}
-.btn-del:hover{background:var(--red);color:#fff}
-.nfc{margin-top:16px;background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:14px;padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:11px;color:var(--accent);font-family:'JetBrains Mono',monospace;font-weight:700}
-.add-row{display:flex;gap:8px;margin-bottom:16px}
-.inp{flex:1;padding:13px 18px;background:var(--surface2);border:1px solid var(--border);border-radius:14px;color:var(--text1);font-size:14px;font-family:'Outfit',sans-serif;font-weight:500;outline:none;transition:border-color .15s}
-.inp:focus{border-color:var(--accent)}.inp::placeholder{color:var(--text3)}
-.btn-plus{padding:13px 24px;background:var(--accent);color:var(--accent-text);border:none;border-radius:14px;font-weight:900;font-size:20px;cursor:pointer;transition:all .15s;box-shadow:0 2px 12px rgba(205,250,62,.15)}
-.btn-plus:hover{transform:scale(1.06)}.btn-plus:active{transform:scale(.94)}
-.ic{font-size:11px;color:var(--text2);margin-bottom:10px;font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:.5px}
-.empty{background:var(--surface2);border:1px dashed var(--border);border-radius:20px;padding:40px;text-align:center;color:var(--text2);font-size:13px;font-weight:500}
-.ir{padding:12px 16px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;animation:slideIn .25s cubic-bezier(.4,0,.2,1) both;border-left:3px solid transparent;transition:all .15s}
-.ir:hover{border-left-color:var(--accent);background:var(--item-hover)}
-.ir-n{font-size:14px;font-weight:600;color:var(--text1)}.ir-i{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text2);margin-right:10px;min-width:22px;font-weight:600}
-.btn-rm{background:var(--red-bg);border:none;color:var(--red);padding:5px 14px;border-radius:10px;font-size:11px;cursor:pointer;font-weight:700;transition:all .15s}
-.btn-rm:hover{background:var(--red);color:#fff}
-.pk-row{display:flex;align-items:center;gap:12px;padding:14px 16px;margin-top:14px;border-radius:14px;cursor:pointer;user-select:none;background:var(--surface2);border:1px solid var(--border);transition:all .15s}
-.pk-row:hover{border-color:var(--green)}.pk-row.on{border-color:var(--green);background:var(--green-bg)}
-.pk-cb{width:20px;height:20px;accent-color:var(--green);cursor:pointer;flex-shrink:0}
-.pk-lbl{font-size:14px;font-weight:700;flex:1}.pk-lbl.done{color:var(--green)}
-.dl-banner{background:linear-gradient(135deg,var(--accent-dim),rgba(52,211,153,.04));border:1px solid var(--accent-border);border-radius:16px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;animation:glow 3s ease infinite}
-.dl-icon{font-size:24px}.dl-text{font-size:11px;color:var(--accent);font-family:'JetBrains Mono',monospace;font-weight:700}
+/* ═══════════════════════════════
+   BIN DETAIL
+   ═══════════════════════════════ */
+.back{background:transparent;border:none;color:var(--ac);font-size:12px;cursor:pointer;padding:0;margin-bottom:12px;font-family:'JetBrains Mono',monospace;font-weight:700}
+.det{padding:18px;margin-bottom:12px;position:relative;overflow:hidden}
+.det-top{display:flex;justify-content:space-between;align-items:flex-start}
+.det-icon{font-size:40px;margin-bottom:8px}
+.det-id{font-size:12px;font-family:'JetBrains Mono',monospace;font-weight:700}
+.det-label{font-size:20px;font-weight:900;margin-top:2px;letter-spacing:-.3px}
+.det-zone{font-size:11px;color:var(--t2);margin-top:2px}
+.btn-del{background:var(--redb);border:1px solid rgba(255,90,101,.18);color:var(--red);padding:6px 12px;border-radius:8px;font-size:10px;cursor:pointer;font-weight:700}
+.nfc{margin-top:12px;background:var(--acd);border:1px solid var(--acb);border-radius:10px;padding:8px 12px;font-size:10px;color:var(--ac);font-family:'JetBrains Mono',monospace;font-weight:700}
+/* Status selector — compact inline */
+.sts{display:flex;gap:4px;margin-top:10px}
+.sts-o{padding:6px 14px;border-radius:10px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid var(--bd);background:var(--sf2);color:var(--t2);transition:all .12s;display:inline-flex;align-items:center;gap:4px;line-height:1}
+.sts-o:hover{border-color:var(--t2)}
+.sts-o.on.s-empty{border-color:var(--t3);color:var(--t3)}
+.sts-o.on.s-started{border-color:var(--ylw);color:var(--ylw);background:rgba(251,191,36,.06)}
+.sts-o.on.s-packed{border-color:var(--grn);color:var(--grn);background:var(--grnb)}
+.loc-row{display:flex;align-items:center;gap:6px;margin-top:8px}
+.loc-row span{font-size:10px;color:var(--t2)}
 
-/* Search */
-.si{width:100%;padding:15px 20px;background:var(--surface);backdrop-filter:blur(var(--blur));border:2px solid var(--border);border-radius:16px;color:var(--text1);font-size:16px;font-weight:500;outline:none;font-family:'Outfit',sans-serif;transition:border-color .2s;margin-bottom:16px}
-.si:focus{border-color:var(--accent)}.si::placeholder{color:var(--text3)}
-.sr{padding:14px;margin-bottom:10px;cursor:pointer;border-left:3px solid var(--accent)}
-.sm{background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:10px;padding:6px 14px;margin-top:4px;font-size:12px;color:var(--accent);font-weight:700}
+/* Items */
+.add-row{display:flex;gap:5px;margin-bottom:12px}
+.inp{flex:1;padding:10px 14px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;color:var(--t1);font-size:13px;font-family:'Outfit',sans-serif;font-weight:500;outline:none}.inp:focus{border-color:var(--ac)}.inp::placeholder{color:var(--t3)}
+.btn-star{padding:10px 12px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;font-size:14px;cursor:pointer;transition:all .12s;line-height:1}
+.btn-star.on{border-color:var(--ylw);background:rgba(251,191,36,.08)}
+.btn-plus{padding:10px 20px;background:var(--ac);color:var(--act);border:none;border-radius:10px;font-weight:900;font-size:16px;cursor:pointer}
+.ic{font-size:10px;color:var(--t2);margin-bottom:8px;font-family:'JetBrains Mono',monospace;font-weight:600}
+.empty{background:var(--sf2);border:1px dashed var(--bd);border-radius:14px;padding:28px;text-align:center;color:var(--t2);font-size:12px}
+.ir{padding:8px 12px;margin-bottom:4px;display:flex;align-items:center;gap:6px;animation:slideIn .2s ease both;border-left:2px solid transparent;transition:all .12s}
+.ir:hover{border-left-color:var(--ac);background:rgba(205,250,62,.03)}
+.ir-star{font-size:12px;cursor:pointer;flex-shrink:0}.ir-star.off{opacity:.25}
+.ir-i{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);min-width:18px;font-weight:600;flex-shrink:0}
+.ir-n{font-size:12px;font-weight:600;color:var(--t1);flex:1}
+.btn-rm{background:var(--redb);border:none;color:var(--red);padding:3px 10px;border-radius:6px;font-size:10px;cursor:pointer;font-weight:700;flex-shrink:0}
 
-/* Forms */
-.fc{border:1px solid var(--accent-border);border-radius:20px;padding:18px;margin-top:8px;background:var(--surface)}
-.fi{width:100%;padding:12px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;color:var(--text1);font-size:13px;margin-bottom:8px;outline:none;font-family:'Outfit',sans-serif;font-weight:500}
-.fi:focus{border-color:var(--accent)}
-.fs{width:100%;padding:12px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;color:var(--text1);font-size:13px;margin-bottom:10px}
-.fa{display:flex;gap:8px}
-.bp{flex:1;padding:12px;background:var(--accent);color:var(--accent-text);border:none;border-radius:12px;font-weight:700;cursor:pointer;font-size:13px}
-.bx{padding:12px 18px;background:var(--surface2);color:var(--text2);border:none;border-radius:12px;cursor:pointer;font-weight:600}
-.cat-row{display:flex;gap:8px;margin-bottom:10px}
-.cat-inp{flex:1;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;color:var(--text1);font-size:12px;outline:none;font-family:'Outfit',sans-serif;font-weight:500}
-.cat-inp:focus{border-color:var(--accent)}.cat-inp::placeholder{color:var(--text3)}
-.cat-add{padding:10px 16px;background:var(--accent);color:var(--accent-text);border:none;border-radius:12px;font-weight:700;cursor:pointer;font-size:12px}
-.id-hint{font-size:11px;color:var(--text2);margin-bottom:10px;font-family:'JetBrains Mono',monospace;display:flex;align-items:center;gap:6px}
-.id-hint span{color:var(--accent);font-weight:700}
-.rn-i{font-size:22px;font-weight:900;background:var(--surface2);border:1px solid var(--accent);border-radius:12px;color:var(--text1);padding:8px 14px;width:100%;outline:none;font-family:'Outfit',sans-serif;margin-top:2px}
-.rn-h{font-size:10px;color:var(--text2);margin-top:4px;font-weight:500}
-.br{background:transparent;border:1px solid var(--border);color:var(--text2);padding:5px 12px;border-radius:10px;font-size:10px;cursor:pointer;margin-top:8px;transition:all .15s;font-weight:700}
-.br:hover{border-color:var(--accent);color:var(--accent)}
-.brs{background:var(--accent);border:none;color:var(--accent-text);padding:5px 14px;border-radius:10px;font-size:10px;font-weight:700;cursor:pointer;margin-top:8px;margin-left:6px}
+/* NFC banner */
+.dl-ban{background:var(--acd);border:1px solid var(--acb);border-radius:12px;padding:10px 12px;margin-bottom:12px;display:flex;align-items:center;gap:8px;font-size:10px;color:var(--ac);font-family:'JetBrains Mono',monospace;font-weight:700}
 
-/* Settings */
-.gt{font-size:22px;font-weight:900;margin-bottom:4px;letter-spacing:-.5px}
-.gd{font-size:12px;color:var(--text2);margin-bottom:22px;line-height:1.6;font-weight:500}
-.ss{padding:18px;margin-bottom:14px}
-.sst{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;font-weight:700}
-.sh{font-size:12px;color:var(--text2);line-height:1.7;margin-top:12px;padding:14px 16px;background:var(--surface2);border-radius:12px;border-left:3px solid var(--accent);font-weight:500}
-.sh strong{color:var(--text1)}
-.sbr{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
-.bsp{flex:1;padding:12px;background:var(--accent);color:var(--accent-text);border:none;border-radius:12px;font-weight:700;font-size:12px;font-family:'JetBrains Mono',monospace;cursor:pointer}
-.bsl{flex:1;padding:12px;background:transparent;color:var(--green);border:1px solid var(--green-border);border-radius:12px;font-weight:700;font-size:12px;font-family:'JetBrains Mono',monospace;cursor:pointer}
-.bsl:hover{background:var(--green-bg)}
-.tp{display:flex;gap:12px;margin-top:10px}
-.to{flex:1;padding:18px 10px;border-radius:16px;text-align:center;cursor:pointer;border:2px solid var(--border);transition:all .2s;font-weight:700;font-size:12px}
-.to:hover{border-color:var(--accent)}.to.on{border-color:var(--accent);background:var(--accent-dim)}
-.to i{font-size:30px;display:block;margin-bottom:8px;font-style:normal}
-.sb{display:inline-flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;font-size:9px;padding:4px 10px;border-radius:20px;border:1px solid;font-weight:700;letter-spacing:.5px}
-.sb.local{color:var(--text3);border-color:var(--border)}.sb.syncing{color:var(--accent);border-color:var(--accent);background:var(--accent-dim)}
-.sb.synced{color:var(--green);border-color:var(--green);background:var(--green-bg)}.sb.error{color:var(--red);border-color:var(--red);background:var(--red-bg)}
-.sd{width:5px;height:5px;border-radius:50%;background:currentColor}
-.sp{animation:spin .8s linear infinite;display:inline-block}@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--accent);color:var(--accent-text);padding:12px 28px;border-radius:14px;font-size:13px;font-weight:700;z-index:999;transition:transform .3s cubic-bezier(.22,1,.36,1);pointer-events:none;box-shadow:0 4px 24px rgba(205,250,62,.2)}
-.toast.show{transform:translateX(-50%) translateY(0)}
-.dback{background:none;border:none;color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:13px;cursor:pointer;padding:0;margin-bottom:14px;display:block;font-weight:700}
-.dbi{padding:14px 16px;margin-bottom:10px;border-left:3px solid var(--accent);cursor:pointer}
-.no{text-align:center;padding:40px 20px;color:var(--text2);font-size:13px;font-weight:500}
-/* NFC Guide */
-.nfc-step{display:flex;gap:12px;align-items:flex-start;padding:12px 0}
-.nfc-num{width:28px;height:28px;background:var(--accent);color:var(--accent-text);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
-.nfc-txt{font-size:13px;color:var(--text1);line-height:1.6;font-weight:500}
-.nfc-txt strong{color:var(--accent);font-weight:700}
-.nfc-txt code{background:var(--surface2);padding:2px 8px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);font-weight:600}
-.nfc-divider{border:none;border-top:1px solid var(--border);margin:4px 0}
+/* ═══════════════════════════════
+   SEARCH
+   ═══════════════════════════════ */
+.si{width:100%;padding:12px 16px;background:var(--sf);border:2px solid var(--bd);border-radius:12px;color:var(--t1);font-size:14px;font-weight:500;outline:none;font-family:'Outfit',sans-serif;margin-bottom:12px}.si:focus{border-color:var(--ac)}.si::placeholder{color:var(--t3)}
+.sr{padding:10px 12px;margin-bottom:6px;cursor:pointer;border-left:3px solid var(--ac)}
+.sm{background:var(--acd);border:1px solid var(--acb);border-radius:6px;padding:4px 10px;margin-top:3px;font-size:10px;color:var(--ac);font-weight:700;display:inline-block}
+.sug-sec{margin-bottom:12px}
+.sug-h{font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:2px;font-weight:700;margin-bottom:6px}
+.sug-c{display:inline-block;padding:5px 12px;background:var(--sf2);border:1px solid var(--bd);border-radius:16px;font-size:10px;font-weight:500;cursor:pointer;margin:0 3px 5px 0;color:var(--t1)}.sug-c:hover{border-color:var(--ac);color:var(--ac)}
+
+/* ═══════════════════════════════
+   ALL ITEMS
+   ═══════════════════════════════ */
+.ai{display:flex;align-items:center;gap:8px;padding:8px 12px;margin-bottom:4px;cursor:pointer;transition:background .1s}
+.ai:hover{background:rgba(205,250,62,.03)}
+.ai-star{font-size:10px;width:16px;text-align:center}
+.ai-n{font-size:12px;font-weight:600;flex:1;color:var(--t1)}
+.ai-b{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t2);font-weight:700}
+.ai-z{font-size:8px;color:var(--t3);margin-left:4px}
+
+/* ═══════════════════════════════
+   FORMS
+   ═══════════════════════════════ */
+.fc{border:1px solid var(--acb);border-radius:16px;padding:14px;margin-top:6px;background:var(--sf)}
+.fi{width:100%;padding:10px 12px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;color:var(--t1);font-size:12px;margin-bottom:6px;outline:none;font-family:'Outfit',sans-serif;font-weight:500}.fi:focus{border-color:var(--ac)}
+.fs{width:100%;padding:10px 12px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;color:var(--t1);font-size:12px;margin-bottom:8px}
+.fa{display:flex;gap:6px}
+.fbp{flex:1;padding:10px;background:var(--ac);color:var(--act);border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:12px}
+.fbx{padding:10px 14px;background:var(--sf2);color:var(--t2);border:none;border-radius:8px;cursor:pointer;font-weight:600}
+.cat-row{display:flex;gap:5px;margin-bottom:6px}
+.cat-inp{flex:1;padding:8px 10px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;color:var(--t1);font-size:10px;outline:none;font-family:'Outfit',sans-serif}.cat-inp:focus{border-color:var(--ac)}.cat-inp::placeholder{color:var(--t3)}
+.cat-add{padding:8px 12px;background:var(--ac);color:var(--act);border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:10px}
+.id-hint{font-size:10px;color:var(--t2);margin-bottom:6px;font-family:'JetBrains Mono',monospace}.id-hint span{color:var(--ac);font-weight:700}
+.rn-i{font-size:18px;font-weight:900;background:var(--sf2);border:1px solid var(--ac);border-radius:8px;color:var(--t1);padding:5px 10px;width:100%;outline:none;font-family:'Outfit',sans-serif;margin-top:2px}
+.rn-h{font-size:8px;color:var(--t2);margin-top:2px}
+.ebr{background:transparent;border:1px solid var(--bd);color:var(--t2);padding:4px 8px;border-radius:6px;font-size:9px;cursor:pointer;margin-top:6px;font-weight:700}.ebr:hover{border-color:var(--ac);color:var(--ac)}
+.ebrs{background:var(--ac);border:none;color:var(--act);padding:4px 10px;border-radius:6px;font-size:9px;font-weight:700;cursor:pointer;margin-top:6px;margin-left:3px}
+
+/* ═══════════════════════════════
+   SETTINGS
+   ═══════════════════════════════ */
+.gt{font-size:18px;font-weight:900;margin-bottom:2px;letter-spacing:-.3px}
+.gd{font-size:11px;color:var(--t2);margin-bottom:16px;line-height:1.5}
+.ss{padding:14px;margin-bottom:10px}
+.sst{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--ac);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;font-weight:700}
+.sh{font-size:11px;color:var(--t2);line-height:1.5;margin-top:10px;padding:10px 12px;background:var(--sf2);border-radius:8px;border-left:3px solid var(--ac)}.sh strong{color:var(--t1)}
+.sbr{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.bsp{flex:1;padding:10px;background:var(--ac);color:var(--act);border:none;border-radius:8px;font-weight:700;font-size:11px;font-family:'JetBrains Mono',monospace;cursor:pointer}
+.bsl{flex:1;padding:10px;background:transparent;color:var(--grn);border:1px solid var(--grnbd);border-radius:8px;font-weight:700;font-size:11px;font-family:'JetBrains Mono',monospace;cursor:pointer}.bsl:hover{background:var(--grnb)}
+.tp{display:flex;gap:8px;margin-top:8px}
+.to{flex:1;padding:14px 8px;border-radius:12px;text-align:center;cursor:pointer;border:2px solid var(--bd);transition:all .15s;font-weight:700;font-size:11px}
+.to:hover{border-color:var(--ac)}.to.on{border-color:var(--ac);background:var(--acd)}
+.to i{font-size:24px;display:block;margin-bottom:4px;font-style:normal}
+.nfc-step{display:flex;gap:8px;align-items:flex-start;padding:8px 0}
+.nfc-num{width:22px;height:22px;background:var(--ac);color:var(--act);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0}
+.nfc-txt{font-size:11px;color:var(--t1);line-height:1.4}.nfc-txt strong{color:var(--ac)}
+.nfc-txt code{background:var(--sf2);padding:1px 5px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--ac);font-weight:600}
+.nfc-div{border:none;border-top:1px solid var(--bd);margin:2px 0}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--ac);color:var(--act);padding:8px 20px;border-radius:10px;font-size:12px;font-weight:700;z-index:999;transition:transform .25s cubic-bezier(.22,1,.36,1);pointer-events:none}.toast.show{transform:translateX(-50%) translateY(0)}
+.no{text-align:center;padding:28px;color:var(--t2);font-size:11px}
 #importInput{display:none}
 </style>
 </head>
 <body>
 <div id="app"></div><div class="toast" id="toast"></div><input type="file" id="importInput" accept=".json">
 <script>
+// ═══════════════════════════════
+// CORE DATA
+// ═══════════════════════════════
 function getTheme(){return localStorage.getItem("movebin_theme")||"dark"}
-function setTheme(t){document.documentElement.setAttribute("data-theme",t);localStorage.setItem("movebin_theme",t);document.getElementById("metaThemeColor").content=t==="dark"?"#0C1017":"#F4F5F7"}
-function toggleTheme(){setTheme(getTheme()==="dark"?"light":"dark");render()}
+function setTheme(t){document.documentElement.setAttribute("data-theme",t);localStorage.setItem("movebin_theme",t);document.getElementById("mtc").content=t==="dark"?"#0C1017":"#F3F4F6"}
+function toggleTheme(){setTheme(getTheme()==="dark"?"light":"dark");R()}
 setTheme(getTheme());
 
-// Default zones + custom zones stored separately
-const BASE_ZONES=["Office / Desk","Kitchen","Bathroom","Bedroom","Living Room","Pets","Utility","Special"];
-function loadCustomZones(){try{return JSON.parse(localStorage.getItem("movebin_zones")||"[]")}catch(e){return[]}}
-function saveCustomZones(z){localStorage.setItem("movebin_zones",JSON.stringify(z))}
-function allZones(){return[...BASE_ZONES,...loadCustomZones()]}
-
+const BZ=["Office / Desk","Kitchen","Bathroom","Bedroom","Living Room","Pets","Utility","Special"];
+function lcz(){try{return JSON.parse(localStorage.getItem("movebin_zones")||"[]")}catch{return[]}}
+function scz(z){localStorage.setItem("movebin_zones",JSON.stringify(z))}
+function az(){return[...BZ,...lcz()]}
 const ZD={"Office / Desk":"#FB923C",Kitchen:"#34D399",Bathroom:"#A78BFA",Bedroom:"#60A5FA","Living Room":"#F472B6",Pets:"#CDFA3E",Utility:"#4ADE80",Special:"#FF5A65"};
-const ZL={"Office / Desk":"#D97706",Kitchen:"#059669",Bathroom:"#7C3AED",Bedroom:"#2563EB","Living Room":"#DB2777",Pets:"#65A30D",Utility:"#16A34A",Special:"#DC2626"};
-const EXTRA_COLORS=["#22D3EE","#FB7185","#A3E635","#FBBF24","#818CF8","#2DD4BF","#F97316","#E879F9"];
-function zc(){const base=getTheme()==="dark"?ZD:ZL;const cz=loadCustomZones();const merged={...base};cz.forEach((z,i)=>{if(!merged[z])merged[z]=EXTRA_COLORS[i%EXTRA_COLORS.length]});return merged}
-
-const DEFBINS=[];
-function loadBins(){try{const r=localStorage.getItem("movebin_data");if(r)return JSON.parse(r)}catch(e){}return JSON.parse(JSON.stringify(DEFBINS))}
-function saveBins(b){localStorage.setItem("movebin_data",JSON.stringify(b));scheduleAutoPush()}
-
-// Smart bin numbering: find first gap
-function nextBinId(bins){
-  const nums=bins.map(b=>{const m=b.id.match(/^BIN-(\d+)$/);return m?parseInt(m[1],10):0}).filter(n=>n>0).sort((a,b)=>a-b);
-  for(let i=1;i<=nums.length+1;i++){if(!nums.includes(i))return "BIN-"+String(i).padStart(3,"0")}
-  return "BIN-001";
-}
-
+const ZL={"Office / Desk":"#D97706",Kitchen:"#059669",Bathroom:"#7C3AED",Bedroom:"#2563EB","Living Room":"#DB2777",Pets:"#4D7C0F",Utility:"#16A34A",Special:"#DC2626"};
+const XC=["#22D3EE","#FB7185","#A3E635","#FBBF24","#818CF8","#2DD4BF","#F97316","#E879F9"];
+function zc(){const b=getTheme()==="dark"?ZD:ZL;const c=lcz();const m={...b};c.forEach((z,i)=>{if(!m[z])m[z]=XC[i%XC.length]});return m}
+function loadBins(){try{const r=localStorage.getItem("movebin_data");if(r)return JSON.parse(r)}catch{}return[]}
+function saveBins(b){localStorage.setItem("movebin_data",JSON.stringify(b));scheduleAP()}
+function nextBinId(bins){const nums=bins.map(b=>{const m=b.id.match(/^BIN-(\d+)$/);return m?parseInt(m[1],10):0}).filter(n=>n>0).sort((a,b)=>a-b);for(let i=1;i<=nums.length+1;i++){if(!nums.includes(i))return"BIN-"+String(i).padStart(3,"0")}return"BIN-001"}
+function binStatus(b){if(b.status)return b.status;if(b.packed)return"packed";return b.items.length>0?"started":"empty"}
+function normItem(it){return typeof it==="string"?{name:it,imp:false}:it}
+function gn(it){return typeof it==="string"?it:it.name}
+function isImp(it){return typeof it==="object"&&it.imp}
+function bc(b){return zc()[b.zone]||"#CDFA3E"}
+function ti(){return S.bins.reduce((s,b)=>s+b.items.length,0)}
+function allItems(){const r=[];S.bins.forEach(b=>b.items.forEach(it=>{const n=normItem(it);r.push({...n,binId:b.id,binLabel:b.label,zone:b.zone,icon:b.icon})}));return r}
+function impItems(){return allItems().filter(i=>i.imp)}
+function recentItems(){return allItems().slice(-10).reverse()}
 function loadCreds(){return{key:sessionStorage.getItem("mb_k")||"",bid:sessionStorage.getItem("mb_b")||""}}
 function saveCreds(k,b){if(k)sessionStorage.setItem("mb_k",k);if(b)sessionStorage.setItem("mb_b",b)}
 function hasCreds(){const c=loadCreds();return!!(c.key&&c.bid)}
-let S={bins:loadBins(),view:"dashboard",sel:null,zf:"All",sq:"",showAdd:false,dl:null,ss:"local",rnL:false,rnI:false,dd:null,sort:"id-asc"};
-function checkDeepLink(){const p=new URLSearchParams(location.search);const k=p.get("k"),b=p.get("b");if(k&&b){saveCreds(k,b);const bo=p.get("bin")?"?bin="+p.get("bin"):"";history.replaceState({},"",location.pathname+bo)}const bp=p.get("bin");if(bp){const f=S.bins.find(b=>b.id.toUpperCase()===bp.toUpperCase());if(f){S.view="bins";S.sel=f.id;S.dl=f.id}}}
-function showToast(m){const e=document.getElementById("toast");e.textContent=m;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),2200)}
-function bc(b){return zc()[b.zone]||"#CDFA3E"}
-function ti(){return S.bins.reduce((s,b)=>s+b.items.length,0)}
-function pc(){return S.bins.filter(b=>b.packed).length}
-function lc(){return S.bins.filter(b=>b.location&&b.location.trim()).length}
-function sortBins(bins){const a=[...bins];switch(S.sort){case"id-asc":return a.sort((x,y)=>x.id.localeCompare(y.id));case"id-desc":return a.sort((x,y)=>y.id.localeCompare(x.id));case"label-asc":return a.sort((x,y)=>x.label.localeCompare(y.label));case"label-desc":return a.sort((x,y)=>y.label.localeCompare(x.label));case"items-desc":return a.sort((x,y)=>y.items.length-x.items.length);case"items-asc":return a.sort((x,y)=>x.items.length-y.items.length);case"zone":return a.sort((x,y)=>x.zone.localeCompare(y.zone));case"packed":return a.sort((x,y)=>(y.packed?1:0)-(x.packed?1:0));case"unpacked":return a.sort((x,y)=>(x.packed?1:0)-(y.packed?1:0));default:return a}}
-function ringSVG(pct){const r=45,c=2*Math.PI*r,o=c-(pct/100)*c;return`<svg class="ring-svg" viewBox="0 0 100 100" width="90" height="90"><circle cx="50" cy="50" r="45" class="ring-track"/><circle cx="50" cy="50" r="45" class="ring-fill" style="--offset:${o};stroke-dashoffset:${o}"/><text x="50" y="50" class="ring-center">${pct}%</text></svg>`}
+function sortBins(bins){const a=[...bins];switch(S.sort){case"id-asc":return a.sort((x,y)=>x.id.localeCompare(y.id));case"id-desc":return a.sort((x,y)=>y.id.localeCompare(x.id));case"label-asc":return a.sort((x,y)=>x.label.localeCompare(y.label));case"items-desc":return a.sort((x,y)=>y.items.length-x.items.length);case"items-asc":return a.sort((x,y)=>x.items.length-y.items.length);case"zone":return a.sort((x,y)=>x.zone.localeCompare(y.zone));case"packed":return a.sort((x,y)=>(binStatus(y)==="packed"?1:0)-(binStatus(x)==="packed"?1:0));case"unpacked":return a.sort((x,y)=>(binStatus(x)==="packed"?1:0)-(binStatus(y)==="packed"?1:0));default:return a}}
+function ringSVG(pct){const r=40,c=2*Math.PI*r,o=c-(pct/100)*c;return`<svg class="ring-svg" viewBox="0 0 90 90" width="70" height="70"><circle cx="45" cy="45" r="40" class="ring-track"/><circle cx="45" cy="45" r="40" class="ring-fill" style="--o:${o};stroke-dashoffset:${o}"/><text x="45" y="45" class="ring-pct">${pct}%</text></svg>`}
 
-// Exports
-function exportExcel(){const wb=XLSX.utils.book_new();const sr=[["MOVE.BIN","","","",""],["Generated:",new Date().toLocaleString(),"","",""],["","","","",""],["ID","Label","Zone","Location","Items"]];S.bins.forEach(b=>sr.push([b.id,b.label,b.zone,b.location||"—",b.items.length]));sr.push(["","","","TOTAL",ti()]);const ws=XLSX.utils.aoa_to_sheet(sr);ws["!cols"]=[{wch:10},{wch:30},{wch:16},{wch:22},{wch:10}];XLSX.utils.book_append_sheet(wb,ws,"Summary");const ir=[["ID","Label","Zone","Location","Item"]];S.bins.forEach(b=>{if(!b.items.length)ir.push([b.id,b.label,b.zone,b.location||"—","(empty)"]);else b.items.forEach((it,i)=>ir.push([i?"":b.id,i?"":b.label,i?"":b.zone,i?"":(b.location||"—"),it]))});const wi=XLSX.utils.aoa_to_sheet(ir);wi["!cols"]=[{wch:10},{wch:30},{wch:16},{wch:22},{wch:34}];XLSX.utils.book_append_sheet(wb,wi,"Items");try{const o=XLSX.write(wb,{bookType:"xlsx",type:"array"});const bl=new Blob([o],{type:"application/octet-stream"});const u=URL.createObjectURL(bl);const a=document.createElement("a");a.href=u;a.download="movebin-"+new Date().toISOString().slice(0,10)+".xlsx";document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);showToast("✅ Excel!")}catch(e){showToast("❌ "+e.message)}}
-function exportJSON(){const bl=new Blob([JSON.stringify(S.bins,null,2)],{type:"application/json"});const u=URL.createObjectURL(bl);const a=document.createElement("a");a.href=u;a.download=`movebin-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(u);showToast("✅ JSON!")}
-function exportPDF(){const w=window.open("","_blank");let rows="";S.bins.forEach(b=>{const il=b.items.length>0?b.items.map(i=>`<span style="display:inline-block;background:#f0f0f0;border-radius:4px;padding:1px 7px;margin:2px 3px 2px 0;font-size:11px">${i}</span>`).join(""):'<i style="color:#888">Empty</i>';rows+=`<tr><td style="font-family:monospace;font-weight:700;color:#65A30D">${b.id}</td><td><b>${b.label}</b></td><td>${b.zone}</td><td>${b.location||'—'}</td><td style="text-align:center;font-weight:700">${b.items.length}</td><td style="line-height:1.8">${il}</td></tr>`});w.document.write(`<!DOCTYPE html><html><head><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Segoe UI',sans-serif;color:#111;padding:32px;font-size:12px}table{width:100%;border-collapse:collapse}thead tr{background:#111;color:#CDFA3E}thead th{padding:10px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px}tbody tr{border-bottom:1px solid #eee}tbody tr:nth-child(even){background:#fafafa}td{padding:8px 12px;vertical-align:top}@media print{body{padding:16px}}</style></head><body><div style="display:flex;justify-content:space-between;margin-bottom:24px;border-bottom:3px solid #CDFA3E;padding-bottom:16px"><div><div style="font-size:24px;font-weight:900">📦 MOVE.BIN</div><div style="font-size:11px;color:#888;margin-top:4px">${new Date().toLocaleString()}</div></div><div style="text-align:right;font-size:11px;color:#666">${S.bins.length} bins | ${ti()} items</div></div><table><thead><tr><th>ID</th><th>Label</th><th>Zone</th><th>Location</th><th>#</th><th>Items</th></tr></thead><tbody>${rows}</tbody></table></body></html>`);w.document.close();setTimeout(()=>w.print(),400)}
-function importData(){document.getElementById("importInput").click()}
-document.addEventListener("DOMContentLoaded",()=>{document.getElementById("importInput").addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(Array.isArray(d)&&d[0]?.id){S.bins=d;saveBins(S.bins);showToast("Imported "+d.length);render()}}catch(e){showToast("Invalid")}};r.readAsText(f);e.target.value=""})});
+// State
+let S={bins:loadBins(),view:"dashboard",sel:null,zf:"All",sq:"",showAdd:false,dl:null,ss:"local",rnL:false,rnI:false,dd:null,sort:"id-asc",addImp:false};
+
+// Deep link
+function checkDL(){const p=new URLSearchParams(location.search);const k=p.get("k"),b=p.get("b");if(k&&b){saveCreds(k,b);const bo=p.get("bin")?"?bin="+p.get("bin"):"";history.replaceState({},"",location.pathname+bo)}const bp=p.get("bin");if(bp){const f=S.bins.find(b=>b.id.toUpperCase()===bp.toUpperCase());if(f){S.view="bins";S.sel=f.id;S.dl=f.id}}}
+function showToast(m){const e=document.getElementById("toast");e.textContent=m;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),2e3)}
 
 // Sync
 const JB="https://api.jsonbin.io/v3/b";let _pt=null;
-function scheduleAutoPush(){clearTimeout(_pt);_pt=setTimeout(()=>push(),1500)}
-function setSync(s){S.ss=s;const e=document.getElementById("sb");if(!e)return;const m={local:{c:"local",h:'<span class="sd"></span>LOCAL'},syncing:{c:"syncing",h:'<span class="sp">⟳</span>SYNC'},synced:{c:"synced",h:'<span class="sd"></span>SYNCED'},error:{c:"error",h:'<span class="sd"></span>ERR'}};const v=m[s]||m.local;e.className=`sb ${v.c}`;e.innerHTML=v.h}
-async function push(){const c=loadCreds();if(!c.key||!c.bid){setSync("local");return}setSync("syncing");try{const r=await fetch(`${JB}/${c.bid}`,{method:"PUT",headers:{"Content-Type":"application/json","X-Master-Key":c.key},body:JSON.stringify({bins:S.bins,zones:loadCustomZones(),updatedAt:new Date().toISOString()})});if(!r.ok)throw new Error(await r.text());setSync("synced")}catch(e){setSync("error")}}
-async function pull(){const c=loadCreds();if(!c.key||!c.bid){setSync("local");return}setSync("syncing");try{const r=await fetch(`${JB}/${c.bid}/latest`,{headers:{"X-Master-Key":c.key}});if(!r.ok)throw new Error(await r.text());const d=await r.json();const p=d.record;if(p.bins&&Array.isArray(p.bins)){S.bins=p.bins;saveBins(S.bins);if(p.zones)saveCustomZones(p.zones);setSync("synced");showToast("✅ "+p.bins.length+" bins");render()}else throw new Error("Bad format")}catch(e){setSync("error");showToast("❌ "+e.message)}}
+function scheduleAP(){clearTimeout(_pt);_pt=setTimeout(()=>push(),1500)}
+function setSync(s){S.ss=s;const e=document.getElementById("sb");if(!e)return;const m={local:'<span class="sd"></span>LOCAL',syncing:'<span class="sp">⟳</span>SYNC',synced:'<span class="sd"></span>SYNCED',error:'<span class="sd"></span>ERR'};e.className=`sb ${s}`;e.innerHTML=m[s]||m.local}
+async function push(){const c=loadCreds();if(!c.key||!c.bid){setSync("local");return}setSync("syncing");try{const r=await fetch(`${JB}/${c.bid}`,{method:"PUT",headers:{"Content-Type":"application/json","X-Master-Key":c.key},body:JSON.stringify({bins:S.bins,zones:lcz(),updatedAt:new Date().toISOString()})});if(!r.ok)throw new Error();setSync("synced")}catch{setSync("error")}}
+async function pull(){const c=loadCreds();if(!c.key||!c.bid){setSync("local");return}setSync("syncing");try{const r=await fetch(`${JB}/${c.bid}/latest`,{headers:{"X-Master-Key":c.key}});if(!r.ok)throw new Error();const d=await r.json(),p=d.record;if(p.bins&&Array.isArray(p.bins)){S.bins=p.bins;saveBins(S.bins);if(p.zones)scz(p.zones);setSync("synced");showToast("✅ "+p.bins.length+" bins");R()}else throw 0}catch{setSync("error");showToast("❌ Sync failed")}}
+
+// Exports
+function exportExcel(){const wb=XLSX.utils.book_new();const d=[["ID","Label","Zone","Location","Status","Items"]];S.bins.forEach(b=>d.push([b.id,b.label,b.zone,b.location||"",binStatus(b),b.items.length]));const ws=XLSX.utils.aoa_to_sheet(d);XLSX.utils.book_append_sheet(wb,ws,"Bins");const ir=[["Bin","Item","Important"]];S.bins.forEach(b=>b.items.forEach(it=>{const n=normItem(it);ir.push([b.id,n.name,n.imp?"⭐":""])}));const wi=XLSX.utils.aoa_to_sheet(ir);XLSX.utils.book_append_sheet(wb,wi,"Items");try{const o=XLSX.write(wb,{bookType:"xlsx",type:"array"});const bl=new Blob([o],{type:"application/octet-stream"});const u=URL.createObjectURL(bl);const a=document.createElement("a");a.href=u;a.download="movebin-"+new Date().toISOString().slice(0,10)+".xlsx";document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);showToast("✅ Excel")}catch(e){showToast("❌ "+e.message)}}
+function exportJSON(){const bl=new Blob([JSON.stringify(S.bins,null,2)],{type:"application/json"});const u=URL.createObjectURL(bl);const a=document.createElement("a");a.href=u;a.download=`movebin-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(u);showToast("✅ JSON")}
+function exportPDF(){const w=window.open("","_blank");let rows="";S.bins.forEach(b=>{const il=b.items.length?b.items.map(it=>`<span style="display:inline-block;background:#eee;border-radius:3px;padding:1px 6px;margin:1px 2px;font-size:10px">${isImp(it)?'⭐ ':''}${gn(it)}</span>`).join(""):'<i style="color:#999">Empty</i>';rows+=`<tr><td style="font-family:monospace;font-weight:700;font-size:10px">${b.id}</td><td><b>${b.label}</b></td><td>${b.zone}</td><td>${b.location||'—'}</td><td style="text-align:center">${b.items.length}</td><td style="line-height:1.7">${il}</td></tr>`});w.document.write(`<!DOCTYPE html><html><head><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:sans-serif;padding:24px;font-size:11px}table{width:100%;border-collapse:collapse}thead{background:#111;color:#CDFA3E}th{padding:8px 10px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:1px}td{padding:6px 10px;border-bottom:1px solid #eee;vertical-align:top}@media print{body{padding:12px}}</style></head><body><div style="border-bottom:3px solid #CDFA3E;padding-bottom:12px;margin-bottom:16px;display:flex;justify-content:space-between"><div style="font-size:20px;font-weight:900">📦 MOVE.BIN</div><div style="font-size:10px;color:#666">${new Date().toLocaleString()} · ${S.bins.length} bins · ${ti()} items</div></div><table><thead><tr><th>ID</th><th>Label</th><th>Zone</th><th>Loc</th><th>#</th><th>Items</th></tr></thead><tbody>${rows}</tbody></table></body></html>`);w.document.close();setTimeout(()=>w.print(),300)}
+function importData(){document.getElementById("importInput").click()}
+document.addEventListener("DOMContentLoaded",()=>{document.getElementById("importInput").addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(Array.isArray(d)&&d[0]?.id){S.bins=d;saveBins(S.bins);showToast("✅ "+d.length);R()}}catch{showToast("❌ Invalid")}};r.readAsText(f);e.target.value=""})});
 
 // Actions
-function setView(v){S.view=v;S.sel=null;S.dl=null;S.rnL=false;S.rnI=false;S.dd=null;render()}
-function openDD(t){S.dd=t;render()}
-function closeDD(){S.dd=null;render()}
-function selBin(id){S.sel=id;S.dl=null;S.rnL=false;S.rnI=false;render()}
-function goBack(){S.sel=null;render()}
-function setZF(z){S.zf=z;render()}
-function setSort(v){S.sort=v;render()}
-function startRnL(){S.rnL=true;S.rnI=false;render();setTimeout(()=>document.getElementById("rnI")?.focus(),50)}
-function saveRnL(){const v=document.getElementById("rnI")?.value?.trim();const b=S.bins.find(b=>b.id===S.sel);if(b&&v){b.label=v;saveBins(S.bins);showToast("✏️ Updated")}S.rnL=false;render()}
-function cancelRnL(){S.rnL=false;render()}
-function startRnId(){S.rnI=true;S.rnL=false;render();setTimeout(()=>document.getElementById("rnId")?.focus(),50)}
-function saveRnId(){const raw=document.getElementById("rnId")?.value?.trim().toUpperCase();if(!raw){S.rnI=false;render();return}const nid=/^BIN-/.test(raw)?raw:"BIN-"+raw;if(S.bins.find(b=>b.id===nid&&b.id!==S.sel)){showToast("❌ "+nid+" exists");return}const b=S.bins.find(b=>b.id===S.sel);if(b){b.id=nid;S.sel=nid;saveBins(S.bins);showToast("📦 → "+nid)}S.rnI=false;render()}
-function cancelRnId(){S.rnI=false;render()}
-function togPk(id){const b=S.bins.find(b=>b.id===id);if(b){b.packed=!b.packed;saveBins(S.bins);render()}}
-function saveLoc(id){const v=document.getElementById("locI")?.value?.trim()??"";const b=S.bins.find(b=>b.id===id);if(b!==undefined){b.location=v;saveBins(S.bins);showToast("📍 Saved")}}
-function addItem(id){const i=document.getElementById("itI");const v=i?.value?.trim();if(!v)return;const b=S.bins.find(b=>b.id===id);if(b){b.items.push(v);saveBins(S.bins);i.value="";render()}}
-function rmItem(id,idx){const b=S.bins.find(b=>b.id===id);if(b){b.items.splice(idx,1);saveBins(S.bins);render()}}
-function delBin(id){if(!confirm("Delete bin?"))return;S.bins=S.bins.filter(b=>b.id!==id);saveBins(S.bins);S.sel=null;render()}
-function togAdd(){S.showAdd=!S.showAdd;render()}
-function addBin(){const l=document.getElementById("nbL")?.value?.trim();const z=document.getElementById("nbZ")?.value;if(!l)return;const id=nextBinId(S.bins);S.bins.push({id,label:l,icon:"📦",zone:z||"Utility",location:"",items:[],packed:false});saveBins(S.bins);S.showAdd=false;showToast("+ "+id);render()}
-function addCustomZone(){const inp=document.getElementById("czI");const v=inp?.value?.trim();if(!v)return;const cz=loadCustomZones();if(cz.includes(v)||BASE_ZONES.includes(v)){showToast("Already exists");return}cz.push(v);saveCustomZones(cz);inp.value="";showToast("+ "+v);render()}
-function impFile(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(Array.isArray(d)&&d[0]?.id){S.bins=d;saveBins(S.bins);showToast("Imported "+d.length);render()}}catch(e){showToast("Invalid")}};r.readAsText(f);e.target.value=""}
+function setView(v){S.view=v;S.sel=null;S.dl=null;S.rnL=false;S.rnI=false;S.dd=null;R()}
+function openDD(t){S.dd=t;R()}
+function closeDD(){S.dd=null;R()}
+function selBin(id){S.sel=id;S.dl=null;S.rnL=false;S.rnI=false;R()}
+function goBack(){S.sel=null;R()}
+function setZF(z){S.zf=z;R()}
+function setSort(v){S.sort=v;R()}
+function startRnL(){S.rnL=true;S.rnI=false;R();setTimeout(()=>document.getElementById("rnI")?.focus(),50)}
+function saveRnL(){const v=document.getElementById("rnI")?.value?.trim();const b=S.bins.find(b=>b.id===S.sel);if(b&&v){b.label=v;saveBins(S.bins)}S.rnL=false;R()}
+function cancelRnL(){S.rnL=false;R()}
+function startRnId(){S.rnI=true;S.rnL=false;R();setTimeout(()=>document.getElementById("rnId")?.focus(),50)}
+function saveRnId(){const raw=document.getElementById("rnId")?.value?.trim().toUpperCase();if(!raw){S.rnI=false;R();return}const nid=/^BIN-/.test(raw)?raw:"BIN-"+raw;if(S.bins.find(b=>b.id===nid&&b.id!==S.sel)){showToast("❌ Exists");return}const b=S.bins.find(b=>b.id===S.sel);if(b){b.id=nid;S.sel=nid;saveBins(S.bins)}S.rnI=false;R()}
+function cancelRnId(){S.rnI=false;R()}
+function setSt(id,st){const b=S.bins.find(b=>b.id===id);if(b){b.status=st;b.packed=st==="packed";saveBins(S.bins);R()}}
+function saveLoc(id){const v=document.getElementById("locI")?.value?.trim()??"";const b=S.bins.find(b=>b.id===id);if(b!==undefined){b.location=v;saveBins(S.bins);showToast("📍")}}
+function addItem(id){const i=document.getElementById("itI");const v=i?.value?.trim();if(!v)return;const b=S.bins.find(b=>b.id===id);if(b){b.items.push({name:v,imp:S.addImp});if(!b.status||b.status==="empty")b.status="started";saveBins(S.bins);i.value="";S.addImp=false;R()}}
+function togImpFlag(){S.addImp=!S.addImp;R()}
+function togImp(bid,idx){const b=S.bins.find(b=>b.id===bid);if(!b)return;let it=b.items[idx];it=normItem(it);it.imp=!it.imp;b.items[idx]=it;saveBins(S.bins);R()}
+function rmItem(id,idx){const b=S.bins.find(b=>b.id===id);if(b){b.items.splice(idx,1);saveBins(S.bins);R()}}
+function delBin(id){if(!confirm("Delete bin?"))return;S.bins=S.bins.filter(b=>b.id!==id);saveBins(S.bins);S.sel=null;R()}
+function togAdd(){S.showAdd=!S.showAdd;R()}
+function addBin(){const l=document.getElementById("nbL")?.value?.trim();const z=document.getElementById("nbZ")?.value;if(!l)return;const id=nextBinId(S.bins);S.bins.push({id,label:l,icon:"📦",zone:z||"Utility",location:"",items:[],packed:false,status:"empty"});saveBins(S.bins);S.showAdd=false;showToast("+ "+id);R()}
+function addCZ(){const inp=document.getElementById("czI");const v=inp?.value?.trim();if(!v)return;const c=lcz();if(c.includes(v)||BZ.includes(v)){showToast("Exists");return}c.push(v);scz(c);inp.value="";showToast("+ "+v);R()}
+function impFile(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(Array.isArray(d)&&d[0]?.id){S.bins=d;saveBins(S.bins);showToast("✅");R()}}catch{showToast("❌")}};r.readAsText(f);e.target.value=""}
+function doSearch(q){S.sq=q;S.view="search";R();setTimeout(()=>{const el=document.getElementById("sI");if(el){el.value=q;el.dispatchEvent(new Event('input'))}},50)}
 
-function render(){
-const dk=getTheme()==="dark";const zones=allZones();let h="";
+// ═══════════════════════════════
+// RENDER
+// ═══════════════════════════════
+function R(){
+const dk=getTheme()==="dark";const zones=az();let h="";
+const eC=S.bins.filter(b=>binStatus(b)==="empty").length;
+const sC=S.bins.filter(b=>binStatus(b)==="started").length;
+const pC=S.bins.filter(b=>binStatus(b)==="packed").length;
+const zoneCount=z=>S.bins.filter(b=>b.zone===z).length;
 
-h+=`<div class="hdr"><div class="hdr-top"><div class="logo"><div class="logo-mark">📦</div><div><div class="logo-text">MOVE<span>.BIN</span></div><div class="logo-sub">NFC Inventory</div></div></div><div class="hdr-btns"><span class="sb ${S.ss}" id="sb">${S.ss==='synced'?'<span class="sd"></span>SYNCED':S.ss==='syncing'?'<span class="sp">⟳</span>SYNC':S.ss==='error'?'<span class="sd"></span>ERR':'<span class="sd"></span>LOCAL'}</span><button class="ib" data-tip="Export Excel" onclick="exportExcel()">📊</button><button class="ib" data-tip="Export PDF" onclick="exportPDF()">📄</button><button class="ib" data-tip="Import JSON" onclick="importData()">⬆</button><button class="ib" data-tip="${dk?'Light Mode':'Dark Mode'}" onclick="toggleTheme()">${dk?"☀️":"🌙"}</button></div></div><div class="tabs">${["dashboard","bins","search","settings"].map(t=>`<button class="tab ${S.view===t?"on":""}" onclick="setView('${t}')">${({dashboard:"📊 Dash",bins:"📦 Bins",search:"🔍 Find",settings:"⚙️ Settings"})[t]}</button>`).join("")}</div></div>`;
-h+=`<div class="cnt">`;
+// ── HEADER ──
+h+=`<div class="hdr"><div class="hdr-top"><div class="logo"><div class="logo-m">📦</div><div><div class="logo-t">MOVE<span>.BIN</span></div><div class="logo-s">NFC Inventory</div></div></div><div class="hdr-r"><span class="sb ${S.ss}" id="sb">${S.ss==='synced'?'<span class="sd"></span>SYNCED':S.ss==='syncing'?'<span class="sp">⟳</span>SYNC':S.ss==='error'?'<span class="sd"></span>ERR':'<span class="sd"></span>LOCAL'}</span><button class="ib" data-t="Export Excel" onclick="exportExcel()">📊</button><button class="ib" data-t="Export PDF" onclick="exportPDF()">📄</button><button class="ib" data-t="Import JSON" onclick="importData()">⬆</button><button class="ib" data-t="${dk?'Light Mode':'Dark Mode'}" onclick="toggleTheme()">${dk?"☀️":"🌙"}</button></div></div><div class="tabs">${["dashboard","bins","search","items","settings"].map(t=>`<button class="tab ${S.view===t?"on":""}" onclick="setView('${t}')">${({dashboard:"📊 Dash",bins:"📦 Bins",search:"🔍 Find",items:"📋 Items",settings:"⚙️ Set."})[t]}</button>`).join("")}</div></div><div class="cnt">`;
 
-// ═══ DASHBOARD ═══
+// ══════════════════
+// DASHBOARD
+// ══════════════════
 if(S.view==="dashboard"&&!S.dd){
-  const t=ti(),p=pc(),l=lc(),pct=S.bins.length>0?Math.round((p/S.bins.length)*100):0;
-  h+=`<div class="hero"><div class="g hc anim a1"><div class="hn" style="color:var(--accent)">${S.bins.length}</div><div class="hl">Total Bins</div></div><div class="g hc tap anim a2" onclick="openDD('items')"><div class="hn" style="color:var(--green)">${t}</div><div class="hl">Items</div><div class="hh">Tap to view ↗</div></div><div class="g hc tap anim a3" onclick="openDD('locations')"><div class="hn" style="color:var(--blue)">${l}</div><div class="hl">Located</div><div class="hh">Tap to view ↗</div></div><div class="g hc anim a4"><div class="hn" style="color:var(--orange)">${p}</div><div class="hl">Packed</div></div></div>`;
-  h+=`<div class="g rw g-glow anim a5">${ringSVG(pct)}<div class="ri"><div class="ri-t">Packing Progress</div><div class="ri-s">${p} of ${S.bins.length} bins packed<br>${t} items logged</div></div></div>`;
-  h+=`<div class="st anim a6">Zones</div>`;
-  zones.forEach((zone,i)=>{const zb=S.bins.filter(b=>b.zone===zone);if(!zb.length)return;const zi=zb.reduce((s,b)=>s+b.items.length,0),zp=zb.filter(b=>b.packed).length;
-    h+=`<div class="g g-sm zc anim" style="animation-delay:${.3+i*.04}s" onclick="S.zf='${zone}';setView('bins')"><div><div class="zn">${zone}</div><div class="zs">${zb.length} bin${zb.length>1?"s":""} · ${zp} packed</div></div><div class="zb">${zi}</div></div>`});
-}
+  const t=ti();const locC=S.bins.filter(b=>b.location?.trim()).length;
+  const pct=S.bins.length?Math.round((pC/S.bins.length)*100):0;
 
-// Drilldowns
-if(S.view==="dashboard"&&S.dd==="items"){const bwa=S.bins.filter(b=>b.items.length>0);h+=`<button class="dback" onclick="closeDD()">← Dashboard</button><div class="gt">All Items</div><div class="gd">${ti()} items across ${bwa.length} bins</div>`;if(!bwa.length)h+=`<div class="no">No items yet</div>`;else bwa.forEach(b=>{const c=bc(b);h+=`<div class="g g-sm dbi" style="border-left-color:${c}" onclick="selBin('${b.id}');S.view='bins';render()"><div class="bc-id" style="color:${c}">${b.id} ${b.packed?'<span class="pk-badge">✓ PACKED</span>':''}</div><div style="font-size:14px;font-weight:700;margin:4px 0">${b.icon} ${b.label}</div><div style="font-size:11px;color:var(--text2)">${b.zone}${b.location?' · 📍 '+b.location:''}</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">${b.items.map(i=>`<span style="display:inline-block;background:${c}15;border:1px solid ${c}35;color:${c};border-radius:8px;padding:3px 10px;font-size:11px;font-weight:600">${i}</span>`).join("")}</div></div>`})}
-if(S.view==="dashboard"&&S.dd==="locations"){const wl=S.bins.filter(b=>b.location&&b.location.trim()),nl=S.bins.filter(b=>!b.location||!b.location.trim());h+=`<button class="dback" onclick="closeDD()">← Dashboard</button><div class="gt">Locations</div><div class="gd">${wl.length} of ${S.bins.length} located</div>`;if(!wl.length)h+=`<div class="no">No locations set</div>`;else{const g={};wl.forEach(b=>{const l=b.location.trim();if(!g[l])g[l]=[];g[l].push(b)});Object.entries(g).forEach(([loc,bins])=>{h+=`<div style="margin-bottom:18px"><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--blue);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;font-weight:700">📍 ${loc}</div>`;bins.forEach(b=>{const c=bc(b);h+=`<div class="g g-sm dbi" style="border-left-color:${c};margin-bottom:6px" onclick="selBin('${b.id}');S.view='bins';render()"><div class="bc-id" style="color:${c}">${b.id}</div><div style="font-size:14px;font-weight:700">${b.icon} ${b.label}</div><div style="font-size:10px;color:var(--text2)">${b.zone} · ${b.items.length} items</div></div>`});h+=`</div>`})}if(nl.length){h+=`<div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:2px;margin:16px 0 8px;font-weight:700">⚠ UNLOCATED (${nl.length})</div>`;nl.forEach(b=>{const c=bc(b);h+=`<div class="g g-sm dbi" style="border-left-color:${c};opacity:.4;margin-bottom:6px" onclick="selBin('${b.id}');S.view='bins';render()"><div class="bc-id" style="color:${c}">${b.id}</div><div style="font-size:14px;font-weight:700">${b.icon} ${b.label}</div></div>`})}}
-
-// ═══ BINS ═══
-if(S.view==="bins"&&!S.sel){
-  h+=`<div class="filters"><button class="pill ${S.zf==="All"?"on":""}" onclick="setZF('All')">All</button>${zones.map(z=>`<button class="pill ${S.zf===z?"on":""}" onclick="setZF('${z}')">${z}</button>`).join("")}</div>`;
-  h+=`<div class="sort-row"><span class="sort-lbl">Sort</span><select class="sort-sel" onchange="setSort(this.value)"><option value="id-asc"${S.sort==="id-asc"?" selected":""}>ID ↑</option><option value="id-desc"${S.sort==="id-desc"?" selected":""}>ID ↓</option><option value="label-asc"${S.sort==="label-asc"?" selected":""}>A-Z</option><option value="label-desc"${S.sort==="label-desc"?" selected":""}>Z-A</option><option value="items-desc"${S.sort==="items-desc"?" selected":""}>Most Items</option><option value="items-asc"${S.sort==="items-asc"?" selected":""}>Fewest</option><option value="zone"${S.sort==="zone"?" selected":""}>Zone</option><option value="packed"${S.sort==="packed"?" selected":""}>Packed ✓</option><option value="unpacked"${S.sort==="unpacked"?" selected":""}>Unpacked</option></select></div>`;
-  sortBins(S.bins.filter(b=>S.zf==="All"||b.zone===S.zf)).forEach((bin,i)=>{const c=bc(bin);const pt=bin.packed?`<span class="pk-badge">✓ PACKED</span>`:"";const lt=bin.location?`<span style="font-size:10px;color:var(--text2);margin-right:6px">📍 ${bin.location}</span>`:"";const pi=bin.items.slice(0,3).map(i=>`<b>${i}</b>`).join(` <span style="color:var(--text3)">·</span> `);const pm=bin.items.length>3?` <span style="color:var(--text3);font-style:italic">+${bin.items.length-3}</span>`:"";const pv=(bin.location||bin.items.length>0)?`<div class="bc-preview">${lt}${pi}${pm}</div>`:"";
-    h+=`<div class="g g-sm bc anim" style="border-left-color:${c};animation-delay:${i*.03}s;${bin.packed?"opacity:.65;":""}" onclick="selBin('${bin.id}')"><div class="bc-top"><div class="bc-info"><div class="bc-icon" style="background:${c}12;border:1px solid ${c}20">${bin.icon}</div><div><div class="bc-id" style="color:${c}">${bin.id} ${pt}</div><div class="bc-label">${bin.label}</div><div class="bc-zone">${bin.zone}</div></div></div><div class="bc-count" style="background:${bin.items.length>0?c+"14":"var(--surface2)"};color:${bin.items.length>0?c:"var(--text2)"};border:1px solid ${bin.items.length>0?c+"25":"transparent"}">${bin.items.length}</div></div>${pv}</div>`});
-  if(!S.showAdd)h+=`<button class="add-btn" onclick="togAdd()">+ Add New Bin</button>`;
-  else{
-    const sugId=nextBinId(S.bins);
-    h+=`<div class="g fc"><div class="id-hint">Next ID: <span>${sugId}</span></div><input class="fi" id="nbL" placeholder="Bin label (e.g. Monitors & Cables)">`;
-    h+=`<select class="fs" id="nbZ">${zones.map(z=>`<option value="${z}">${z}</option>`).join("")}</select>`;
-    h+=`<div class="cat-row"><input class="cat-inp" id="czI" placeholder="+ New category (e.g. Garage)" onkeydown="if(event.key==='Enter')addCustomZone()"><button class="cat-add" onclick="addCustomZone()">+ Add</button></div>`;
-    h+=`<div class="fa"><button class="bp" onclick="addBin()">Create ${sugId}</button><button class="bx" onclick="togAdd()">Cancel</button></div></div>`;
-  }
-}
-
-// ═══ DETAIL ═══
-if(S.view==="bins"&&S.sel){const bin=S.bins.find(b=>b.id===S.sel);if(bin){const c=bc(bin);
-  if(S.dl)h+=`<div class="dl-banner"><span class="dl-icon">📱</span><div class="dl-text">NFC → ${bin.id}</div></div>`;
-  h+=`<button class="back" onclick="goBack()">← Back</button><div class="g det-hdr anim a1" style="border-color:${c}30"><div class="det-top"><div style="flex:1"><div class="det-icon">${bin.icon}</div>`;
-  if(S.rnI)h+=`<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><input class="rn-i" id="rnId" value="${bin.id}" style="font-size:13px;font-family:'JetBrains Mono',monospace;max-width:160px" onkeydown="if(event.key==='Enter')saveRnId();if(event.key==='Escape')cancelRnId()"><button class="brs" onclick="saveRnId()">Save</button><button class="br" onclick="cancelRnId()">✕</button></div>`;
-  else h+=`<div style="display:flex;align-items:center;gap:8px"><div class="det-id" style="color:${c}">${bin.id}</div><button class="br" onclick="startRnId()">✏️ ID</button></div>`;
-  if(S.rnL)h+=`<input class="rn-i" id="rnI" value="${bin.label.replace(/"/g,'&quot;')}" onkeydown="if(event.key==='Enter')saveRnL();if(event.key==='Escape')cancelRnL()"><div class="rn-h">Enter to save</div><button class="brs" onclick="saveRnL()">Save</button><button class="br" onclick="cancelRnL()">Cancel</button>`;
-  else h+=`<div class="det-label">${bin.label}</div><button class="br" onclick="startRnL()">✏️ Label</button>`;
-  h+=`<div class="det-zone">${bin.zone}</div><div style="display:flex;align-items:center;gap:8px;margin-top:8px"><span style="font-size:11px;color:var(--text2)">📍</span><input id="locI" class="inp" style="flex:1;padding:8px 14px;font-size:12px;max-width:240px;border-radius:12px" placeholder="Location" value="${(bin.location||'').replace(/"/g,'&quot;')}" onchange="saveLoc('${bin.id}')" onblur="saveLoc('${bin.id}')"></div></div><button class="btn-del" onclick="delBin('${bin.id}')">Delete</button></div><div class="nfc">📱 NFC → "${bin.id}"</div></div>`;
-  h+=`<div class="pk-row anim a2 ${bin.packed?'on':''}" onclick="togPk('${bin.id}')"><input type="checkbox" class="pk-cb" ${bin.packed?'checked':''} onclick="event.stopPropagation();togPk('${bin.id}')"><span class="pk-lbl ${bin.packed?'done':''}">${bin.packed?'✓ Packed':'Mark as Packed'}</span></div>`;
-  h+=`<div class="add-row anim a3" style="margin-top:14px"><input class="inp" id="itI" placeholder="Add item" onkeydown="if(event.key==='Enter')addItem('${bin.id}')"><button class="btn-plus" onclick="addItem('${bin.id}')">+</button></div>`;
-  h+=`<div class="ic">${bin.items.length} item${bin.items.length!==1?"s":""}</div>`;
-  if(!bin.items.length)h+=`<div class="empty">Empty — start packing!</div>`;
-  bin.items.forEach((item,idx)=>{h+=`<div class="g g-sm ir" style="animation-delay:${idx*.03}s"><span class="ir-i">${String(idx+1).padStart(2,'0')}</span><span class="ir-n">${item}</span><button class="btn-rm" onclick="rmItem('${bin.id}',${idx})">✕</button></div>`})}}
-
-// ═══ SEARCH ═══
-if(S.view==="search"){h+=`<div class="gt anim a1">Find Item</div><div class="gd anim a2">Search all bins.</div><input class="si anim a3" id="sI" placeholder="Search (e.g. HDMI, charger)" oninput="S.sq=this.value;renderSearch()" value="${S.sq}"><div id="sR"></div>`}
-
-// ═══ SETTINGS ═══
-if(S.view==="settings"){
-  h+=`<div class="gt anim a1">Settings</div><div class="gd anim a2">Theme, sync, NFC setup, backup.</div>`;
-  h+=`<div class="g ss anim a3"><div class="sst">Theme</div><div class="tp"><div class="to ${dk?'on':''}" onclick="setTheme('dark');render()"><i>🌙</i>Dark</div><div class="to ${!dk?'on':''}" onclick="setTheme('light');render()"><i>☀️</i>Light</div></div></div>`;
-  h+=`<div class="g ss anim a4"><div class="sst">Cloud Sync</div><div style="margin-bottom:12px"><span class="sb ${S.ss}" style="font-size:12px;padding:6px 14px">${S.ss==='synced'?'✅ SYNCED':S.ss==='syncing'?'⟳ SYNCING':S.ss==='error'?'❌ ERROR':'⬤ LOCAL'}</span></div><div class="sh">${hasCreds()?"<strong>✅ Credentials loaded.</strong> Auto-sync active.":"<strong>⚠️ No credentials.</strong> Open your bookmark URL with ?k= and &b= params to enable sync."}</div><div class="sbr"><button class="bsp" onclick="push().then(()=>showToast('✅ Pushed!'))">↑ PUSH</button><button class="bsl" onclick="pull()">↓ PULL</button></div></div>`;
-
-  // NFC Guide
-  h+=`<div class="g ss anim a5"><div class="sst">📱 NFC Tag Setup</div>
-    <div class="nfc-step"><div class="nfc-num">1</div><div class="nfc-txt">Install <strong>NFC Tools</strong> (free) from Play Store on your Samsung</div></div><hr class="nfc-divider">
-    <div class="nfc-step"><div class="nfc-num">2</div><div class="nfc-txt">Open NFC Tools → tap the <strong>Write</strong> tab at the bottom</div></div><hr class="nfc-divider">
-    <div class="nfc-step"><div class="nfc-num">3</div><div class="nfc-txt">Tap <strong>Add a record</strong> → select <strong>URL / URI</strong></div></div><hr class="nfc-divider">
-    <div class="nfc-step"><div class="nfc-num">4</div><div class="nfc-txt">In the URL field, type:<br><code>https://rickyfont94.github.io/movebin/?bin=BIN-001</code><br>Change <strong>BIN-001</strong> to match the bin this sticker goes on</div></div><hr class="nfc-divider">
-    <div class="nfc-step"><div class="nfc-num">5</div><div class="nfc-txt">To enable auto-sync, add your credentials to the URL:<br><code>?k=YOUR_MASTER_KEY&b=YOUR_BIN_ID&bin=BIN-001</code></div></div><hr class="nfc-divider">
-    <div class="nfc-step"><div class="nfc-num">6</div><div class="nfc-txt">Tap <strong>Write / XX Bytes</strong> at the bottom</div></div><hr class="nfc-divider">
-    <div class="nfc-step"><div class="nfc-num">7</div><div class="nfc-txt">Hold your phone flat against the NFC sticker until you see <strong>"Write complete"</strong></div></div><hr class="nfc-divider">
-    <div class="nfc-step"><div class="nfc-num">8</div><div class="nfc-txt">Stick it on the <strong>front-center of the bin</strong>, 2 inches below the rim. Cover with clear packing tape.</div></div><hr class="nfc-divider">
-    <div class="nfc-step"><div class="nfc-num">9</div><div class="nfc-txt">Repeat for each bin, changing the <strong>bin=BIN-XXX</strong> in the URL each time</div></div>
-    <div class="sh" style="margin-top:16px"><strong>Test it:</strong> Lock your phone, then tap it on the sticker. Chrome should open directly to that bin's page.</div>
+  // Hero: Bins, Items, Located, Zones (NO packed here — it's in status row)
+  h+=`<div class="hero">
+    <div class="g hc an d1"><div class="hn" style="color:var(--ac)">${S.bins.length}</div><div class="hl">Bins</div></div>
+    <div class="g hc tap an d2" onclick="setView('items')"><div class="hn" style="color:var(--grn)">${t}</div><div class="hl">Items</div><div class="hh">Tap ↗</div></div>
+    <div class="g hc tap an d3" onclick="openDD('loc')"><div class="hn" style="color:var(--blu)">${locC}</div><div class="hl">Located</div><div class="hh">Tap ↗</div></div>
+    <div class="g hc an d4"><div class="hn" style="color:var(--org)">${zones.filter(z=>S.bins.some(b=>b.zone===z)).length}</div><div class="hl">Zones</div></div>
   </div>`;
 
-  h+=`<div class="g ss anim a6"><div class="sst">Backup</div><div class="sbr"><button class="bsl" onclick="exportExcel()">📊 Excel</button><button class="bsl" onclick="exportPDF()" style="border-color:var(--pink);color:var(--pink)">📄 PDF</button><button class="bsl" onclick="exportJSON()" style="border-color:var(--orange);color:var(--orange)">💾 JSON</button><label class="bsp" style="cursor:pointer;text-align:center">⬆ Import<input type="file" accept=".json" style="display:none" onchange="impFile(event)"></label></div></div>`;
+  // Status row — COMPACT chips (not huge tiles)
+  h+=`<div class="status-row an d4">
+    <div class="status-chip"><span class="st-dot empty"></span><span class="st-num" style="color:var(--t3)">${eC}</span><span class="st-label">Empty</span></div>
+    <div class="status-chip"><span class="st-dot started"></span><span class="st-num" style="color:var(--ylw)">${sC}</span><span class="st-label">Started</span></div>
+    <div class="status-chip"><span class="st-dot packed"></span><span class="st-num" style="color:var(--grn)">${pC}</span><span class="st-label">Packed</span></div>
+  </div>`;
+
+  // Ring
+  h+=`<div class="g ring-row an d5">${ringSVG(pct)}<div class="ring-info"><div class="ring-t">Progress</div><div class="ring-s">${pC} of ${S.bins.length} packed · ${t} items</div></div></div>`;
+
+  // Important items
+  const imp=impItems();
+  if(imp.length){h+=`<div class="sec-h an d5">⭐ Important</div>`;imp.slice(0,6).forEach(it=>{h+=`<div class="g gs imp-item an" onclick="selBin('${it.binId}');S.view='bins';R()"><span class="imp-star">⭐</span><span style="flex:1">${it.name}</span><span class="imp-bin">${it.binId}</span></div>`})}
+
+  // Zones with item previews
+  h+=`<div class="sec-h an d6">Zones</div>`;
+  zones.forEach(zone=>{const zb=S.bins.filter(b=>b.zone===zone);if(!zb.length)return;
+    const zi=zb.reduce((s,b)=>s+b.items.length,0),zp=zb.filter(b=>binStatus(b)==="packed").length;
+    const preview=[];zb.forEach(b=>b.items.slice(0,2).forEach(it=>preview.push(gn(it))));
+    h+=`<div class="g gs zone" onclick="S.zf='${zone}';setView('bins')"><div style="flex:1"><div class="zone-n">${zone}</div><div class="zone-s">${zb.length} bin${zb.length>1?'s':''} · ${zp} packed</div>${preview.length?`<div class="zone-items">${preview.slice(0,4).map(i=>`<b>${i}</b>`).join(' · ')}${preview.length>4?' ...':''}</div>`:''}</div><div class="zone-b">${zi}</div></div>`});
 }
+
+// Drilldown: locations
+if(S.view==="dashboard"&&S.dd==="loc"){const wl=S.bins.filter(b=>b.location?.trim());h+=`<button class="back" onclick="closeDD()">← Dashboard</button><div class="gt">Locations</div><div class="gd">${wl.length} of ${S.bins.length} located</div>`;if(!wl.length)h+=`<div class="no">No locations set</div>`;else{const g={};wl.forEach(b=>{const l=b.location.trim();(g[l]=g[l]||[]).push(b)});Object.entries(g).forEach(([loc,bins])=>{h+=`<div style="margin-bottom:12px"><div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--blu);text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;font-weight:700">📍 ${loc}</div>`;bins.forEach(b=>{const c=bc(b);h+=`<div class="g gs" style="padding:8px 12px;margin-bottom:4px;border-left:3px solid ${c};cursor:pointer" onclick="selBin('${b.id}');S.view='bins';R()"><div style="font-size:9px;font-family:'JetBrains Mono',monospace;font-weight:700;color:${c}">${b.id}</div><div style="font-size:12px;font-weight:700">${b.icon} ${b.label}</div></div>`});h+=`</div>`})}}
+
+// ══════════════════
+// BINS
+// ══════════════════
+if(S.view==="bins"&&!S.sel){
+  h+=`<div class="filters"><button class="pill ${S.zf==="All"?"on":""}" onclick="setZF('All')">All <span class="pc">${S.bins.length}</span></button>${zones.map(z=>{const c=zoneCount(z);return c?`<button class="pill ${S.zf===z?"on":""}" onclick="setZF('${z}')">${z} <span class="pc">${c}</span></button>`:''}).join("")}</div>`;
+  h+=`<div class="sort-row"><span class="sort-lbl">Sort</span><select class="sort-sel" onchange="setSort(this.value)"><option value="id-asc"${S.sort==="id-asc"?" selected":""}>ID ↑</option><option value="id-desc"${S.sort==="id-desc"?" selected":""}>ID ↓</option><option value="label-asc"${S.sort==="label-asc"?" selected":""}>A-Z</option><option value="items-desc"${S.sort==="items-desc"?" selected":""}>Most Items</option><option value="zone"${S.sort==="zone"?" selected":""}>Zone</option><option value="packed"${S.sort==="packed"?" selected":""}>Packed ✓</option><option value="unpacked"${S.sort==="unpacked"?" selected":""}>Unpacked</option></select></div>`;
+
+  sortBins(S.bins.filter(b=>S.zf==="All"||b.zone===S.zf)).forEach((bin,i)=>{
+    const c=bc(bin),st=binStatus(bin),stL=st.charAt(0).toUpperCase()+st.slice(1);
+    h+=`<div class="g gs bc an" style="border-left-color:${c};animation-delay:${i*.02}s;${st==="packed"?"opacity:.55;":""}" onclick="selBin('${bin.id}')">
+      <div class="bc-top"><div class="bc-info"><div class="bc-icon" style="background:${c}10;border:1px solid ${c}18">${bin.icon}</div><div class="bc-meta"><div class="bc-id" style="color:${c}">${bin.id}</div><div class="bc-label">${bin.label}</div><div class="bc-zone">${bin.zone}</div></div></div>
+      <div class="bc-right"><div class="bc-count" style="background:${bin.items.length?c+"12":"var(--sf2)"};color:${bin.items.length?c:"var(--t3)"}">${bin.items.length}</div><div class="bc-st ${st}"><span class="st-dot ${st}"></span>${stL}</div></div></div>
+      ${bin.location?`<div class="bc-loc">📍 ${bin.location}</div>`:''}
+      ${bin.items.length?`<div class="bc-chips">${bin.items.slice(0,4).map(it=>`<span class="bc-chip ${isImp(it)?'imp':''}">${isImp(it)?'⭐ ':''}${gn(it)}</span>`).join('')}${bin.items.length>4?`<span class="bc-chip more">+${bin.items.length-4}</span>`:''}</div>`:''}
+    </div>`;
+  });
+  if(!S.showAdd)h+=`<button class="add-btn" onclick="togAdd()">+ Add New Bin</button>`;
+  else{const sid=nextBinId(S.bins);h+=`<div class="g fc"><div class="id-hint">Next: <span>${sid}</span></div><input class="fi" id="nbL" placeholder="Label (e.g. Monitors)"><select class="fs" id="nbZ">${zones.map(z=>`<option value="${z}">${z}</option>`).join("")}</select><div class="cat-row"><input class="cat-inp" id="czI" placeholder="+ New category" onkeydown="if(event.key==='Enter')addCZ()"><button class="cat-add" onclick="addCZ()">+</button></div><div class="fa"><button class="fbp" onclick="addBin()">Create ${sid}</button><button class="fbx" onclick="togAdd()">Cancel</button></div></div>`}
+}
+
+// ══════════════════
+// BIN DETAIL
+// ══════════════════
+if(S.view==="bins"&&S.sel){const bin=S.bins.find(b=>b.id===S.sel);if(bin){const c=bc(bin),st=binStatus(bin);
+  if(S.dl)h+=`<div class="dl-ban">📱 NFC → ${bin.id}</div>`;
+  h+=`<button class="back" onclick="goBack()">← Back</button><div class="g det an d1" style="border-color:${c}25"><div class="det-top"><div style="flex:1"><div class="det-icon">${bin.icon}</div>`;
+  if(S.rnI)h+=`<div style="display:flex;align-items:center;gap:3px;margin-bottom:2px"><input class="rn-i" id="rnId" value="${bin.id}" style="font-size:11px;font-family:'JetBrains Mono',monospace;max-width:130px" onkeydown="if(event.key==='Enter')saveRnId();if(event.key==='Escape')cancelRnId()"><button class="ebrs" onclick="saveRnId()">OK</button><button class="ebr" onclick="cancelRnId()">✕</button></div>`;
+  else h+=`<div style="display:flex;align-items:center;gap:6px"><div class="det-id" style="color:${c}">${bin.id}</div><button class="ebr" onclick="startRnId()">✏️</button></div>`;
+  if(S.rnL)h+=`<input class="rn-i" id="rnI" value="${bin.label.replace(/"/g,'&quot;')}" onkeydown="if(event.key==='Enter')saveRnL();if(event.key==='Escape')cancelRnL()"><div class="rn-h">Enter to save</div><button class="ebrs" onclick="saveRnL()">OK</button><button class="ebr" onclick="cancelRnL()">✕</button>`;
+  else h+=`<div class="det-label">${bin.label}</div><button class="ebr" onclick="startRnL()">✏️</button>`;
+  h+=`<div class="det-zone">${bin.zone}</div><div class="loc-row"><span>📍</span><input id="locI" class="inp" style="flex:1;padding:6px 10px;font-size:11px;max-width:200px;border-radius:8px" placeholder="Location" value="${(bin.location||'').replace(/"/g,'&quot;')}" onchange="saveLoc('${bin.id}')" onblur="saveLoc('${bin.id}')"></div></div><button class="btn-del" onclick="delBin('${bin.id}')">Delete</button></div>`;
+  h+=`<div class="nfc">📱 NFC → "${bin.id}"</div>`;
+  // Status — compact inline
+  h+=`<div class="sts">${["empty","started","packed"].map(s=>`<div class="sts-o s-${s} ${st===s?'on':''}" onclick="setSt('${bin.id}','${s}')"><span class="st-dot ${s}"></span>${s.charAt(0).toUpperCase()+s.slice(1)}</div>`).join("")}</div></div>`;
+  // Add item
+  h+=`<div class="add-row an d2" style="margin-top:10px"><input class="inp" id="itI" placeholder="Add item" onkeydown="if(event.key==='Enter')addItem('${bin.id}')"><button class="btn-star ${S.addImp?'on':''}" onclick="togImpFlag()">${S.addImp?'⭐':'☆'}</button><button class="btn-plus" onclick="addItem('${bin.id}')">+</button></div>`;
+  h+=`<div class="ic">${bin.items.length} item${bin.items.length!==1?'s':''}</div>`;
+  if(!bin.items.length)h+=`<div class="empty">Empty</div>`;
+  bin.items.forEach((it,idx)=>{const n=normItem(it);h+=`<div class="g gs ir" style="animation-delay:${idx*.02}s"><span class="ir-star ${n.imp?'':'off'}" onclick="event.stopPropagation();togImp('${bin.id}',${idx})">${n.imp?'⭐':'☆'}</span><span class="ir-i">${String(idx+1).padStart(2,'0')}</span><span class="ir-n">${n.name}</span><button class="btn-rm" onclick="rmItem('${bin.id}',${idx})">✕</button></div>`});
+}}
+
+// ══════════════════
+// SEARCH
+// ══════════════════
+if(S.view==="search"){
+  h+=`<div class="gt an d1">Find Item</div><div class="gd an d2">Search all bins.</div>`;
+  h+=`<input class="si an d3" id="sI" placeholder="Search (e.g. HDMI, charger)" oninput="S.sq=this.value;renderS()" value="${S.sq}">`;
+  if(!S.sq){const rec=recentItems(),imp2=impItems();
+    if(rec.length)h+=`<div class="sug-sec an d4"><div class="sug-h">Recent</div>${rec.slice(0,8).map(it=>`<span class="sug-c" onclick="doSearch('${it.name.replace(/'/g,"\\'")}')">${it.name}</span>`).join("")}</div>`;
+    if(imp2.length)h+=`<div class="sug-sec an d5"><div class="sug-h">⭐ Important</div>${imp2.map(it=>`<span class="sug-c" onclick="doSearch('${it.name.replace(/'/g,"\\'")}')">${it.name}</span>`).join("")}</div>`;
+  }
+  h+=`<div id="sR"></div>`;
+}
+
+// ══════════════════
+// ALL ITEMS
+// ══════════════════
+if(S.view==="items"){const all=allItems();
+  h+=`<div class="gt an d1">All Items</div><div class="gd an d2">${all.length} items across ${S.bins.length} bins</div>`;
+  h+=`<input class="si an d3" id="aiS" placeholder="Filter..." oninput="filterAI(this.value)">`;
+  h+=`<div id="aiR">`;all.forEach(it=>{h+=`<div class="g gs ai an" onclick="selBin('${it.binId}');S.view='bins';R()"><span class="ai-star">${it.imp?'⭐':''}</span><span class="ai-n">${it.name}</span><span class="ai-b">${it.binId}</span><span class="ai-z">${it.zone}</span></div>`});
+  if(!all.length)h+=`<div class="no">No items</div>`;h+=`</div>`;
+}
+
+// ══════════════════
+// SETTINGS
+// ══════════════════
+if(S.view==="settings"){
+  h+=`<div class="gt an d1">Settings</div><div class="gd an d2">Theme, sync, NFC, backup.</div>`;
+  // Theme
+  h+=`<div class="g ss an d3"><div class="sst">Theme</div><div class="tp"><div class="to ${dk?'on':''}" onclick="setTheme('dark');R()"><i>🌙</i>Dark</div><div class="to ${!dk?'on':''}" onclick="setTheme('light');R()"><i>☀️</i>Light</div></div></div>`;
+  // Sync
+  h+=`<div class="g ss an d4"><div class="sst">Cloud Sync</div><div style="margin-bottom:8px"><span class="sb ${S.ss}" style="font-size:10px;padding:4px 12px">${S.ss==='synced'?'✅ SYNCED':S.ss==='syncing'?'⟳ SYNCING':S.ss==='error'?'❌ ERROR':'⬤ LOCAL'}</span></div><div class="sh">${hasCreds()?"<strong>✅ Credentials loaded.</strong> Auto-sync active.":"<strong>⚠️ No creds.</strong> Open bookmark with ?k= and &b= params."}</div><div class="sbr"><button class="bsp" onclick="push().then(()=>showToast('✅'))">↑ Push</button><button class="bsl" onclick="pull()">↓ Pull</button></div></div>`;
+  // NFC
+  h+=`<div class="g ss an d5"><div class="sst">📱 NFC Tags</div>
+    <div class="nfc-step"><div class="nfc-num">1</div><div class="nfc-txt">Install <strong>NFC Tools</strong> (free, Play Store)</div></div><hr class="nfc-div">
+    <div class="nfc-step"><div class="nfc-num">2</div><div class="nfc-txt"><strong>Write</strong> → <strong>Add record</strong> → <strong>Text</strong></div></div><hr class="nfc-div">
+    <div class="nfc-step"><div class="nfc-num">3</div><div class="nfc-txt">Type only: <code>BIN-001</code> (change per bin)</div></div><hr class="nfc-div">
+    <div class="nfc-step"><div class="nfc-num">4</div><div class="nfc-txt">Tap <strong>Write</strong>, hold phone to sticker</div></div><hr class="nfc-div">
+    <div class="nfc-step"><div class="nfc-num">5</div><div class="nfc-txt">Tasker reads <code>%nfc_content</code> and opens:<br><code style="font-size:8px;word-break:break-all">https://rickyfont94.github.io/movebin/?bin=%nfc_content&k=...&b=...</code></div></div><hr class="nfc-div">
+    <div class="nfc-step"><div class="nfc-num">6</div><div class="nfc-txt">Stick on bin front, 2" below rim, cover with tape</div></div>
+  </div>`;
+  // Backup — ALL 4 OPTIONS: Excel, PDF, JSON, Import
+  h+=`<div class="g ss an d6"><div class="sst">Backup & Export</div><div class="sbr"><button class="bsl" onclick="exportExcel()">📊 Excel</button><button class="bsl" onclick="exportPDF()" style="border-color:var(--pnk);color:var(--pnk)">📄 PDF</button><button class="bsl" onclick="exportJSON()" style="border-color:var(--org);color:var(--org)">💾 JSON</button><label class="bsp" style="cursor:pointer;text-align:center">⬆ Import<input type="file" accept=".json" style="display:none" onchange="impFile(event)"></label></div></div>`;
+}
+
 h+=`</div>`;document.getElementById("app").innerHTML=h;
-if(S.view==="search"&&S.sq)renderSearch();
-if(S.view==="bins"&&S.sel)setTimeout(()=>document.getElementById("itI")?.focus(),50)}
+if(S.view==="search"&&S.sq)renderS();
+if(S.view==="bins"&&S.sel)setTimeout(()=>document.getElementById("itI")?.focus(),50);
+}
 
-function renderSearch(){const q=S.sq?.toLowerCase(),c=document.getElementById("sR");if(!c||!q){if(c)c.innerHTML="";return}const r=S.bins.filter(b=>b.items.some(i=>i.toLowerCase().includes(q)));if(!r.length){c.innerHTML=`<div class="empty">No matches for "${S.sq}"</div>`;return}let h="";r.forEach(bin=>{const bcc=bc(bin);const m=bin.items.filter(i=>i.toLowerCase().includes(q));h+=`<div class="g g-sm sr" style="border-left-color:${bcc}" onclick="selBin('${bin.id}');S.view='bins';render()"><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div class="bc-icon" style="background:${bcc}12;border:1px solid ${bcc}20;width:36px;height:36px;border-radius:10px;font-size:16px">${bin.icon}</div><div><div class="bc-id" style="color:${bcc}">${bin.id}</div><div style="font-size:14px;font-weight:700">${bin.label}</div></div></div>${m.map(i=>`<div class="sm">→ ${i}</div>`).join("")}</div>`});c.innerHTML=h}
+function renderS(){const q=S.sq?.toLowerCase(),c=document.getElementById("sR");if(!c||!q){if(c)c.innerHTML="";return}const r=S.bins.filter(b=>b.items.some(i=>gn(i).toLowerCase().includes(q)));if(!r.length){c.innerHTML=`<div class="empty">No matches</div>`;return}let h="";r.forEach(bin=>{const bcc=bc(bin);const m=bin.items.filter(i=>gn(i).toLowerCase().includes(q));h+=`<div class="g gs sr" style="border-left-color:${bcc}" onclick="selBin('${bin.id}');S.view='bins';R()"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div style="width:28px;height:28px;border-radius:8px;background:${bcc}10;border:1px solid ${bcc}18;display:flex;align-items:center;justify-content:center;font-size:14px">${bin.icon}</div><div><div style="font-size:8px;font-family:'JetBrains Mono',monospace;font-weight:700;color:${bcc}">${bin.id}</div><div style="font-size:12px;font-weight:700">${bin.label}</div></div></div>${m.map(i=>`<div class="sm">${isImp(i)?'⭐ ':''}${gn(i)}</div>`).join("")}</div>`});c.innerHTML=h}
 
-checkDeepLink();render();pull();
+function filterAI(q){const c=document.getElementById("aiR");if(!c)return;const all=allItems().filter(i=>!q||i.name.toLowerCase().includes(q.toLowerCase()));let h="";all.forEach(it=>{h+=`<div class="g gs ai" onclick="selBin('${it.binId}');S.view='bins';R()"><span class="ai-star">${it.imp?'⭐':''}</span><span class="ai-n">${it.name}</span><span class="ai-b">${it.binId}</span><span class="ai-z">${it.zone}</span></div>`});if(!all.length)h=`<div class="no">No matches</div>`;c.innerHTML=h}
+
+checkDL();R();pull();
 </script>
 </body>
 </html>
