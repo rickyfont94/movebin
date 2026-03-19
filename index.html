@@ -266,6 +266,11 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
 .sub-item .sub-n{font-size:12px;font-weight:500;color:var(--t1);flex:1}
 .sub-item .sub-bullet{color:var(--ac);display:flex;align-items:center}
 .sub-item .sub-bullet svg{width:12px;height:12px}
+.sub-item .sub-check{width:16px;height:16px;border-radius:5px;border:2px solid var(--bd);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s;flex-shrink:0;padding:0}
+.sub-item .sub-check:hover{border-color:var(--em)}
+.sub-item .sub-check.on{background:var(--em);border-color:var(--em);color:#fff}
+.sub-item .sub-check svg{width:11px;height:11px}
+.sub-item.checked-sub .sub-n{text-decoration:line-through;opacity:.45}
 .sub-item .btn-rm-sm{background:none;border:none;color:var(--red);cursor:pointer;padding:2px 6px;border-radius:4px;opacity:.4;transition:opacity .12s;display:flex;align-items:center}
 .sub-item .btn-rm-sm:hover{opacity:1;background:var(--redb)}
 .sub-item .btn-rm-sm svg{width:12px;height:12px}
@@ -509,7 +514,9 @@ function handleSubKey(e,bid,idx){
   if(_lastSubEmpty===key){_lastSubEmpty=null;document.getElementById("itI")?.focus();return}
   _lastSubEmpty=key;
 }
-function addSubItem(bid,idx){const inp=document.getElementById("subI-"+bid+"-"+idx);const v=inp?.value?.trim();if(!v)return;const b=S.bins.find(b=>b.id===bid);if(!b)return;let it=normItem(b.items[idx]);if(!it.children)it.children=[];it.children.push({name:v});b.items[idx]=it;saveBins(S.bins);inp.value="";R();setTimeout(()=>{document.getElementById("subI-"+bid+"-"+idx)?.focus()},60)}
+function addSubItem(bid,idx){const inp=document.getElementById("subI-"+bid+"-"+idx);const v=inp?.value?.trim();if(!v)return;const b=S.bins.find(b=>b.id===bid);if(!b)return;let it=normItem(b.items[idx]);if(!it.children)it.children=[];it.children.push({name:v,checked:false});b.items[idx]=it;saveBins(S.bins);inp.value="";R();setTimeout(()=>{document.getElementById("subI-"+bid+"-"+idx)?.focus()},60)}
+function normSub(ch){if(typeof ch==="string")return{name:ch,checked:false};if(ch.checked===undefined)ch.checked=false;return ch}
+function togSubCheck(bid,idx,cidx){const b=S.bins.find(b=>b.id===bid);if(!b)return;let it=normItem(b.items[idx]);let ch=normSub(it.children[cidx]);ch.checked=!ch.checked;it.children[cidx]=ch;b.items[idx]=it;saveBins(S.bins);R()}
 function rmSubItem(bid,idx,cidx){const b=S.bins.find(b=>b.id===bid);if(!b)return;let it=normItem(b.items[idx]);it.children.splice(cidx,1);b.items[idx]=it;saveBins(S.bins);R()}
 
 // Move item between bins
@@ -655,7 +662,7 @@ if(S.view==="bins"&&!S.sel){
       ${bin.location?`<div class="bc-loc">${ic('map-pin',12)} ${bin.location}</div>`:''}
       ${bin.items.length&&cc>0?`<div class="bc-prog"><div class="bc-prog-bar"><div class="bc-prog-fill" style="width:${cp}%"></div></div><div class="bc-prog-lbl">${cp}%</div></div>`:''}
       ${!previewing&&bin.items.length?`<div class="bc-chips">${bin.items.slice(0,4).map(it=>{const n=normItem(it);return`<span class="bc-chip ${isImp(it)?'imp':''} ${hasCh(it)?'has-ch':''}">${isImp(it)?'★ ':''}${n.checked?'<s>':''}${gn(it)}${n.checked?'</s>':''}${n.children&&n.children.length?' ('+n.children.length+')':''}</span>`}).join('')}${bin.items.length>4?`<span class="bc-chip more">+${bin.items.length-4}</span>`:''}</div>`:''}
-      ${previewing?`<div class="bc-preview">${bin.items.map((it,ix)=>{const n=normItem(it);let row=`<div class="bc-preview-item"><span class="bp-bullet">${ic('chevron-right',10)}</span><span class="bp-name ${n.checked?'checked':''}">${n.name}</span>${n.imp?`<span class="bp-star">${ic('star',10)}</span>`:''}${n.children&&n.children.length?`<span style="font-size:9px;color:var(--ac);font-weight:700">(${n.children.length})</span>`:''}</div>`;if(n.children&&n.children.length){row+=n.children.map(ch=>`<div class="bc-preview-sub">${ic('corner-down-right',9)} ${typeof ch==="string"?ch:ch.name}</div>`).join("")}return row}).join("")}</div>`:''}
+      ${previewing?`<div class="bc-preview">${bin.items.map((it,ix)=>{const n=normItem(it);let row=`<div class="bc-preview-item"><span class="bp-bullet">${ic('chevron-right',10)}</span><span class="bp-name ${n.checked?'checked':''}">${n.name}</span>${n.imp?`<span class="bp-star">${ic('star',10)}</span>`:''}${n.children&&n.children.length?`<span style="font-size:9px;color:var(--ac);font-weight:700">(${n.children.length})</span>`:''}</div>`;if(n.children&&n.children.length){row+=n.children.map(ch=>{const sc=normSub(ch);return`<div class="bc-preview-sub">${ic('corner-down-right',9)} ${sc.checked?'<s style="opacity:.45">':''}${sc.name}${sc.checked?'</s>':''}</div>`}).join("")}return row}).join("")}</div>`:''}
     </div>`;
   });
   if(!S.showAdd)h+=`<button class="add-btn" onclick="togAdd()">${ic('plus',16)} Add New Bin</button>`;
@@ -731,7 +738,7 @@ if(S.view==="bins"&&S.sel){const bin=S.bins.find(b=>b.id===S.sel);if(bin){const 
       </div>`;
     if(expanded){
       h+=`<div class="sub-container">`;
-      if(n.children&&n.children.length){n.children.forEach((ch,cidx)=>{const chName=typeof ch==="string"?ch:ch.name;h+=`<div class="sub-item" style="animation-delay:${cidx*.03}s"><span class="sub-bullet">${ic('corner-down-right',12)}</span><span class="sub-n">${chName}</span><button class="btn-rm-sm" onclick="event.stopPropagation();rmSubItem('${bin.id}',${idx},${cidx})">${ic('x',12)}</button></div>`})}
+      if(n.children&&n.children.length){n.children.forEach((ch,cidx)=>{const sc=normSub(ch);h+=`<div class="sub-item ${sc.checked?'checked-sub':''}" style="animation-delay:${cidx*.03}s"><button class="sub-check ${sc.checked?'on':''}" onclick="event.stopPropagation();togSubCheck('${bin.id}',${idx},${cidx})">${sc.checked?ic('check',11):''}</button><span class="sub-bullet">${ic('corner-down-right',12)}</span><span class="sub-n">${sc.name}</span><button class="btn-rm-sm" onclick="event.stopPropagation();rmSubItem('${bin.id}',${idx},${cidx})">${ic('x',12)}</button></div>`})}
       h+=`<div class="sub-add-row"><input class="inp inp-sm" id="subI-${bin.id}-${idx}" placeholder="Add sub-item (Enter=add, Enter×2=done)" onkeydown="handleSubKey(event,'${bin.id}',${idx})"><button class="btn-sub-add" onclick="addSubItem('${bin.id}',${idx})">${ic('plus',14)}</button></div></div>`;
     }
     h+=`</div>`;
@@ -804,7 +811,7 @@ if(S.view==="items"){
     // Flat list
     all.forEach(it=>{const n=normItem(it);const childCount=n.children?n.children.length:0;
       h+=`<div class="card card-sm ai an" onclick="selBin('${it.binId}');S.view='bins';R()"><span class="ai-star">${it.imp?ic('star',14):''}</span><span class="ai-n">${it.checked?'<s style="opacity:.5">':''}${it.name}${it.checked?'</s>':''}${childCount?` <span style="font-size:10px;color:var(--ac);font-weight:700">(${childCount})</span>`:''}</span><span class="ai-b">${it.binId}</span><span class="ai-z">${it.zone}</span></div>`;
-      if(childCount){n.children.forEach(ch=>{h+=`<div class="ai-sub">${ic('corner-down-right',10)} ${typeof ch==="string"?ch:ch.name}</div>`})}
+      if(childCount){n.children.forEach(ch=>{const sc=normSub(ch);h+=`<div class="ai-sub">${ic(sc.checked?'check-circle':'corner-down-right',10)} ${sc.checked?'<s style="opacity:.45">':''}${sc.name}${sc.checked?'</s>':''}</div>`})}
     });
   } else {
     // Grouped
@@ -817,7 +824,7 @@ if(S.view==="items"){
       h+=`<div class="items-group"><div class="items-group-hdr" onclick="S.zf='${S.itemsGroup==="zone"?key:"All"}';${S.itemsGroup==="bin"?`selBin('${key}');S.view='bins';R()`:``}">${ic(S.itemsGroup==="bin"?'package':'map',14)} <span>${groupLabel}</span> <span style="font-size:10px;color:var(--t3);font-weight:500;margin-left:4px">${groupSub}</span><span class="items-group-count">${items.length}</span></div>`;
       items.forEach(it=>{const n=normItem(it);const childCount=n.children?n.children.length:0;
         h+=`<div class="card card-sm ai" onclick="selBin('${it.binId}');S.view='bins';R()"><span class="ai-star">${it.imp?ic('star',14):''}</span><span class="ai-n">${it.checked?'<s style="opacity:.5">':''}${it.name}${it.checked?'</s>':''}${childCount?` <span style="font-size:10px;color:var(--ac);font-weight:700">(${childCount})</span>`:''}</span>${S.itemsGroup!=="bin"?`<span class="ai-b">${it.binId}</span>`:''}<span class="ai-z">${S.itemsGroup!=="zone"?it.zone:''}</span></div>`;
-        if(childCount){n.children.forEach(ch=>{h+=`<div class="ai-sub">${ic('corner-down-right',10)} ${typeof ch==="string"?ch:ch.name}</div>`})}
+        if(childCount){n.children.forEach(ch=>{const sc=normSub(ch);h+=`<div class="ai-sub">${ic(sc.checked?'check-circle':'corner-down-right',10)} ${sc.checked?'<s style="opacity:.45">':''}${sc.name}${sc.checked?'</s>':''}</div>`})}
       });
       h+=`</div>`;
     });
@@ -858,14 +865,14 @@ S.bins.forEach(bin=>{
     const n=normItem(it);
     if(gn(it).toLowerCase().includes(q))matches.push({name:gn(it),type:'item',imp:isImp(it)});
     if(n.children)n.children.forEach(ch=>{
-      const chName=typeof ch==="string"?ch:ch.name;
-      if(chName.toLowerCase().includes(q))matches.push({name:chName,type:'sub',parent:gn(it)});
+      const sc=normSub(ch);
+      if(sc.name.toLowerCase().includes(q))matches.push({name:sc.name,type:'sub',parent:gn(it),checked:sc.checked});
     });
   });
   if(matches.length)r.push({bin,matches});
 });
 if(!r.length){c.innerHTML=`<div class="empty-state"><i data-lucide="search-x" style="width:32px;height:32px;color:var(--t3)"></i><span>No matches found</span></div>`;L.createIcons({nameAttr:'data-lucide'});return}
-let h="";r.forEach(({bin,matches})=>{const bcc=bc(bin);h+=`<div class="card card-sm sr" style="border-left-color:${bcc}" onclick="selBin('${bin.id}');S.view='bins';R()"><div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><div style="width:32px;height:32px;border-radius:10px;background:${bcc}15;border:1px solid ${bcc}25;display:flex;align-items:center;justify-content:center;font-size:16px">${bin.icon}</div><div><div style="font-size:9px;font-family:'JetBrains Mono',monospace;font-weight:700;color:${bcc}">${bin.id}${bin.fragile?' <i data-lucide="alert-triangle" style="width:10px;height:10px;color:var(--red)"></i>':''}${bin.size?' <span style="color:var(--t3)">['+bin.size+']</span>':''}</div><div style="font-size:13px;font-weight:700">${bin.label}</div></div></div>${matches.map(m=>m.type==='bin'?`<div class="sm"><i data-lucide="package" style="width:12px;height:12px"></i> Bin match</div>`:m.type==='sub'?`<div class="sm" style="margin-left:12px"><i data-lucide="corner-down-right" style="width:12px;height:12px"></i> ${m.name} <span style="opacity:.6;font-size:9px">in ${m.parent}</span></div>`:`<div class="sm">${m.imp?'<i data-lucide="star" style="width:12px;height:12px;color:var(--ylw)"></i> ':''}${m.name}</div>`).join("")}</div>`});c.innerHTML=h;L.createIcons({nameAttr:'data-lucide'})}
+let h="";r.forEach(({bin,matches})=>{const bcc=bc(bin);h+=`<div class="card card-sm sr" style="border-left-color:${bcc}" onclick="selBin('${bin.id}');S.view='bins';R()"><div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><div style="width:32px;height:32px;border-radius:10px;background:${bcc}15;border:1px solid ${bcc}25;display:flex;align-items:center;justify-content:center;font-size:16px">${bin.icon}</div><div><div style="font-size:9px;font-family:'JetBrains Mono',monospace;font-weight:700;color:${bcc}">${bin.id}${bin.fragile?' <i data-lucide="alert-triangle" style="width:10px;height:10px;color:var(--red)"></i>':''}${bin.size?' <span style="color:var(--t3)">['+bin.size+']</span>':''}</div><div style="font-size:13px;font-weight:700">${bin.label}</div></div></div>${matches.map(m=>m.type==='bin'?`<div class="sm"><i data-lucide="package" style="width:12px;height:12px"></i> Bin match</div>`:m.type==='sub'?`<div class="sm" style="margin-left:12px"><i data-lucide="${m.checked?'check-circle':'corner-down-right'}" style="width:12px;height:12px"></i> ${m.checked?'<s style="opacity:.45">':''}${m.name}${m.checked?'</s>':''} <span style="opacity:.6;font-size:9px">in ${m.parent}</span></div>`:`<div class="sm">${m.imp?'<i data-lucide="star" style="width:12px;height:12px;color:var(--ylw)"></i> ':''}${m.name}</div>`).join("")}</div>`});c.innerHTML=h;L.createIcons({nameAttr:'data-lucide'})}
 
 function filterAI(q){const c=document.getElementById("aiR");if(!c)return;
   let all=allItems().filter(i=>!i.isChild);
@@ -875,7 +882,7 @@ function filterAI(q){const c=document.getElementById("aiR");if(!c)return;
   if(q)all=all.filter(i=>i.name.toLowerCase().includes(q.toLowerCase()));
   let h="";all.forEach(it=>{const n=normItem(it);const childCount=n.children?n.children.length:0;
     h+=`<div class="card card-sm ai" onclick="selBin('${it.binId}');S.view='bins';R()"><span class="ai-star">${it.imp?'<i data-lucide="star" style="width:14px;height:14px"></i>':''}</span><span class="ai-n">${it.checked?'<s style="opacity:.5">':''}${it.name}${it.checked?'</s>':''}${childCount?` <span style="font-size:10px;color:var(--ac);font-weight:700">(${childCount})</span>`:''}</span><span class="ai-b">${it.binId}</span><span class="ai-z">${it.zone}</span></div>`;
-    if(childCount){n.children.forEach(ch=>{h+=`<div class="ai-sub"><i data-lucide="corner-down-right" style="width:10px;height:10px;color:var(--ac)"></i> ${typeof ch==="string"?ch:ch.name}</div>`})}
+    if(childCount){n.children.forEach(ch=>{const sc=normSub(ch);h+=`<div class="ai-sub"><i data-lucide="${sc.checked?'check-circle':'corner-down-right'}" style="width:10px;height:10px;color:var(--ac)"></i> ${sc.checked?'<s style="opacity:.45">':''}${sc.name}${sc.checked?'</s>':''}</div>`})}
   });if(!all.length)h=`<div class="no">No matches</div>`;c.innerHTML=h;L.createIcons({nameAttr:'data-lucide'})}
 
 // Close move dropdown on outside click
